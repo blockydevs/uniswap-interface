@@ -12,7 +12,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
-import { HashRouter } from 'react-router-dom'
+import { BrowserRouter as Router } from 'react-router-dom'
 import { SystemThemeUpdater } from 'theme/components/ThemeToggle'
 
 import Web3Provider from './components/Web3Provider'
@@ -54,7 +54,7 @@ createRoot(container).render(
     <Provider store={store}>
       <FeatureFlagsProvider>
         <QueryClientProvider client={queryClient}>
-          <HashRouter>
+          <Router>
             <LanguageProvider>
               <Web3Provider>
                 <ApolloProvider client={apolloClient}>
@@ -68,7 +68,7 @@ createRoot(container).render(
                 </ApolloProvider>
               </Web3Provider>
             </LanguageProvider>
-          </HashRouter>
+          </Router>
         </QueryClientProvider>
       </FeatureFlagsProvider>
     </Provider>
