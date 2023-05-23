@@ -41,10 +41,9 @@ const BodyWrapper = styled.div`
   flex: 1;
 `
 
-const HeaderWrapper = styled.div<{ transparent?: boolean }>`
+const HeaderWrapper = styled.div`
   ${flexRowNoWrap};
-  background-color: ${({ theme, transparent }) => !transparent && theme.backgroundSurface};
-  border-bottom: ${({ theme, transparent }) => !transparent && `1px solid ${theme.backgroundOutline}`};
+  background-color: ${({ theme }) => theme.background};
   width: 100%;
   justify-content: space-between;
   position: fixed;
@@ -157,7 +156,7 @@ export default function App() {
             api: process.env.REACT_APP_STATSIG_PROXY_URL,
           }}
         >
-          <HeaderWrapper transparent={isHeaderTransparent}>
+          <HeaderWrapper>
             <NavBar blur={isHeaderTransparent} />
           </HeaderWrapper>
           <BodyWrapper>
