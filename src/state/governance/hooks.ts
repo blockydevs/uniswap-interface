@@ -10,12 +10,8 @@ import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
 import UniJSON from '@uniswap/governance/build/Uni.json'
 import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import GOVERNOR_BRAVO_ABI from 'abis/governor-bravo.json'
-import {
-  GOVERNANCE_ALPHA_V0_ADDRESSES,
-  GOVERNANCE_ALPHA_V1_ADDRESSES,
-  GOVERNANCE_BRAVO_ADDRESSES,
-} from 'constants/addresses'
+import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
+import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { LATEST_GOVERNOR_INDEX } from 'constants/governance'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
@@ -38,16 +34,8 @@ import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
-function useGovernanceV0Contract(): Contract | null {
-  return useContract(GOVERNANCE_ALPHA_V0_ADDRESSES, GovernorAlphaJSON.abi, false)
-}
-
-function useGovernanceV1Contract(): Contract | null {
-  return useContract(GOVERNANCE_ALPHA_V1_ADDRESSES, GovernorAlphaJSON.abi, false)
-}
-
 function useGovernanceBravoContract(): Contract | null {
-  return useContract(GOVERNANCE_BRAVO_ADDRESSES, GOVERNOR_BRAVO_ABI, true)
+  return useContract(GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA, GOVERNOR_BRAVO_ABI_SEPOLIA, true)
 }
 
 const useLatestGovernanceContract = useGovernanceBravoContract
@@ -102,6 +90,7 @@ export enum ProposalState {
 const GovernanceInterface = new Interface(GovernorAlphaJSON.abi)
 
 // get count of all proposals made in the latest governor contract
+//TODO: useProposalCount causing problems with Sepolia?
 function useProposalCount(contract: Contract | null): number | undefined {
   const { result } = useSingleCallResult(contract, 'proposalCount')
 
@@ -221,9 +210,6 @@ function useFormattedProposalCreatedLogs(
   }, [indices, useLogsResult])
 }
 
-const V0_PROPOSAL_IDS = [[1], [2], [3], [4]]
-const V1_PROPOSAL_IDS = [[1], [2], [3]]
-
 function countToIndices(count: number | undefined, skip = 0) {
   return typeof count === 'number' ? new Array(count - skip).fill(0).map((_, i) => [i + 1 + skip]) : []
 }
@@ -231,52 +217,34 @@ function countToIndices(count: number | undefined, skip = 0) {
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const { chainId } = useWeb3React()
-  const gov0 = useGovernanceV0Contract()
-  const gov1 = useGovernanceV1Contract()
   const gov2 = useGovernanceBravoContract()
 
-  const proposalCount0 = useProposalCount(gov0)
-  const proposalCount1 = useProposalCount(gov1)
   const proposalCount2 = useProposalCount(gov2)
 
-  const gov0ProposalIndexes = useMemo(() => {
-    return chainId === SupportedChainId.MAINNET ? V0_PROPOSAL_IDS : countToIndices(proposalCount0)
-  }, [chainId, proposalCount0])
-  const gov1ProposalIndexes = useMemo(() => {
-    return chainId === SupportedChainId.MAINNET ? V1_PROPOSAL_IDS : countToIndices(proposalCount1)
-  }, [chainId, proposalCount1])
   const gov2ProposalIndexes = useMemo(() => {
     return countToIndices(proposalCount2, 8)
   }, [proposalCount2])
 
-  const proposalsV0 = useSingleContractMultipleData(gov0, 'proposals', gov0ProposalIndexes)
-  const proposalsV1 = useSingleContractMultipleData(gov1, 'proposals', gov1ProposalIndexes)
   const proposalsV2 = useSingleContractMultipleData(gov2, 'proposals', gov2ProposalIndexes)
 
   // get all proposal states
-  const proposalStatesV0 = useSingleContractMultipleData(gov0, 'state', gov0ProposalIndexes)
-  const proposalStatesV1 = useSingleContractMultipleData(gov1, 'state', gov1ProposalIndexes)
   const proposalStatesV2 = useSingleContractMultipleData(gov2, 'state', gov2ProposalIndexes)
 
   // get metadata from past events
-  const formattedLogsV0 = useFormattedProposalCreatedLogs(gov0, gov0ProposalIndexes, 11042287, 12563484)
-  const formattedLogsV1 = useFormattedProposalCreatedLogs(gov1, gov1ProposalIndexes, 12686656, 13059343)
   const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2, gov2ProposalIndexes, 13538153)
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   // early return until events are fetched
   return useMemo(() => {
-    const proposalsCallData = [...proposalsV0, ...proposalsV1, ...proposalsV2]
-    const proposalStatesCallData = [...proposalStatesV0, ...proposalStatesV1, ...proposalStatesV2]
-    const formattedLogs = [...(formattedLogsV0 ?? []), ...(formattedLogsV1 ?? []), ...(formattedLogsV2 ?? [])]
+    const proposalsCallData = [...proposalsV2]
+    const proposalStatesCallData = [...proposalStatesV2]
+    const formattedLogs = [...(formattedLogsV2 ?? [])]
 
     if (
       !uni ||
       proposalsCallData.some((p) => p.loading) ||
       proposalStatesCallData.some((p) => p.loading) ||
-      (gov0 && !formattedLogsV0) ||
-      (gov1 && !formattedLogsV1) ||
       (gov2 && !formattedLogsV2)
     ) {
       return { data: [], loading: true }
@@ -308,26 +276,12 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           endBlock: parseInt(proposal?.result?.endBlock?.toString()),
           eta: proposal?.result?.eta,
           details: formattedLogs[i]?.details,
-          governorIndex: i >= proposalsV0.length + proposalsV1.length ? 2 : i >= proposalsV0.length ? 1 : 0,
+          governorIndex: 2, //TODO: check governorIndex usage
         }
       }),
       loading: false,
     }
-  }, [
-    formattedLogsV0,
-    formattedLogsV1,
-    formattedLogsV2,
-    gov0,
-    gov1,
-    gov2,
-    proposalStatesV0,
-    proposalStatesV1,
-    proposalStatesV2,
-    proposalsV0,
-    proposalsV1,
-    proposalsV2,
-    uni,
-  ])
+  }, [formattedLogsV2, gov2, proposalStatesV2, proposalsV2, uni])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {

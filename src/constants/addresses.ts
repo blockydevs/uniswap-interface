@@ -113,6 +113,10 @@ export const GOVERNANCE_ALPHA_V1_ADDRESSES: AddressMap = {
 export const GOVERNANCE_BRAVO_ADDRESSES: AddressMap = {
   [SupportedChainId.MAINNET]: '0x408ED6354d4973f66138C91495F2f2FCbd8724C3',
 }
+//TODO: sepolia not used?
+export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
+  [SupportedChainId.SEPOLIA]: '0x4169c8cf8ce3c000832d87198a6bab6bd9eef741',
+}
 
 export const TIMELOCK_ADDRESS: AddressMap = constructSameAddressMap('0x1a9C8182C09F50C8318d769245beA52c32BE35BC')
 
