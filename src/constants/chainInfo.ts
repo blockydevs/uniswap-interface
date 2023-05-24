@@ -213,7 +213,28 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_56,
     backgroundColor: darkTheme.chain_56_background,
   },
+  [SupportedChainId.SEPOLIA]: {
+    networkType: NetworkType.L1,
+    docs: 'https://docs.uniswap.org/',
+    explorer: 'https://sepolia.etherscan.io/',
+    infoLink: 'https://info.uniswap.org/#/',
+    label: 'Sepolia',
+    logoUrl: ethereumLogoUrl,
+    nativeCurrency: { name: 'Sepolia Ether', symbol: 'SepoliaETH', decimals: 18 },
+    color: darkTheme.chain_56,
+  },
 }
+
+// [SupportedChainId.GOERLI]: {
+//   networkType: NetworkType.L1,
+//   docs: 'https://docs.uniswap.org/',
+//   explorer: 'https://goerli.etherscan.io/',
+//   infoLink: 'https://info.uniswap.org/#/',
+//   label: 'Görli',
+//   logoUrl: ethereumLogoUrl,
+//   nativeCurrency: { name: 'Görli Ether', symbol: 'görETH', decimals: 18 },
+//   color: darkTheme.chain_5,
+// },
 
 export function getChainInfo(chainId: SupportedL1ChainId): L1ChainInfo
 export function getChainInfo(chainId: SupportedL2ChainId): L2ChainInfo

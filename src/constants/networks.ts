@@ -89,6 +89,12 @@ export const FALLBACK_URLS = {
     'https://bsc-dataseed4.defibit.io',
     'https://rpc.ankr.com/bsc',
   ],
+  [SupportedChainId.SEPOLIA]: [
+    // "Safe" URLs
+    'https://rpc.sepolia.org',
+    'https://rpc2.sepolia.org',
+    'https://rpc-sepolia.rockx.com',
+  ],
 }
 
 /**
@@ -128,4 +134,8 @@ export const RPC_URLS = {
   [SupportedChainId.CELO]: FALLBACK_URLS[SupportedChainId.CELO],
   [SupportedChainId.CELO_ALFAJORES]: FALLBACK_URLS[SupportedChainId.CELO_ALFAJORES],
   [SupportedChainId.BNB]: [QUICKNODE_RPC_URL, ...FALLBACK_URLS[SupportedChainId.BNB]],
+  [SupportedChainId.SEPOLIA]: [
+    `https://sepolia.infura.io/v3/${INFURA_KEY}`,
+    ...FALLBACK_URLS[SupportedChainId.SEPOLIA],
+  ],
 }
