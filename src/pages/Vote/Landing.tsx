@@ -282,9 +282,9 @@ export default function Landing() {
               ?.filter((p: ProposalData) => (hideCancelled ? p.status !== ProposalState.CANCELED : true))
               ?.map((p: ProposalData) => {
                 return (
-                  <Proposal as={Link} to={`/vote/${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
+                  <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <ProposalNumber>
-                      {p.governorIndex}.{p.id}
+                      {p.governorIndex}.{p.id.slice(0, 2)}
                     </ProposalNumber>
                     <ProposalTitle>{p.title}</ProposalTitle>
                     <ProposalStatus status={p.status} />

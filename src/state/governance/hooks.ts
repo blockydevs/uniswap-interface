@@ -34,9 +34,15 @@ import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
+// SEPOLIA
 function useGovernanceBravoContract(): Contract | null {
   return useContract(GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA, GOVERNOR_BRAVO_ABI_SEPOLIA, true)
 }
+
+// ETHEREUM
+// function useGovernanceBravoContract(): Contract | null {
+//   return useContract(GOVERNANCE_BRAVO_ADDRESSES, GOVERNOR_BRAVO_ABI, true)
+// }
 
 const useLatestGovernanceContract = useGovernanceBravoContract
 
@@ -89,17 +95,13 @@ export enum ProposalState {
 
 const GovernanceInterface = new Interface(GovernorAlphaJSON.abi)
 
-// get count of all proposals made in the latest governor contract
-//TODO: useProposalCount causing problems with Sepolia?
-function useProposalCount(contract: Contract | null): number | undefined {
-  const { result } = useSingleCallResult(contract, 'proposalCount')
-
-  return result?.[0]?.toNumber()
-}
-
 interface FormattedProposalLog {
+  id: BigNumber
   description: string
   details: { target: string; functionSig: string; callData: string }[]
+  proposer: string
+  startBlock: number
+  endBlock: number
 }
 
 const FOUR_BYTES_DIR: { [sig: string]: string } = {
@@ -117,7 +119,6 @@ const FOUR_BYTES_DIR: { [sig: string]: string } = {
  */
 function useFormattedProposalCreatedLogs(
   contract: Contract | null,
-  indices: number[][],
   fromBlock?: number,
   toBlock?: number
 ): FormattedProposalLog[] | undefined {
@@ -138,9 +139,10 @@ function useFormattedProposalCreatedLogs(
     return useLogsResult?.logs
       ?.map((log) => {
         const parsed = GovernanceInterface.parseLog(log).args
+        console.log('parsed:', parsed)
+
         return parsed
       })
-      ?.filter((parsed) => indices.flat().some((i) => i === parsed.id.toNumber()))
       ?.map((parsed) => {
         let description!: string
 
@@ -181,8 +183,9 @@ function useFormattedProposalCreatedLogs(
         ) {
           description = description.replace(/ {2}/g, '\n').replace(/\d\. /g, '\n$&')
         }
-
+        const id = parsed.id
         return {
+          id,
           description,
           details: parsed.targets.map((target: string, i: number) => {
             const signature = parsed.signatures[i]
@@ -205,54 +208,47 @@ function useFormattedProposalCreatedLogs(
               callData: decoded.join(', '),
             }
           }),
+          //HACK: na razie wpisane na sztywno
+          proposer: 'elo',
+          startBlock: 0,
+          endBlock: 0,
         }
       })
-  }, [indices, useLogsResult])
+  }, [useLogsResult])
 }
 
-function countToIndices(count: number | undefined, skip = 0) {
-  return typeof count === 'number' ? new Array(count - skip).fill(0).map((_, i) => [i + 1 + skip]) : []
-}
+// function countToIndices(count: number | undefined, skip = 0) {
+//   return typeof count === 'number' ? new Array(count - skip).fill(0).map((_, i) => [i + 1 + skip]) : []
+// }
 
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const { chainId } = useWeb3React()
   const gov2 = useGovernanceBravoContract()
 
-  const proposalCount2 = useProposalCount(gov2)
+  // get metadata from past events
+  const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2)
 
-  const gov2ProposalIndexes = useMemo(() => {
-    return countToIndices(proposalCount2, 8)
-  }, [proposalCount2])
-
-  const proposalsV2 = useSingleContractMultipleData(gov2, 'proposals', gov2ProposalIndexes)
+  const gov2ProposalIndexes = (formattedLogsV2 || []).map((item) => [item.id])
 
   // get all proposal states
   const proposalStatesV2 = useSingleContractMultipleData(gov2, 'state', gov2ProposalIndexes)
-
-  // get metadata from past events
-  const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2, gov2ProposalIndexes, 13538153)
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   // early return until events are fetched
   return useMemo(() => {
-    const proposalsCallData = [...proposalsV2]
+    const proposalsCallData = [...(formattedLogsV2 || [])]
     const proposalStatesCallData = [...proposalStatesV2]
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
-    if (
-      !uni ||
-      proposalsCallData.some((p) => p.loading) ||
-      proposalStatesCallData.some((p) => p.loading) ||
-      (gov2 && !formattedLogsV2)
-    ) {
+    if (!uni || (gov2 && !formattedLogsV2)) {
       return { data: [], loading: true }
     }
 
     return {
       data: proposalsCallData.map((proposal, i) => {
-        const startBlock = parseInt(proposal?.result?.startBlock?.toString())
+        const startBlock = parseInt(proposal.startBlock?.toString())
 
         let description = formattedLogs[i]?.description ?? ''
         if (startBlock === UNISWAP_GRANTS_START_BLOCK) {
@@ -265,23 +261,26 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
         }
 
         return {
-          id: proposal?.result?.id.toString(),
+          id: proposal.id.toString(),
           title: title ?? t`Untitled`,
           description: description ?? t`No description.`,
-          proposer: proposal?.result?.proposer,
+          proposer: proposal.proposer,
           status: proposalStatesCallData[i]?.result?.[0] ?? ProposalState.UNDETERMINED,
-          forCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.forVotes),
-          againstCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.againstVotes),
+          forCount: CurrencyAmount.fromRawAmount(uni, 100),
+          againstCount: CurrencyAmount.fromRawAmount(uni, 200),
+          // forCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.forVotes),
+          // againstCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.againstVotes),
           startBlock,
-          endBlock: parseInt(proposal?.result?.endBlock?.toString()),
-          eta: proposal?.result?.eta,
+          endBlock: parseInt(proposal.endBlock?.toString()),
+          eta: BigNumber.from(12),
           details: formattedLogs[i]?.details,
           governorIndex: 2, //TODO: check governorIndex usage
         }
       }),
+
       loading: false,
     }
-  }, [formattedLogsV2, gov2, proposalStatesV2, proposalsV2, uni])
+  }, [formattedLogsV2, gov2, proposalStatesV2, uni])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {
