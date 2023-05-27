@@ -45,7 +45,6 @@ import {
   ProposalData,
   ProposalState,
   useProposalData,
-  useQuorum,
   useUserDelegatee,
   useUserVotesAsOfBlock,
 } from '../../state/governance/hooks'
@@ -168,8 +167,6 @@ export default function VotePage() {
 
   const { chainId, account } = useWeb3React()
 
-  const quorumAmount = useQuorum(parsedGovernorIndex)
-
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
 
@@ -289,7 +286,7 @@ export default function VotePage() {
           <ExecuteModal isOpen={showExecuteModal} onDismiss={toggleExecuteModal} proposalId={proposalData?.id} />
           <ProposalInfo gap="lg" justify="start">
             <RowBetween style={{ width: '100%' }}>
-              <ArrowWrapper to="/vote">
+              <ArrowWrapper to="/">
                 <Trans>
                   <ArrowLeft size={20} /> All Proposals
                 </Trans>
@@ -408,11 +405,11 @@ export default function VotePage() {
                       {proposalData && (
                         <ThemedText.DeprecatedBlack fontWeight={600}>
                           {proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
-                          {quorumAmount && (
+                          {/* {quorumAmount && (
                             <span style={{ fontWeight: 400 }}>{` / ${quorumAmount.toExact({
                               groupSeparator: ',',
                             })}`}</span>
-                          )}
+                          )} */}
                         </ThemedText.DeprecatedBlack>
                       )}
                     </WrapSmall>

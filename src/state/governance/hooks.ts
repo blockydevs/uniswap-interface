@@ -12,8 +12,6 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
 import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
-import { SupportedChainId } from 'constants/chains'
-import { LATEST_GOVERNOR_INDEX } from 'constants/governance'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { useContract } from 'hooks/useContract'
@@ -139,7 +137,6 @@ function useFormattedProposalCreatedLogs(
     return useLogsResult?.logs
       ?.map((log) => {
         const parsed = GovernanceInterface.parseLog(log).args
-        console.log('parsed:', parsed)
 
         return parsed
       })
@@ -288,23 +285,23 @@ export function useProposalData(governorIndex: number, id: string): ProposalData
   return data.filter((p) => p.governorIndex === governorIndex)?.find((p) => p.id === id)
 }
 
-export function useQuorum(governorIndex: number): CurrencyAmount<Token> | undefined {
-  const latestGovernanceContract = useLatestGovernanceContract()
-  const quorumVotes = useSingleCallResult(latestGovernanceContract, 'quorumVotes')?.result?.[0]
-  const { chainId } = useWeb3React()
-  const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+// export function useQuorum(governorIndex: number): CurrencyAmount<Token> | undefined {
+//   const latestGovernanceContract = useLatestGovernanceContract()
+//   const quorumVotes = useSingleCallResult(latestGovernanceContract, 'quorumVotes')?.result?.[0]
+//   const { chainId } = useWeb3React()
+//   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
-  if (
-    !latestGovernanceContract ||
-    !quorumVotes ||
-    chainId !== SupportedChainId.MAINNET ||
-    !uni ||
-    governorIndex !== LATEST_GOVERNOR_INDEX
-  )
-    return undefined
+//   if (
+//     !latestGovernanceContract ||
+//     !quorumVotes ||
+//     chainId !== SupportedChainId.MAINNET ||
+//     !uni ||
+//     governorIndex !== LATEST_GOVERNOR_INDEX
+//   )
+//     return undefined
 
-  return CurrencyAmount.fromRawAmount(uni, quorumVotes)
-}
+//   return CurrencyAmount.fromRawAmount(uni, quorumVotes)
+// }
 
 // get the users delegatee if it exists
 export function useUserDelegatee(): string {

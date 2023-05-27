@@ -115,7 +115,7 @@ export const GOVERNANCE_BRAVO_ADDRESSES: AddressMap = {
 }
 //TODO: sepolia not used?
 export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
-  [SupportedChainId.SEPOLIA]: '0x4169c8cf8ce3c000832d87198a6bab6bd9eef741',
+  [SupportedChainId.SEPOLIA]: '0xbE45Dbc7460c03DbF9778ff00f7547B17c3F2A0c',
 }
 
 export const TIMELOCK_ADDRESS: AddressMap = constructSameAddressMap('0x1a9C8182C09F50C8318d769245beA52c32BE35BC')

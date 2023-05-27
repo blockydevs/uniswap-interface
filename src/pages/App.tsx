@@ -6,6 +6,7 @@ import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
 import { useBag } from 'nft/hooks/useBag'
+import VotePage from 'pages/Vote/VotePage'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { StatsigProvider, StatsigUser } from 'statsig-react'
@@ -174,6 +175,7 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  <Route path=":governorIndex/:id" element={<VotePage />} />
                   <Route path="create-proposal" element={<CreateProposal />} />
                   <Route path="*" element={<Navigate to="/not-found" replace />} />
                   <Route path="/not-found" element={<NotFound />} />
