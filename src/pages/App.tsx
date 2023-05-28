@@ -27,7 +27,6 @@ import Polling from '../components/Polling'
 import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
-import CreateProposal from './CreateProposal'
 import NotFound from './NotFound'
 
 const Vote = lazy(() => retry(() => import('./Vote')))
@@ -176,7 +175,8 @@ export default function App() {
                     }
                   />
                   <Route path=":governorIndex/:id" element={<VotePage />} />
-                  <Route path="create-proposal" element={<CreateProposal />} />
+                  {/* BLOCKYTODO: uncomment line from below when we decide to add this functionality on our frontend  */}
+                  {/* <Route path="create-proposal" element={<CreateProposal />} /> */}
                   <Route path="*" element={<Navigate to="/not-found" replace />} />
                   <Route path="/not-found" element={<NotFound />} />
                 </Routes>

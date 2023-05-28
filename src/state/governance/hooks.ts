@@ -181,6 +181,7 @@ function useFormattedProposalCreatedLogs(
           description = description.replace(/ {2}/g, '\n').replace(/\d\. /g, '\n$&')
         }
         const id = parsed.id
+        const proposer = parsed.proposer
         return {
           id,
           description,
@@ -205,9 +206,10 @@ function useFormattedProposalCreatedLogs(
               callData: decoded.join(', '),
             }
           }),
-          //HACK: na razie wpisane na sztywno
-          proposer: 'elo',
-          startBlock: 0,
+
+          proposer,
+          startBlock,
+          //HACK: endBlock wpisany na razie na sztywno
           endBlock: 0,
         }
       })
@@ -237,10 +239,12 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
   return useMemo(() => {
     const proposalsCallData = [...(formattedLogsV2 || [])]
     const proposalStatesCallData = [...proposalStatesV2]
+    console.log('proposalStatesCallData:', proposalStatesCallData)
+
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
     if (!uni || (gov2 && !formattedLogsV2)) {
-      return { data: [], loading: true }
+      return { data: [], loading: false }
     }
 
     return {

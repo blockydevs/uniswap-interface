@@ -223,14 +223,15 @@ export default function Landing() {
                 ) : (
                   ''
                 )}
-                <ButtonPrimary
+                {/* BLOCKYTODO: uncomment this button when we decide to add this functionality on our frontend  */}
+                {/* <ButtonPrimary
                   as={Link}
                   to="/create-proposal"
                   style={{ width: 'fit-content', borderRadius: '8px', height: '40px' }}
                   padding="8px"
                 >
                   <Trans>Create Proposal</Trans>
-                </ButtonPrimary>
+                </ButtonPrimary> */}
               </AutoRow>
             </WrapSmall>
             {!showUnlockVoting && (
@@ -260,7 +261,6 @@ export default function Landing() {
             )}
 
             {allProposals?.length === 0 && <ProposalEmptyState />}
-
             {allProposals?.length > 0 && (
               <AutoColumn gap="md">
                 <RowBetween></RowBetween>
