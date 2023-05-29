@@ -239,12 +239,11 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
   return useMemo(() => {
     const proposalsCallData = [...(formattedLogsV2 || [])]
     const proposalStatesCallData = [...proposalStatesV2]
-    console.log('proposalStatesCallData:', proposalStatesCallData)
 
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
     if (!uni || (gov2 && !formattedLogsV2)) {
-      return { data: [], loading: false }
+      return { data: [], loading: true }
     }
 
     return {
@@ -256,7 +255,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           description = UNISWAP_GRANTS_PROPOSAL_DESCRIPTION
         }
 
-        let title = description?.split(/#+\s|\n/g)[1]
+        let title = description.length > 30 ? description.substring(0, 30) + '...' : description
         if (startBlock === POLYGON_START_BLOCK) {
           title = POLYGON_PROPOSAL_TITLE
         }
@@ -319,6 +318,7 @@ export function useUserDelegatee(): string {
 export function useUserVotes(): { loading: boolean; votes: CurrencyAmount<Token> | undefined } {
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
+  console.log('uniContract:', uniContract)
 
   // check for available votes
   const { result, loading } = useSingleCallResult(uniContract, 'getCurrentVotes', [account ?? undefined])
