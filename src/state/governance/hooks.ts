@@ -15,8 +15,8 @@ import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { useContract } from 'hooks/useContract'
-import { useSingleCallResult, useSingleContractMultipleData } from 'lib/hooks/multicall'
-import { useCallback, useMemo } from 'react'
+import { useSingleCallResult } from 'lib/hooks/multicall'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
 
 import {
@@ -222,23 +222,36 @@ function useFormattedProposalCreatedLogs(
 
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
+  const [proposalStatuses, setProposalStatuses] = useState<number[]>([])
+
   const { chainId } = useWeb3React()
   const gov2 = useGovernanceBravoContract()
 
   // get metadata from past events
   const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2)
 
-  const gov2ProposalIndexes = (formattedLogsV2 || []).map((item) => [item.id])
+  const gov2ProposalIndexes = (formattedLogsV2 || []).map((item) => item.id)
 
-  // get all proposal states
-  const proposalStatesV2 = useSingleContractMultipleData(gov2, 'state', gov2ProposalIndexes)
+  // get all proposal statuses
+  useEffect(() => {
+    async function getProposalStatuses() {
+      const proposalStatesV2Promises = gov2ProposalIndexes.map(async (id) => {
+        const [status] = await gov2?.functions.state(id.toString(), {})
+        return status
+      })
+
+      const proposalStatesV2 = await Promise.all(proposalStatesV2Promises)
+      setProposalStatuses(proposalStatesV2)
+    }
+
+    if (gov2ProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
+  }, [gov2?.functions, gov2ProposalIndexes, proposalStatuses])
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   // early return until events are fetched
   return useMemo(() => {
     const proposalsCallData = [...(formattedLogsV2 || [])]
-    const proposalStatesCallData = [...proposalStatesV2]
 
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
@@ -265,7 +278,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           title: title ?? t`Untitled`,
           description: description ?? t`No description.`,
           proposer: proposal.proposer,
-          status: proposalStatesCallData[i]?.result?.[0] ?? ProposalState.UNDETERMINED,
+          status: proposalStatuses[i] ?? ProposalState.UNDETERMINED,
           forCount: CurrencyAmount.fromRawAmount(uni, 100),
           againstCount: CurrencyAmount.fromRawAmount(uni, 200),
           // forCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.forVotes),
@@ -280,7 +293,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
       loading: false,
     }
-  }, [formattedLogsV2, gov2, proposalStatesV2, uni])
+  }, [formattedLogsV2, gov2, uni, proposalStatuses])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {
@@ -318,7 +331,6 @@ export function useUserDelegatee(): string {
 export function useUserVotes(): { loading: boolean; votes: CurrencyAmount<Token> | undefined } {
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
-  console.log('uniContract:', uniContract)
 
   // check for available votes
   const { result, loading } = useSingleCallResult(uniContract, 'getCurrentVotes', [account ?? undefined])
