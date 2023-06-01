@@ -45,6 +45,7 @@ import {
   ProposalData,
   ProposalState,
   useProposalData,
+  useQuorum,
   useUserDelegatee,
   useUserVotesAsOfBlock,
 } from '../../state/governance/hooks'
@@ -167,6 +168,8 @@ export default function VotePage() {
 
   const { chainId, account } = useWeb3React()
 
+  const quorumAmount = useQuorum()
+
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
 
@@ -226,6 +229,7 @@ export default function VotePage() {
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
+  console.log('availableVotes:', availableVotes)
 
   // only show voting if user has > 0 votes at proposal start block and proposal is active,
   const showVotingButtons =
@@ -404,12 +408,12 @@ export default function VotePage() {
                       </ThemedText.DeprecatedBlack>
                       {proposalData && (
                         <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
-                          {/* {quorumAmount && (
+                          {proposalData && proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
+                          {quorumAmount && (
                             <span style={{ fontWeight: 400 }}>{` / ${quorumAmount.toExact({
                               groupSeparator: ',',
                             })}`}</span>
-                          )} */}
+                          )}
                         </ThemedText.DeprecatedBlack>
                       )}
                     </WrapSmall>

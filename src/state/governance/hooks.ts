@@ -8,7 +8,7 @@ import { toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/st
 import { t } from '@lingui/macro'
 import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
 import UniJSON from '@uniswap/governance/build/Uni.json'
-import { CurrencyAmount, Token } from '@uniswap/sdk-core'
+import { BigintIsh, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
 import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
@@ -17,6 +17,7 @@ import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap
 import { useContract } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
 
 import {
@@ -77,6 +78,12 @@ export interface CreateProposalData {
   signatures: string[]
   calldatas: string[]
   description: string
+}
+
+interface ProposalVote {
+  abstainVotes: BigintIsh
+  againstVotes: BigintIsh
+  forVotes: BigintIsh
 }
 
 export enum ProposalState {
@@ -223,6 +230,7 @@ function useFormattedProposalCreatedLogs(
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const [proposalStatuses, setProposalStatuses] = useState<number[]>([])
+  const [proposalVotes, setProposalVotes] = useState<ProposalVote[]>([])
 
   const { chainId } = useWeb3React()
   const gov2 = useGovernanceBravoContract()
@@ -246,6 +254,21 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
     if (gov2ProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
   }, [gov2?.functions, gov2ProposalIndexes, proposalStatuses])
+
+  //get proposal votes
+  useEffect(() => {
+    async function getProposalVotes() {
+      const proposalVotesV2Promises = gov2ProposalIndexes.map(async (id) => {
+        const votes = await gov2?.functions.proposalVotes(id.toString(), {})
+        return votes
+      })
+
+      const proposalVotesV2 = await Promise.all(proposalVotesV2Promises)
+      setProposalVotes(proposalVotesV2)
+    }
+
+    if (gov2ProposalIndexes.length > proposalVotes.length) getProposalVotes()
+  }, [gov2?.functions, gov2ProposalIndexes, proposalVotes])
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
@@ -273,16 +296,17 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           title = POLYGON_PROPOSAL_TITLE
         }
 
+        const forVotes = proposalVotes[i]?.forVotes || 0
+        const againstVotes = proposalVotes[i]?.againstVotes || 0
+
         return {
           id: proposal.id.toString(),
           title: title ?? t`Untitled`,
           description: description ?? t`No description.`,
           proposer: proposal.proposer,
           status: proposalStatuses[i] ?? ProposalState.UNDETERMINED,
-          forCount: CurrencyAmount.fromRawAmount(uni, 100),
-          againstCount: CurrencyAmount.fromRawAmount(uni, 200),
-          // forCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.forVotes),
-          // againstCount: CurrencyAmount.fromRawAmount(uni, proposal?.result?.againstVotes),
+          forCount: CurrencyAmount.fromRawAmount(uni, forVotes),
+          againstCount: CurrencyAmount.fromRawAmount(uni, againstVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
           eta: BigNumber.from(12),
@@ -293,7 +317,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
       loading: false,
     }
-  }, [formattedLogsV2, gov2, uni, proposalStatuses])
+  }, [formattedLogsV2, gov2, uni, proposalStatuses, proposalVotes])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {
@@ -301,23 +325,31 @@ export function useProposalData(governorIndex: number, id: string): ProposalData
   return data.filter((p) => p.governorIndex === governorIndex)?.find((p) => p.id === id)
 }
 
-// export function useQuorum(governorIndex: number): CurrencyAmount<Token> | undefined {
-//   const latestGovernanceContract = useLatestGovernanceContract()
-//   const quorumVotes = useSingleCallResult(latestGovernanceContract, 'quorumVotes')?.result?.[0]
-//   const { chainId } = useWeb3React()
-//   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+//get quorum value
+export function useQuorum(): CurrencyAmount<Token> | undefined {
+  const [quorum, setQuorum] = useState<number | undefined>(undefined)
+  const { chainId } = useWeb3React()
+  const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+  const gov2 = useGovernanceBravoContract()
+  const { id } = useParams()
 
-//   if (
-//     !latestGovernanceContract ||
-//     !quorumVotes ||
-//     chainId !== SupportedChainId.MAINNET ||
-//     !uni ||
-//     governorIndex !== LATEST_GOVERNOR_INDEX
-//   )
-//     return undefined
+  useEffect(() => {
+    async function getQuorum() {
+      if (gov2?.functions && id) {
+        const proposalSnapshot = await gov2.functions.proposalSnapshot(id.toString(), {})
+        if (proposalSnapshot) {
+          const quorumResponse = await gov2.functions.quorum(proposalSnapshot.toString(), {})
+          setQuorum(quorumResponse)
+        }
+      }
+    }
 
-//   return CurrencyAmount.fromRawAmount(uni, quorumVotes)
-// }
+    getQuorum()
+  }, [gov2?.functions, id])
+
+  // TODO: sprawdzić jaki typ powinien mieć hook useQuorum
+  return quorum && uni ? CurrencyAmount.fromRawAmount(uni, quorum) : undefined
+}
 
 // get the users delegatee if it exists
 export function useUserDelegatee(): string {
@@ -342,14 +374,26 @@ export function useUserVotes(): { loading: boolean; votes: CurrencyAmount<Token>
 
 // fetch available votes as of block (usually proposal start block)
 export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount<Token> | undefined {
+  const [userVotesAmount, setUserVotesAmount] = useState()
   const { account, chainId } = useWeb3React()
-  const uniContract = useUniContract()
+  const gov2 = useGovernanceBravoContract()
+  const { id } = useParams()
 
   // check for available votes
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
-  const votes = useSingleCallResult(uniContract, 'getPriorVotes', [account ?? undefined, block ?? undefined])
-    ?.result?.[0]
-  return votes && uni ? CurrencyAmount.fromRawAmount(uni, votes) : undefined
+
+  useEffect(() => {
+    async function getQuorum() {
+      if (block) {
+        const getVotesResponse = account && (await gov2?.functions.getVotes(account.toString(), block.toString()))
+        setUserVotesAmount(getVotesResponse)
+      }
+    }
+
+    getQuorum()
+  }, [gov2?.functions, id, block, account])
+
+  return userVotesAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAmount) : undefined
 }
 
 export function useDelegateCallback(): (delegatee: string | undefined) => undefined | Promise<string> {
