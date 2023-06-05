@@ -195,6 +195,7 @@ export default function VotePage() {
   // get and format date from data
   const currentTimestamp = useCurrentBlockTimestamp()
   const currentBlock = useBlockNumber()
+
   const startDate = getDateFromBlock(
     proposalData?.startBlock,
     currentBlock,
@@ -229,7 +230,6 @@ export default function VotePage() {
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
-  console.log('availableVotes:', availableVotes)
 
   // only show voting if user has > 0 votes at proposal start block and proposal is active,
   const showVotingButtons =

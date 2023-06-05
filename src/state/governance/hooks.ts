@@ -7,10 +7,10 @@ import { toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/st
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
 import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
-import UniJSON from '@uniswap/governance/build/Uni.json'
 import { BigintIsh, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
+import UniJSON from 'abis/VHMToken.json'
 import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
@@ -357,8 +357,9 @@ export function useUserDelegatee(): string {
 }
 
 // gets the users current votes
-export function useUserVotes(): CurrencyAmount<Token> | undefined {
-  const [userVotesAmount, setUserVotesAmount] = useState()
+export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefined; isLoading: boolean } {
+  const [availableVotes, setAvailableVotes] = useState<CurrencyAmount<Token> | undefined>()
+  const [isLoading, setIsLoading] = useState(true)
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
 
@@ -366,21 +367,25 @@ export function useUserVotes(): CurrencyAmount<Token> | undefined {
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   useEffect(() => {
+    setIsLoading(true)
     async function getUserVotesFromUni() {
       try {
         if (uniContract) {
           const getVotesResponse = account && (await uniContract?.functions.getVotes(account.toString()))
-          setUserVotesAmount(getVotesResponse)
+          const getVotesParsed = uni ? CurrencyAmount.fromRawAmount(uni, getVotesResponse) : undefined
+          setAvailableVotes(getVotesParsed)
         }
       } catch (error) {
         console.log(error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
     getUserVotesFromUni()
-  }, [uniContract?.functions, currentBlock, account, uniContract])
+  }, [currentBlock, account, uniContract, uni])
 
-  return userVotesAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAmount) : undefined
+  return { isLoading, availableVotes }
 }
 
 // fetch available votes as of block (usually proposal start block)
