@@ -26,6 +26,7 @@ import { useAllProposalData, useUserDelegatee, useUserVotes } from 'state/govern
 import styled, { useTheme } from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
 import { shortenAddress } from 'utils'
+import { shortenString } from 'utils'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 
 import { ZERO_ADDRESS } from '../../constants/misc'
@@ -72,8 +73,13 @@ const Proposal = styled(Button)`
 `
 
 const ProposalNumber = styled.span`
-  opacity: ${({ theme }) => theme.opacity.hover};
   flex: 0 0 40px;
+  margin-right: 20px;
+  opacity: ${({ theme }) => theme.opacity.hover};
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    margin-right: 10px;
+  }
 `
 
 const ProposalTitle = styled.span`
@@ -286,9 +292,7 @@ export default function Landing() {
               ?.map((p: ProposalData) => {
                 return (
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
-                    <ProposalNumber>
-                      {p.governorIndex}.{p.id.slice(0, 2)}
-                    </ProposalNumber>
+                    <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
                     <ProposalTitle>{p.title}</ProposalTitle>
                     <ProposalStatus status={p.status} />
                   </Proposal>

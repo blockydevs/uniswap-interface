@@ -10,7 +10,6 @@ import ThemeToggle from 'theme/components/ThemeToggle'
 
 import { GitVersionRow } from './GitVersionRow'
 import { SlideOutMenu } from './SlideOutMenu'
-import { SmallBalanceToggle } from './SmallBalanceToggle'
 
 const InternalLinkMenuItem = styled(Link)`
   ${ClickableStyle}
@@ -46,12 +45,13 @@ const SectionTitle = styled(ThemedText.SubHeader)`
 
 const ThemeToggleContainer = styled.div`
   margin: 0 0 6px;
+  padding-bottom: 24px;
 `
 
-const BalanceToggleContainer = styled.div`
-  padding: 16px 0;
-  margin-bottom: 26px;
-`
+// const BalanceToggleContainer = styled.div`
+//   padding: 16px 0;
+//   margin-bottom: 26px;
+// `
 
 export default function SettingsMenu({ onClose }: { onClose: () => void }) {
   const activeLocale = useActiveLocale()
@@ -64,10 +64,9 @@ export default function SettingsMenu({ onClose }: { onClose: () => void }) {
       <ThemeToggleContainer>
         <ThemeToggle />
       </ThemeToggleContainer>
-      <BalanceToggleContainer>
+      {/* <BalanceToggleContainer>
         <SmallBalanceToggle />
-      </BalanceToggleContainer>
-
+      </BalanceToggleContainer> */}
       <SectionTitle data-testid="wallet-header">
         <Trans>Language</Trans>
       </SectionTitle>

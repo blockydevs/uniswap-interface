@@ -23,6 +23,13 @@ export function shortenAddress(address: string, chars = 4): string {
   return `${parsed.substring(0, chars + 2)}...${parsed.substring(42 - chars)}`
 }
 
+export function shortenString(str: string): string {
+  if (str.length <= 8) return str
+  const start = str.substring(0, 4)
+  const end = str.substring(str.length - 4)
+  return `${start}...${end}`
+}
+
 // account is not optional
 function getSigner(provider: JsonRpcProvider, account: string): JsonRpcSigner {
   return provider.getSigner(account).connectUnchecked()
