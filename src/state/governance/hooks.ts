@@ -16,6 +16,7 @@ import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_tit
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { useContract } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
+import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
@@ -223,10 +224,6 @@ function useFormattedProposalCreatedLogs(
   }, [useLogsResult])
 }
 
-// function countToIndices(count: number | undefined, skip = 0) {
-//   return typeof count === 'number' ? new Array(count - skip).fill(0).map((_, i) => [i + 1 + skip]) : []
-// }
-
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const [proposalStatuses, setProposalStatuses] = useState<number[]>([])
@@ -360,40 +357,52 @@ export function useUserDelegatee(): string {
 }
 
 // gets the users current votes
-export function useUserVotes(): { loading: boolean; votes: CurrencyAmount<Token> | undefined } {
+export function useUserVotes(): CurrencyAmount<Token> | undefined {
+  const [userVotesAmount, setUserVotesAmount] = useState()
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
 
-  // check for available votes
-  const { result, loading } = useSingleCallResult(uniContract, 'getCurrentVotes', [account ?? undefined])
-  return useMemo(() => {
-    const uni = chainId ? UNI[chainId] : undefined
-    return { loading, votes: uni && result ? CurrencyAmount.fromRawAmount(uni, result?.[0]) : undefined }
-  }, [chainId, loading, result])
+  const currentBlock = useBlockNumber()
+  const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+
+  useEffect(() => {
+    async function getUserVotesFromUni() {
+      try {
+        if (uniContract) {
+          const getVotesResponse = account && (await uniContract?.functions.getVotes(account.toString()))
+          setUserVotesAmount(getVotesResponse)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    getUserVotesFromUni()
+  }, [uniContract?.functions, currentBlock, account, uniContract])
+
+  return userVotesAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAmount) : undefined
 }
 
 // fetch available votes as of block (usually proposal start block)
 export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount<Token> | undefined {
-  const [userVotesAmount, setUserVotesAmount] = useState()
+  const [userVotesAsOfBlockAmount, setUserVotesAsOfBlockAmount] = useState()
   const { account, chainId } = useWeb3React()
   const gov2 = useGovernanceBravoContract()
-  const { id } = useParams()
-
-  // check for available votes
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   useEffect(() => {
-    async function getQuorum() {
+    async function getUserVotesAsOfBlock() {
       if (block) {
-        const getVotesResponse = account && (await gov2?.functions.getVotes(account.toString(), block.toString()))
-        setUserVotesAmount(getVotesResponse)
+        const getVotesAsOfBlockResponse =
+          account && (await gov2?.functions.getVotes(account.toString(), block.toString()))
+        setUserVotesAsOfBlockAmount(getVotesAsOfBlockResponse)
       }
     }
 
-    getQuorum()
-  }, [gov2?.functions, id, block, account])
+    getUserVotesAsOfBlock()
+  }, [gov2?.functions, block, account])
 
-  return userVotesAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAmount) : undefined
+  return userVotesAsOfBlockAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAsOfBlockAmount) : undefined
 }
 
 export function useDelegateCallback(): (delegatee: string | undefined) => undefined | Promise<string> {
