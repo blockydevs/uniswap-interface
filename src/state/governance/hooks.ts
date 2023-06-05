@@ -372,7 +372,8 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
       try {
         if (uniContract) {
           const getVotesResponse = account && (await uniContract?.functions.getVotes(account.toString()))
-          const getVotesParsed = uni ? CurrencyAmount.fromRawAmount(uni, getVotesResponse) : undefined
+          const getVotesParsed =
+            uni && getVotesResponse ? CurrencyAmount.fromRawAmount(uni, getVotesResponse) : undefined
           setAvailableVotes(getVotesParsed)
         }
       } catch (error) {

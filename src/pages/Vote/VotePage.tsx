@@ -410,9 +410,11 @@ export default function VotePage() {
                         <ThemedText.DeprecatedBlack fontWeight={600}>
                           {proposalData && proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
                           {quorumAmount && (
-                            <span style={{ fontWeight: 400 }}>{` / ${quorumAmount.toExact({
-                              groupSeparator: ',',
-                            })}`}</span>
+                            <span style={{ fontWeight: 400 }}>
+                              {` / ${quorumAmount.toExact({
+                                groupSeparator: ',',
+                              })}`}
+                            </span>
                           )}
                         </ThemedText.DeprecatedBlack>
                       )}

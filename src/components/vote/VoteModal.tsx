@@ -3,6 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
+import { shortenString } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
 import Circle from '../../assets/images/blue-loader.svg'
@@ -48,6 +49,8 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
   const voteCallback = useVoteCallback()
   const { availableVotes } = useUserVotes()
 
+  const shortenedID = proposalId && shortenString(proposalId)
+
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
   const [attempting, setAttempting] = useState<boolean>(false)
@@ -87,11 +90,11 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>
                 {voteOption === VoteOption.Against ? (
-                  <Trans>Vote against proposal {proposalId}</Trans>
+                  <Trans>Vote against proposal {shortenedID}</Trans>
                 ) : voteOption === VoteOption.For ? (
-                  <Trans>Vote for proposal {proposalId}</Trans>
+                  <Trans>Vote for proposal {shortenedID}</Trans>
                 ) : (
-                  <Trans>Vote to abstain on proposal {proposalId}</Trans>
+                  <Trans>Vote to abstain on proposal {shortenedID}</Trans>
                 )}
               </ThemedText.DeprecatedMediumHeader>
               <StyledClosed onClick={wrappedOnDismiss} />
@@ -102,11 +105,11 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
             <ButtonPrimary onClick={onVote}>
               <ThemedText.DeprecatedMediumHeader color="white">
                 {voteOption === VoteOption.Against ? (
-                  <Trans>Vote against proposal {proposalId}</Trans>
+                  <Trans>Vote against proposal {shortenedID}</Trans>
                 ) : voteOption === VoteOption.For ? (
-                  <Trans>Vote for proposal {proposalId}</Trans>
+                  <Trans>Vote for proposal {shortenedID}</Trans>
                 ) : (
-                  <Trans>Vote to abstain on proposal {proposalId}</Trans>
+                  <Trans>Vote to abstain on proposal {shortenedID}</Trans>
                 )}
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
