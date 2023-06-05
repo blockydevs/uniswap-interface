@@ -40,7 +40,6 @@ const Navbar = ({ blur }: { blur: boolean }) => {
                 onClick={() => {
                   navigate({
                     pathname: '/',
-                    search: '?intro=true',
                   })
                 }}
               />

@@ -104,7 +104,7 @@ export default function CreateProposal() {
 
   const latestProposalId = useLatestProposalId(account ?? undefined) ?? '0'
   const latestProposalData = useProposalData(LATEST_GOVERNOR_INDEX, latestProposalId)
-  const { votes: availableVotes } = useUserVotes()
+  const { availableVotes } = useUserVotes()
   const proposalThreshold: CurrencyAmount<Token> | undefined = useProposalThreshold()
 
   const [modalOpen, setModalOpen] = useState(false)

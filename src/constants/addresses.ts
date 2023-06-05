@@ -14,7 +14,7 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
   }, {})
 }
 
-export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984')
+export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0xCD0d4Ef3C5e15d02a45a7D5fbB4e1b294F361845')
 
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
 
@@ -112,6 +112,10 @@ export const GOVERNANCE_ALPHA_V1_ADDRESSES: AddressMap = {
  */
 export const GOVERNANCE_BRAVO_ADDRESSES: AddressMap = {
   [SupportedChainId.MAINNET]: '0x408ED6354d4973f66138C91495F2f2FCbd8724C3',
+}
+
+export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
+  [SupportedChainId.SEPOLIA]: '0x8f2e93A54e4875E0BCa021cAD44b0cc7c801a11b',
 }
 
 export const TIMELOCK_ADDRESS: AddressMap = constructSameAddressMap('0x1a9C8182C09F50C8318d769245beA52c32BE35BC')

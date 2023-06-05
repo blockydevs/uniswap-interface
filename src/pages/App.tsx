@@ -6,6 +6,7 @@ import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
 import { useBag } from 'nft/hooks/useBag'
+import VotePage from 'pages/Vote/VotePage'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { StatsigProvider, StatsigUser } from 'statsig-react'
@@ -26,7 +27,6 @@ import Polling from '../components/Polling'
 import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
-import CreateProposal from './CreateProposal'
 import NotFound from './NotFound'
 
 const Vote = lazy(() => retry(() => import('./Vote')))
@@ -174,7 +174,9 @@ export default function App() {
                       </Suspense>
                     }
                   />
-                  <Route path="create-proposal" element={<CreateProposal />} />
+                  <Route path=":governorIndex/:id" element={<VotePage />} />
+                  {/* BLOCKYTODO: uncomment line from below when we decide to add this functionality on our frontend  */}
+                  {/* <Route path="create-proposal" element={<CreateProposal />} /> */}
                   <Route path="*" element={<Navigate to="/not-found" replace />} />
                   <Route path="/not-found" element={<NotFound />} />
                 </Routes>

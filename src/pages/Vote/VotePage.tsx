@@ -168,7 +168,7 @@ export default function VotePage() {
 
   const { chainId, account } = useWeb3React()
 
-  const quorumAmount = useQuorum(parsedGovernorIndex)
+  const quorumAmount = useQuorum()
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
@@ -195,6 +195,7 @@ export default function VotePage() {
   // get and format date from data
   const currentTimestamp = useCurrentBlockTimestamp()
   const currentBlock = useBlockNumber()
+
   const startDate = getDateFromBlock(
     proposalData?.startBlock,
     currentBlock,
@@ -289,7 +290,7 @@ export default function VotePage() {
           <ExecuteModal isOpen={showExecuteModal} onDismiss={toggleExecuteModal} proposalId={proposalData?.id} />
           <ProposalInfo gap="lg" justify="start">
             <RowBetween style={{ width: '100%' }}>
-              <ArrowWrapper to="/vote">
+              <ArrowWrapper to="/">
                 <Trans>
                   <ArrowLeft size={20} /> All Proposals
                 </Trans>
@@ -407,7 +408,7 @@ export default function VotePage() {
                       </ThemedText.DeprecatedBlack>
                       {proposalData && (
                         <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
+                          {proposalData && proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
                           {quorumAmount && (
                             <span style={{ fontWeight: 400 }}>{` / ${quorumAmount.toExact({
                               groupSeparator: ',',

@@ -132,11 +132,13 @@ export default function Landing() {
   const { data: allProposals, loading: loadingProposals } = useAllProposalData()
 
   // user data
-  const { loading: loadingAvailableVotes, votes: availableVotes } = useUserVotes()
+  const { isLoading: loadingAvailableVotes, availableVotes } = useUserVotes()
+
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
   )
+
   const userDelegatee: string | undefined = useUserDelegatee()
 
   // show delegation option if they have have a balance, but have not delegated
@@ -195,6 +197,7 @@ export default function Landing() {
                 <Trans>Proposals</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
+                {/* loadingAvailableVotes usuniete, zastapic czyms? */}
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showUnlockVoting ? (
                   <ButtonPrimary
@@ -223,14 +226,15 @@ export default function Landing() {
                 ) : (
                   ''
                 )}
-                <ButtonPrimary
+                {/* BLOCKYTODO: uncomment this button when we decide to add this functionality on our frontend  */}
+                {/* <ButtonPrimary
                   as={Link}
                   to="/create-proposal"
                   style={{ width: 'fit-content', borderRadius: '8px', height: '40px' }}
                   padding="8px"
                 >
                   <Trans>Create Proposal</Trans>
-                </ButtonPrimary>
+                </ButtonPrimary> */}
               </AutoRow>
             </WrapSmall>
             {!showUnlockVoting && (
@@ -260,7 +264,6 @@ export default function Landing() {
             )}
 
             {allProposals?.length === 0 && <ProposalEmptyState />}
-
             {allProposals?.length > 0 && (
               <AutoColumn gap="md">
                 <RowBetween></RowBetween>
@@ -282,9 +285,9 @@ export default function Landing() {
               ?.filter((p: ProposalData) => (hideCancelled ? p.status !== ProposalState.CANCELED : true))
               ?.map((p: ProposalData) => {
                 return (
-                  <Proposal as={Link} to={`/vote/${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
+                  <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <ProposalNumber>
-                      {p.governorIndex}.{p.id}
+                      {p.governorIndex}.{p.id.slice(0, 2)}
                     </ProposalNumber>
                     <ProposalTitle>{p.title}</ProposalTitle>
                     <ProposalStatus status={p.status} />

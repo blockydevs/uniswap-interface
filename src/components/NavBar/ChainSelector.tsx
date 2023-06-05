@@ -22,11 +22,12 @@ import { NavDropdown } from './NavDropdown'
 
 const NETWORK_SELECTOR_CHAINS = [
   SupportedChainId.MAINNET,
-  SupportedChainId.POLYGON,
-  SupportedChainId.OPTIMISM,
-  SupportedChainId.ARBITRUM_ONE,
-  SupportedChainId.CELO,
-  SupportedChainId.BNB,
+  // SupportedChainId.POLYGON,
+  // SupportedChainId.OPTIMISM,
+  // SupportedChainId.ARBITRUM_ONE,
+  // SupportedChainId.CELO,
+  // SupportedChainId.BNB,
+  SupportedChainId.SEPOLIA,
 ]
 
 interface ChainSelectorProps {
