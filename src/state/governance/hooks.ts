@@ -46,7 +46,7 @@ function useGovernanceBravoContract(): Contract | null {
 
 const useLatestGovernanceContract = useGovernanceBravoContract
 
-function useUniContract() {
+export function useUniContract() {
   const { chainId } = useWeb3React()
   const uniAddress = useMemo(() => (chainId ? UNI[chainId]?.address : undefined), [chainId])
   return useContract(uniAddress, UniJSON.abi, true)
@@ -349,11 +349,32 @@ export function useQuorum(): CurrencyAmount<Token> | undefined {
 }
 
 // get the users delegatee if it exists
-export function useUserDelegatee(): string {
+export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean } {
+  const [userDelegatee, setUserDelegatee] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+
   const { account } = useWeb3React()
   const uniContract = useUniContract()
-  const { result } = useSingleCallResult(uniContract, 'delegates', [account ?? undefined])
-  return result?.[0] ?? undefined
+
+  useEffect(() => {
+    setIsLoading(true)
+    async function getDelegatee() {
+      try {
+        if (uniContract) {
+          const getDelegateeResponse = account && (await uniContract?.functions.delegates(account.toString()))
+          setUserDelegatee(getDelegateeResponse)
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    getDelegatee()
+  }, [account, uniContract])
+
+  return { userDelegatee, isLoading }
 }
 
 // gets the users current votes
@@ -366,6 +387,7 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
   const currentBlock = useBlockNumber()
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
+  // BLOCKYTODO: refactor all useEffects to one reusable hook
   useEffect(() => {
     setIsLoading(true)
     async function getUserVotesFromUni() {
