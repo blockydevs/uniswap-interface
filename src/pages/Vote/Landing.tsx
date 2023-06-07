@@ -145,12 +145,13 @@ export default function Landing() {
     chainId ? UNI[chainId] : undefined
   )
 
-  const userDelegatee: string | undefined = useUserDelegatee()
+  const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
   // show delegation option if they have have a balance, but have not delegated
   const showUnlockVoting = Boolean(
-    uniBalance && JSBI.notEqual(uniBalance.quotient, JSBI.BigInt(0)) && userDelegatee === ZERO_ADDRESS
+    uniBalance && JSBI.notEqual(uniBalance.quotient, JSBI.BigInt(0)) && userDelegatee[0] === ZERO_ADDRESS
   )
+
   return (
     <>
       <Trace page={InterfacePageName.VOTE_PAGE} shouldLogImpression>
@@ -222,7 +223,7 @@ export default function Landing() {
                   </ThemedText.DeprecatedBody>
                 ) : uniBalance &&
                   userDelegatee &&
-                  userDelegatee !== ZERO_ADDRESS &&
+                  userDelegatee[0] !== ZERO_ADDRESS &&
                   JSBI.notEqual(JSBI.BigInt(0), uniBalance?.quotient) ? (
                   <ThemedText.DeprecatedBody fontWeight={500} mr="6px">
                     <Trans>
@@ -246,7 +247,7 @@ export default function Landing() {
             {!showUnlockVoting && (
               <RowBetween>
                 <div />
-                {userDelegatee && userDelegatee !== ZERO_ADDRESS ? (
+                {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS ? (
                   <RowFixed>
                     <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
                       <Trans>Delegated to:</Trans>
@@ -256,7 +257,7 @@ export default function Landing() {
                         href={getExplorerLink(1, userDelegatee, ExplorerDataType.ADDRESS)}
                         style={{ margin: '0 4px' }}
                       >
-                        {userDelegatee === account ? <Trans>Self</Trans> : shortenAddress(userDelegatee)}
+                        <Trans>Self:</Trans> {shortenAddress(userDelegatee[0])}
                       </StyledExternalLink>
                       <TextButton onClick={toggleDelegateModal} style={{ marginLeft: '4px' }}>
                         <Trans>(edit)</Trans>

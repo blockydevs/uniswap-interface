@@ -11,7 +11,6 @@ import useENS from '../../hooks/useENS'
 import { useTokenBalance } from '../../state/connection/hooks'
 import { useDelegateCallback } from '../../state/governance/hooks'
 import { ThemedText } from '../../theme'
-import AddressInputPanel from '../AddressInputPanel'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
 import Modal from '../Modal'
@@ -29,11 +28,11 @@ const StyledClosed = styled(X)`
   }
 `
 
-const TextButton = styled.div`
-  :hover {
-    cursor: pointer;
-  }
-`
+// const TextButton = styled.div`
+//   :hover {
+//     cursor: pointer;
+//   }
+// `
 
 interface VoteModalProps {
   isOpen: boolean
@@ -45,16 +44,17 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
   const { account, chainId } = useWeb3React()
 
   // state for delegate input
-  const [usingDelegate, setUsingDelegate] = useState(false)
-  const [typed, setTyped] = useState('')
-  function handleRecipientType(val: string) {
-    setTyped(val)
-  }
+  // const [usingDelegate, setUsingDelegate] = useState(false)
+
+  // const [typed, setTyped] = useState('')
+  // function handleRecipientType(val: string) {
+  //   setTyped(val)
+  // }
 
   // monitor for self delegation or input for third part delegate
   // default is self delegation
-  const activeDelegate = usingDelegate ? typed : account
-  const { address: parsedAddress } = useENS(activeDelegate)
+
+  const { address: parsedAddress } = useENS(account)
 
   // get the number of votes available to delegate
   const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
@@ -104,17 +104,18 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
             <ThemedText.DeprecatedBody>
               <Trans>You can either vote on each proposal yourself or delegate your votes to a third party.</Trans>
             </ThemedText.DeprecatedBody>
-            {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />}
+            {/* {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />} */}
             <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
               <ThemedText.DeprecatedMediumHeader color="white">
-                {usingDelegate ? <Trans>Delegate Votes</Trans> : <Trans>Self Delegate</Trans>}
+                {/* {usingDelegate ? <Trans>Delegate Votes</Trans> : <Trans>Self Delegate</Trans>} */}
+                <Trans>Self Delegate</Trans>
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
-            <TextButton onClick={() => setUsingDelegate(!usingDelegate)}>
+            {/* <TextButton onClick={() => setUsingDelegate(!usingDelegate)}>
               <ThemedText.DeprecatedBlue>
                 {usingDelegate ? <Trans>Remove Delegate</Trans> : <Trans>Add Delegate +</Trans>}
               </ThemedText.DeprecatedBlue>
-            </TextButton>
+            </TextButton> */}
           </AutoColumn>
         </ContentWrapper>
       )}
@@ -122,7 +123,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
-              {usingDelegate ? <Trans>Delegating votes</Trans> : <Trans>Unlocking Votes</Trans>}
+              {account ? <Trans>Delegating votes</Trans> : <Trans>Unlocking Votes</Trans>}
             </ThemedText.DeprecatedLargeHeader>
             <ThemedText.DeprecatedMain fontSize={36}> {formatCurrencyAmount(uniBalance, 4)}</ThemedText.DeprecatedMain>
           </AutoColumn>
