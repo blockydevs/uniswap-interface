@@ -1,6 +1,7 @@
 import { isAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import ExchangeHmtInput from 'components/ExchangeHmtInput'
 import { useHmtContractToken, useTokenBalance } from 'lib/hooks/useCurrencyBalance'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
@@ -35,7 +36,8 @@ interface DepositHmtProps {
 
 export default function DepositHmtModal({ isOpen, onDismiss, title }: DepositHmtProps) {
   const { account, chainId } = useWeb3React()
-  const [currencyToExchange, setCurrencyToExchange] = useState<number | null>(0)
+  // BLOCKYTODO: jakiego typu oczekuje funkcja depositFor?
+  const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   console.log('currencyToExchange:', currencyToExchange)
 
   const { address: parsedAddress } = useENS(account)
@@ -56,22 +58,22 @@ export default function DepositHmtModal({ isOpen, onDismiss, title }: DepositHmt
     onDismiss()
   }
 
-  function onHmtExchange(v: React.ChangeEvent<HTMLInputElement>) {
-    setCurrencyToExchange(Number(v.target.value))
+  function onInputHmtExchange(value: string) {
+    setCurrencyToExchange(value)
   }
 
   // try delegation and store hash
-  async function onDepositHmt() {
+  async function onDepositHmtSubmit() {
     setAttempting(true)
-    if (!delegateCallback) return
+    // if (!delegateCallback) return
 
     // try delegation and store hash
     // BLOCKYTODO: czy hash jest mi tu niezbędny?
     // Jeśli tak, to jak uzyskać go w procesie depositFor?
-    const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
     if (hash) {
       setHash(hash)
@@ -88,13 +90,8 @@ export default function DepositHmtModal({ isOpen, onDismiss, title }: DepositHmt
               <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
             </RowBetween>
             {/* BLOCKYTODO: zrobić komponent input */}
-            <input
-              value={currencyToExchange || 0}
-              onChange={onHmtExchange}
-              className="hmt-exchange-input"
-              type="number"
-            />
-            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDepositHmt}>
+            <ExchangeHmtInput value={currencyToExchange} onChange={onInputHmtExchange} className="hmt-exchange-input" />
+            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDepositHmtSubmit}>
               <ThemedText.DeprecatedMediumHeader color="white">
                 <Trans>Confirm</Trans>
               </ThemedText.DeprecatedMediumHeader>
