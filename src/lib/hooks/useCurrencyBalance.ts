@@ -1,11 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
+import { SupportedChainId } from 'constants/chains'
 import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
-import { useUniContract } from 'state/governance/hooks'
+import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
@@ -46,8 +47,31 @@ export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefin
   )
 }
 
-// const ERC20Interface = new Interface(ERC20ABI) as Erc20Interface
-// const tokenBalancesGasRequirement = { gasRequired: 185_000 }
+// Returns HMT token
+export function useHmtContractToken() {
+  const uniContract = useUniContract()
+  const { account } = useWeb3React()
+  const [hmtToken, setHmtToken] = useState<Token | undefined>(undefined)
+
+  useEffect(() => {
+    const fetchUnderlyingAddress = async () => {
+      try {
+        if (uniContract && account) {
+          // BLOCKYTODO: find out why uniContract.underlying() is throwing out an error or maybe it's something else?
+          const address = await uniContract.underlying()
+          const hmtToken = address && new Token(SupportedChainId.SEPOLIA, address, 18, 'HMT', 'Human')
+          setHmtToken(hmtToken)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchUnderlyingAddress()
+  }, [uniContract, account])
+
+  return hmtToken
+}
 
 /**
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
@@ -56,25 +80,32 @@ export function useTokenBalancesWithLoadingIndicator(
   address?: string,
   tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
-  const [balances, setBalances] = useState<BigNumber[]>([])
-
+  const [vhmtBalance, setVhmtBalance] = useState<BigNumber[]>([])
+  const [hmtBalance, setHmtBalance] = useState<BigNumber[]>([])
+  const [underlyingAddress, setUnderlyingAddress] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const { account, chainId } = useWeb3React() // we cannot fetch balances cross-chain
   const uniContract = useUniContract()
+
+  // Check for HMT address
+  useEffect(() => {
+    const fetchUnderlyingAddress = async () => {
+      if (uniContract) {
+        const address = await uniContract.functions.underlying()
+        setUnderlyingAddress(address[0])
+      }
+    }
+
+    fetchUnderlyingAddress()
+  }, [uniContract])
+
+  const hmtUniContract = useHMTUniContract(underlyingAddress)
+
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
     [chainId, tokens]
   )
-  // const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
-
-  // const balances = useMultipleContractSingleData(
-  //   validatedTokenAddresses,
-  //   ERC20Interface,
-  //   'balanceOf',
-  //   useMemo(() => [address], [address]),
-  //   tokenBalancesGasRequirement
-  // )
 
   useEffect(() => {
     setIsLoading(true)
@@ -82,8 +113,12 @@ export function useTokenBalancesWithLoadingIndicator(
 
     try {
       const fetchBalance = async () => {
-        const result = await uniContract?.functions.balanceOf(account)
-        if (!isCancelled) setBalances(result)
+        const resultVHMT = await uniContract?.functions.balanceOf(account)
+        const resultHMT = await hmtUniContract?.functions.balanceOf(account)
+        if (!isCancelled) {
+          setVhmtBalance(resultVHMT)
+          setHmtBalance(resultHMT)
+        }
       }
       fetchBalance()
     } catch (error) {
@@ -96,17 +131,24 @@ export function useTokenBalancesWithLoadingIndicator(
     return () => {
       isCancelled = true
     }
-  }, [account, uniContract])
+  }, [account, uniContract, hmtUniContract])
 
   return useMemo(
     () => [
       address && validatedTokens.length > 0
         ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token) => {
-            const value = balances
-            const amount = value ? JSBI.BigInt(value.toString()) : undefined
+            const valueVHMT = vhmtBalance
+            const valueHMT = hmtBalance
+
+            const amount = valueVHMT ? JSBI.BigInt(valueVHMT.toString()) : undefined
+            const hmtAmount = valueHMT ? JSBI.BigInt(valueHMT.toString()) : undefined
 
             if (amount) {
               memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
+            }
+
+            if (hmtAmount && hmtUniContract) {
+              memo[hmtUniContract.address] = CurrencyAmount.fromRawAmount(token, hmtAmount)
             }
 
             return memo
@@ -114,7 +156,7 @@ export function useTokenBalancesWithLoadingIndicator(
         : {},
       isLoading,
     ],
-    [address, validatedTokens, isLoading, balances]
+    [address, validatedTokens, isLoading, vhmtBalance, hmtBalance, hmtUniContract]
   )
 }
 

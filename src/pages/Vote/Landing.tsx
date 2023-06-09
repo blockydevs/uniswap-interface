@@ -12,13 +12,15 @@ import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import DelegateModal from 'components/vote/DelegateModal'
+import DepositHmtModal from 'components/vote/DepositHmtModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
+import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
-import { useModalIsOpen, useToggleDelegateModal } from 'state/application/hooks'
+import { useDepositHmtModal, useModalIsOpen, useToggleDelegateModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import { useTokenBalance } from 'state/connection/hooks'
 import { ProposalData, ProposalState } from 'state/governance/hooks'
@@ -130,9 +132,11 @@ export default function Landing() {
 
   const [hideCancelled, setHideCancelled] = useState(true)
 
-  // toggle for showing delegation modal
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
+
+  const showDepositHmtModal = useModalIsOpen(ApplicationModal.DEPOSIT_HMT)
+  const toggleDepositHmtModal = useDepositHmtModal()
 
   // get data to list all proposals
   const { data: allProposals, loading: loadingProposals } = useAllProposalData()
@@ -140,16 +144,34 @@ export default function Landing() {
   // user data
   const { isLoading: loadingAvailableVotes, availableVotes } = useUserVotes()
 
+  const hmtContractToken = useHmtContractToken()
+
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
+  )
+
+  const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
+    account ?? undefined,
+    chainId ? hmtContractToken : undefined
   )
 
   const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
   // show delegation option if they have have a balance, but have not delegated
   const showUnlockVoting = Boolean(
-    uniBalance && JSBI.notEqual(uniBalance.quotient, JSBI.BigInt(0)) && userDelegatee[0] === ZERO_ADDRESS
+    uniBalance &&
+      userDelegatee &&
+      JSBI.notEqual(uniBalance.quotient, JSBI.BigInt(0)) &&
+      userDelegatee[0] === ZERO_ADDRESS
+  )
+
+  // show this button if user have any HMT currency on his account so he can exchange it to vHMT
+  const showDepositHmtButton = Boolean(
+    hmtBalance &&
+      userDelegatee &&
+      JSBI.notEqual(hmtBalance.quotient, JSBI.BigInt(0)) &&
+      userDelegatee[0] === ZERO_ADDRESS
   )
 
   return (
@@ -160,6 +182,11 @@ export default function Landing() {
             isOpen={showDelegateModal}
             onDismiss={toggleDelegateModal}
             title={showUnlockVoting ? <Trans>Unlock Votes</Trans> : <Trans>Update Delegation</Trans>}
+          />
+          <DepositHmtModal
+            isOpen={showDepositHmtModal}
+            onDismiss={toggleDepositHmtModal}
+            title={showDepositHmtButton && <Trans>Deposit HMT</Trans>}
           />
           <TopSection gap="md">
             <VoteCard>
@@ -204,7 +231,16 @@ export default function Landing() {
                 <Trans>Proposals</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
-                {/* loadingAvailableVotes usuniete, zastapic czyms? */}
+                {showDepositHmtButton ? (
+                  <ButtonPrimary
+                    style={{ width: 'fit-content', height: '40px' }}
+                    padding="8px"
+                    $borderRadius="8px"
+                    onClick={toggleDepositHmtModal}
+                  >
+                    <Trans>Deposit HMT</Trans>
+                  </ButtonPrimary>
+                ) : null}
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showUnlockVoting ? (
                   <ButtonPrimary
