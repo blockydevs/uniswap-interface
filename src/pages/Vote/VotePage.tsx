@@ -248,7 +248,7 @@ export default function VotePage() {
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
   )
-  const userDelegatee: string | undefined = useUserDelegatee()
+  const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
   // in blurb link to home page if they are able to unlock
   const showLinkForUnlock = Boolean(

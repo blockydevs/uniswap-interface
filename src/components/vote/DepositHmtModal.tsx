@@ -1,14 +1,14 @@
 import { isAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import ExchangeHmtInput from 'components/ExchangeHmtInput'
+import { useHmtContractToken, useTokenBalance } from 'lib/hooks/useCurrencyBalance'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components/macro'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
-import { UNI } from '../../constants/tokens'
 import useENS from '../../hooks/useENS'
-import { useTokenBalance } from '../../state/connection/hooks'
 import { useDelegateCallback } from '../../state/governance/hooks'
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
@@ -28,38 +28,25 @@ const StyledClosed = styled(X)`
   }
 `
 
-// const TextButton = styled.div`
-//   :hover {
-//     cursor: pointer;
-//   }
-// `
-
-interface VoteModalProps {
+interface DepositHmtProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
 }
 
-export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalProps) {
+export default function DepositHmtModal({ isOpen, onDismiss, title }: DepositHmtProps) {
   const { account, chainId } = useWeb3React()
-
-  // state for delegate input
-  // const [usingDelegate, setUsingDelegate] = useState(false)
-
-  // const [typed, setTyped] = useState('')
-  // function handleRecipientType(val: string) {
-  //   setTyped(val)
-  // }
-
-  // monitor for self delegation or input for third part delegate
-  // default is self delegation
+  // BLOCKYTODO: jakiego typu oczekuje funkcja depositFor?
+  const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
+  console.log('currencyToExchange:', currencyToExchange)
 
   const { address: parsedAddress } = useENS(account)
+  const delegateCallback = useDelegateCallback()
+  const hmtContractToken = useHmtContractToken()
 
   // get the number of votes available to delegate
-  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
-
-  const delegateCallback = useDelegateCallback()
+  // const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
+  const hmtBalance = useTokenBalance(account ?? undefined, chainId ? hmtContractToken : undefined)
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -67,22 +54,26 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
-    setHash(undefined)
     setAttempting(false)
     onDismiss()
   }
 
-  async function onDelegate() {
-    setAttempting(true)
+  function onInputHmtExchange(value: string) {
+    setCurrencyToExchange(value)
+  }
 
-    // if callback not returned properly ignore
-    if (!delegateCallback) return
+  // try delegation and store hash
+  async function onDepositHmtSubmit() {
+    setAttempting(true)
+    // if (!delegateCallback) return
 
     // try delegation and store hash
-    const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // BLOCKYTODO: czy hash jest mi tu niezbędny?
+    // Jeśli tak, to jak uzyskać go w procesie depositFor?
+    // const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
     if (hash) {
       setHash(hash)
@@ -91,41 +82,30 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && !hash && (
+      {!attempting && (
         <ContentWrapper gap="lg">
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
               <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
             </RowBetween>
-            <ThemedText.DeprecatedBody>
-              <Trans>Earned UNI tokens represent voting shares in Uniswap governance.</Trans>
-            </ThemedText.DeprecatedBody>
-            <ThemedText.DeprecatedBody>
-              <Trans>You can either vote on each proposal yourself or delegate your votes to a third party.</Trans>
-            </ThemedText.DeprecatedBody>
-            {/* {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />} */}
-            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
+            {/* BLOCKYTODO: zrobić komponent input */}
+            <ExchangeHmtInput value={currencyToExchange} onChange={onInputHmtExchange} className="hmt-exchange-input" />
+            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDepositHmtSubmit}>
               <ThemedText.DeprecatedMediumHeader color="white">
-                {/* {usingDelegate ? <Trans>Delegate Votes</Trans> : <Trans>Self Delegate</Trans>} */}
-                <Trans>Self Delegate</Trans>
+                <Trans>Confirm</Trans>
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
-            {/* <TextButton onClick={() => setUsingDelegate(!usingDelegate)}>
-              <ThemedText.DeprecatedBlue>
-                {usingDelegate ? <Trans>Remove Delegate</Trans> : <Trans>Add Delegate +</Trans>}
-              </ThemedText.DeprecatedBlue>
-            </TextButton> */}
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !hash && (
+      {attempting && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
-              {account ? <Trans>Delegating votes</Trans> : <Trans>Unlocking Votes</Trans>}
+              <Trans>{`Exchanging ${currencyToExchange} HMT into vHMT`}</Trans>
             </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}> {formatCurrencyAmount(uniBalance, 4)}</ThemedText.DeprecatedMain>
+            <ThemedText.DeprecatedMain fontSize={36}>Please wait</ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>
       )}
@@ -135,7 +115,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
             <ThemedText.DeprecatedLargeHeader>
               <Trans>Transaction Submitted</Trans>
             </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}>{formatCurrencyAmount(uniBalance, 4)}</ThemedText.DeprecatedMain>
+            <ThemedText.DeprecatedMain fontSize={36}>{formatCurrencyAmount(hmtBalance, 4)}</ThemedText.DeprecatedMain>
           </AutoColumn>
         </SubmittedView>
       )}
