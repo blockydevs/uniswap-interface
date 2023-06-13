@@ -82,25 +82,12 @@ export function useTokenBalancesWithLoadingIndicator(
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const [vhmtBalance, setVhmtBalance] = useState<BigNumber[]>([])
   const [hmtBalance, setHmtBalance] = useState<BigNumber[]>([])
-  const [underlyingAddress, setUnderlyingAddress] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const { account, chainId } = useWeb3React() // we cannot fetch balances cross-chain
   const uniContract = useUniContract()
 
-  // Check for HMT address
-  useEffect(() => {
-    const fetchUnderlyingAddress = async () => {
-      if (uniContract) {
-        const address = await uniContract.functions.underlying()
-        setUnderlyingAddress(address[0])
-      }
-    }
-
-    fetchUnderlyingAddress()
-  }, [uniContract])
-
-  const hmtUniContract = useHMTUniContract(underlyingAddress)
+  const hmtUniContract = useHMTUniContract()
 
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],

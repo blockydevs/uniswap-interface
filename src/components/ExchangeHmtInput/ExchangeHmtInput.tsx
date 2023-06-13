@@ -1,7 +1,8 @@
-// eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ChangeEvent, useCallback } from 'react'
 import styled from 'styled-components/macro'
+import { ThemedText } from 'theme'
 import { flexColumnNoWrap } from 'theme/styles'
 
 import { AutoColumn } from '../Column'
@@ -10,9 +11,9 @@ const InputPanel = styled.div`
   ${flexColumnNoWrap};
   position: relative;
   border-radius: 1.25rem;
-  background-color: ${({ theme }) => theme.deprecated_bg1};
   z-index: 1;
   width: 100%;
+  margin-bottom: 24px;
 `
 
 const ContainerRow = styled.div<{ error: boolean }>`
@@ -64,16 +65,24 @@ const Input = styled.input<{ error?: boolean }>`
   }
 `
 
+const ErrorLabel = styled.div`
+  position: absolute;
+  bottom: -40%;
+  left: 1%;
+`
+
 export default function ExchangeHmtInput({
   className = 'recipient-address-input',
   placeholder,
   value,
   onChange,
+  error,
 }: {
   className?: string
   placeholder?: string
   value: string
   onChange: (value: string) => void
+  error: string
 }) {
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -84,30 +93,34 @@ export default function ExchangeHmtInput({
     [onChange]
   )
 
-  // BLOCKYTODO: określić kiedy powinien pojawiać się error walidacji
-  const error = Boolean(value.length === 0)
-
   return (
     <InputPanel>
-      <ContainerRow error={error}>
-        <InputContainer>
-          <AutoColumn gap="md">
-            <Input
-              className={className}
-              type="number"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              placeholder={placeholder ?? t`How many HMT you want to exchange?`}
-              error={error}
-              pattern="^(0x[a-fA-F0-9]{40})$"
-              onChange={handleInput}
-              value={value}
-            />
-          </AutoColumn>
-        </InputContainer>
-      </ContainerRow>
+      <>
+        <ContainerRow error={!!error}>
+          <InputContainer>
+            <AutoColumn gap="md">
+              <Input
+                className={className}
+                type="number"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                placeholder={placeholder ?? t`How many HMT you want to exchange?`}
+                error={!!error}
+                pattern="^(0x[a-fA-F0-9]{40})$"
+                onChange={handleInput}
+                value={value}
+              />
+            </AutoColumn>
+          </InputContainer>
+        </ContainerRow>
+        <ErrorLabel>
+          <ThemedText.DeprecatedError error={!!error}>
+            <Trans>{error}</Trans>
+          </ThemedText.DeprecatedError>
+        </ErrorLabel>
+      </>
     </InputPanel>
   )
 }
