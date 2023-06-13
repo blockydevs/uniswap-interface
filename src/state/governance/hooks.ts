@@ -53,8 +53,22 @@ export function useUniContract() {
   return useContract(uniAddress, UniJSON.abi, true)
 }
 
-export function useHMTUniContract(address: string | undefined) {
-  return useContract(address, HmtUniJSON.abi, true)
+export function useHMTUniContract() {
+  const uniContract = useUniContract()
+  const [underlyingAddress, setUnderlyingAddress] = useState<string>('')
+
+  useEffect(() => {
+    const fetchUnderlyingAddress = async () => {
+      if (uniContract) {
+        const address = await uniContract.functions.underlying()
+        setUnderlyingAddress(address[0])
+      }
+    }
+
+    fetchUnderlyingAddress()
+  }, [uniContract])
+
+  return useContract(underlyingAddress, HmtUniJSON.abi, true)
 }
 
 interface ProposalDetail {
@@ -349,7 +363,6 @@ export function useQuorum(): CurrencyAmount<Token> | undefined {
     getQuorum()
   }, [gov2?.functions, id])
 
-  // TODO: sprawdzić jaki typ powinien mieć hook useQuorum
   return quorum && uni ? CurrencyAmount.fromRawAmount(uni, quorum) : undefined
 }
 
@@ -601,8 +614,3 @@ export function useProposalThreshold(): CurrencyAmount<Token> | undefined {
 
   return undefined
 }
-
-// BLOCKYTODO: hook useApprove & useDepositHmt
-// export function useDepositHmt(): CurrencyAmount<Token> | undefined {
-//   const { account } = useWeb3React()
-// }
