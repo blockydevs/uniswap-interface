@@ -1,15 +1,15 @@
-import { parseUnits } from '@ethersproject/units'
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
-import { useHmtContractToken, useTokenBalance } from 'lib/hooks/useCurrencyBalance'
+import { parseUnits } from 'ethers/lib/utils'
+import { useTokenBalance } from 'lib/hooks/useCurrencyBalance'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
-import { useHMTUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
 import styled from 'styled-components/macro'
 
+import { UNI } from '../../constants/tokens'
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
@@ -28,30 +28,27 @@ const StyledClosed = styled(X)`
   }
 `
 
-interface DepositHMTProps {
+interface DepositVHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
 }
 
-export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMTProps) {
+export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVHMTProps) {
   const { account, chainId } = useWeb3React()
-  const hmtUniContract = useHMTUniContract()
-  const hmtContractToken = useHmtContractToken()
   const uniContract = useUniContract()
-  const hmtBalance = useTokenBalance(account ?? undefined, chainId ? hmtContractToken : undefined)
-  const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.numerator.toString())
+
+  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
+  const userVHMTBalanceAmount = uniBalance && Number(uniBalance.numerator.toString())
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
-  const [approveHash, setApproveHash] = useState<string | undefined>()
-  const [depositForHash, setDepositForHash] = useState<string | undefined>()
+  const [withdrawToHash, setWithdrawToHash] = useState<string | undefined>()
   const [error, setError] = useState<string>('')
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
-    setApproveHash(undefined)
-    setDepositForHash(undefined)
+    setWithdrawToHash(undefined)
     setAttempting(false)
     onDismiss()
   }
@@ -61,14 +58,14 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     setError('')
   }
 
-  async function onTransactionApprove() {
-    if (!uniContract || !hmtUniContract) return
+  async function onWithdrawToVHMTSubmit() {
+    if (!uniContract) return
     if (currencyToExchange.length === 0) {
       setError(ExchangeInputErrors.EMPTY_INPUT)
       setAttempting(false)
       return
     }
-    if (userHmtBalanceAmount && userHmtBalanceAmount < Number(currencyToExchange)) {
+    if (userVHMTBalanceAmount && userVHMTBalanceAmount < Number(currencyToExchange)) {
       setError(ExchangeInputErrors.EXCEEDS_BALANCE)
       setAttempting(false)
       return
@@ -76,29 +73,14 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
 
     setAttempting(true)
 
-    const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
+    const convertedCurrency = parseUnits(currencyToExchange, uniBalance?.currency.decimals).toString()
 
-    const response = await hmtUniContract.approve(uniContract.address, convertedCurrency).catch((error: Error) => {
-      setAttempting(false)
-      console.log(error)
-      // BLOCKYTODO: dodać bardziej złożoną obsługę błędów schodzących z kontraktu
-    })
-    if (response) setApproveHash(response.hash)
-  }
-
-  async function onDepositHmtSubmit() {
-    if (!uniContract) return
-
-    const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
-
-    const response = await uniContract.depositFor(account, convertedCurrency).catch((error: Error) => {
+    const response = await uniContract.withdrawTo(account, convertedCurrency).catch((error: Error) => {
       setAttempting(false)
       console.log(error)
     })
-    if (response) setDepositForHash(response.hash)
+    if (response) setWithdrawToHash(response.hash)
   }
-
-  const isTransactionFullySubmitted = attempting && approveHash && depositForHash
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
@@ -113,10 +95,10 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
               value={currencyToExchange}
               onChange={onInputHmtExchange}
               error={error}
-              className="hmt-deposit-input"
-              placeholder="How many HMT you want to deposit?"
+              className="hmt-withdraw-input"
+              placeholder="How many HMT you want to withdraw?"
             />
-            <ButtonPrimary disabled={!!error} onClick={onTransactionApprove}>
+            <ButtonPrimary disabled={!!error} onClick={onWithdrawToVHMTSubmit}>
               <ThemedText.DeprecatedMediumHeader color="white">
                 <Trans>Confirm</Trans>
               </ThemedText.DeprecatedMediumHeader>
@@ -124,7 +106,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !approveHash && !depositForHash && (
+      {attempting && !withdrawToHash && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
@@ -134,23 +116,8 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           </AutoColumn>
         </LoadingView>
       )}
-      {attempting && approveHash && !depositForHash && (
-        <LoadingView onDismiss={wrappedOnDismiss}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain textAlign="center" fontSize={32}>
-              <span>{currencyToExchange} </span>
-              HMT will be deposited
-            </ThemedText.DeprecatedMain>
-            <ButtonPrimary disabled={!!error} onClick={onDepositHmtSubmit}>
-              <ThemedText.DeprecatedMediumHeader color="white">
-                <Trans>Confirm deposit</Trans>
-              </ThemedText.DeprecatedMediumHeader>
-            </ButtonPrimary>
-          </AutoColumn>
-        </LoadingView>
-      )}
-      {isTransactionFullySubmitted && (
-        <SubmittedView onDismiss={wrappedOnDismiss} hash={depositForHash}>
+      {attempting && withdrawToHash && (
+        <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
               <Trans>Transaction Submitted</Trans>

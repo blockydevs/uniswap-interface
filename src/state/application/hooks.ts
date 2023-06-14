@@ -138,8 +138,12 @@ export function useToggleFeatureFlags(): () => void {
   return useToggleModal(ApplicationModal.FEATURE_FLAGS)
 }
 
-export function useDepositHmtModal(): () => void {
+export function useDepositHMTModal(): () => void {
   return useToggleModal(ApplicationModal.DEPOSIT_HMT)
+}
+
+export function useDepositVHMTModal(): () => void {
+  return useToggleModal(ApplicationModal.DEPOSIT_VHMT)
 }
 
 // returns a function that allows adding a popup

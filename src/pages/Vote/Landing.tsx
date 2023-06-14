@@ -12,7 +12,8 @@ import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import DelegateModal from 'components/vote/DelegateModal'
-import DepositHmtModal from 'components/vote/DepositHmtModal'
+import DepositHMTModal from 'components/vote/DepositHMTModal'
+import DepositVHMTModal from 'components/vote/DepositVHMTModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
@@ -20,7 +21,12 @@ import { darken } from 'polished'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
-import { useDepositHmtModal, useModalIsOpen, useToggleDelegateModal } from 'state/application/hooks'
+import {
+  useDepositHMTModal,
+  useDepositVHMTModal,
+  useModalIsOpen,
+  useToggleDelegateModal,
+} from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import { useTokenBalance } from 'state/connection/hooks'
 import { ProposalData, ProposalState } from 'state/governance/hooks'
@@ -135,8 +141,11 @@ export default function Landing() {
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
 
-  const showDepositHmtModal = useModalIsOpen(ApplicationModal.DEPOSIT_HMT)
-  const toggleDepositHmtModal = useDepositHmtModal()
+  const showDepositHMTModal = useModalIsOpen(ApplicationModal.DEPOSIT_HMT)
+  const toggleDepositHMTModal = useDepositHMTModal()
+
+  const showDepositVHMTModal = useModalIsOpen(ApplicationModal.DEPOSIT_VHMT)
+  const toggleDepositVHMTModal = useDepositVHMTModal()
 
   // get data to list all proposals
   const { data: allProposals, loading: loadingProposals } = useAllProposalData()
@@ -183,10 +192,15 @@ export default function Landing() {
             onDismiss={toggleDelegateModal}
             title={showUnlockVoting ? <Trans>Unlock Votes</Trans> : <Trans>Update Delegation</Trans>}
           />
-          <DepositHmtModal
-            isOpen={showDepositHmtModal}
-            onDismiss={toggleDepositHmtModal}
+          <DepositHMTModal
+            isOpen={showDepositHMTModal}
+            onDismiss={toggleDepositHMTModal}
             title={showDepositHmtButton && <Trans>Deposit HMT</Trans>}
+          />
+          <DepositVHMTModal
+            isOpen={showDepositVHMTModal}
+            onDismiss={toggleDepositVHMTModal}
+            title={showUnlockVoting && <Trans>Withdraw HMT</Trans>}
           />
           <TopSection gap="md">
             <VoteCard>
@@ -236,11 +250,22 @@ export default function Landing() {
                     style={{ width: 'fit-content', height: '40px' }}
                     padding="8px"
                     $borderRadius="8px"
-                    onClick={toggleDepositHmtModal}
+                    onClick={toggleDepositHMTModal}
                   >
                     <Trans>Deposit HMT</Trans>
                   </ButtonPrimary>
                 ) : null}
+                {showUnlockVoting ? (
+                  <ButtonPrimary
+                    style={{ width: 'fit-content', height: '40px' }}
+                    padding="8px"
+                    $borderRadius="8px"
+                    onClick={toggleDepositVHMTModal}
+                  >
+                    <Trans>Withdraw HMT</Trans>
+                  </ButtonPrimary>
+                ) : null}
+                {/* BLOCKYTODO: Loader przesuwa przyciski */}
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showUnlockVoting ? (
                   <ButtonPrimary
@@ -293,11 +318,8 @@ export default function Landing() {
                         href={getExplorerLink(1, userDelegatee, ExplorerDataType.ADDRESS)}
                         style={{ margin: '0 4px' }}
                       >
-                        <Trans>Self:</Trans> {shortenAddress(userDelegatee[0])}
+                        {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>
                       </StyledExternalLink>
-                      <TextButton onClick={toggleDelegateModal} style={{ marginLeft: '4px' }}>
-                        <Trans>(edit)</Trans>
-                      </TextButton>
                     </AddressButton>
                   </RowFixed>
                 ) : (
@@ -305,7 +327,6 @@ export default function Landing() {
                 )}
               </RowBetween>
             )}
-
             {allProposals?.length === 0 && <ProposalEmptyState />}
             {allProposals?.length > 0 && (
               <AutoColumn gap="md">
@@ -321,7 +342,6 @@ export default function Landing() {
                 </RowBetween>
               </AutoColumn>
             )}
-
             {allProposals
               ?.slice(0)
               ?.reverse()
@@ -336,7 +356,6 @@ export default function Landing() {
                 )
               })}
           </TopSection>
-
           <ThemedText.DeprecatedSubHeader color="text3">
             <Trans>A minimum threshold of 0.25% of the total UNI supply is required to submit proposals</Trans>
           </ThemedText.DeprecatedSubHeader>

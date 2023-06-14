@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { Trans } from '@lingui/macro'
 import { ChangeEvent, useCallback } from 'react'
 import styled from 'styled-components/macro'
@@ -106,7 +105,7 @@ export default function ExchangeHmtInput({
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck="false"
-                placeholder={placeholder ?? t`How many HMT you want to exchange?`}
+                placeholder={placeholder ? placeholder : ``}
                 error={!!error}
                 pattern="^(0x[a-fA-F0-9]{40})$"
                 onChange={handleInput}
