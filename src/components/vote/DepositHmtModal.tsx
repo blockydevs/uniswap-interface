@@ -14,7 +14,7 @@ import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
 import Modal from '../Modal'
-import { LoadingView, SubmittedView } from '../ModalViews'
+import { LoadingView, SubmittedView, SubmittedWithErrorView } from '../ModalViews'
 import { RowBetween } from '../Row'
 
 const ContentWrapper = styled(AutoColumn)`
@@ -47,15 +47,18 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   const [approveHash, setApproveHash] = useState<string | undefined>()
   const [depositForHash, setDepositForHash] = useState<string | undefined>()
-
   const [error, setError] = useState<string>('')
-  const [isTransactionApproved, setTransactionApproved] = useState<boolean>(false)
+  const [isTransactionApproved, setIsTransactionApproved] = useState<boolean>(false)
+  const [isApproveWaitResponse, setIsApproveWaitResponse] = useState<boolean>(false)
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setApproveHash(undefined)
     setDepositForHash(undefined)
     setAttempting(false)
+    setIsTransactionApproved(false)
+    setIsApproveWaitResponse(false)
+    setError('')
     onDismiss()
   }
 
@@ -73,12 +76,10 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     if (!uniContract || !hmtUniContract) return
     if (currencyToExchange.length === 0) {
       setError(ExchangeInputErrors.EMPTY_INPUT)
-      setAttempting(false)
       return
     }
     if (userHmtBalanceAmount && userHmtBalanceAmount < Number(currencyToExchange)) {
       setError(ExchangeInputErrors.EXCEEDS_BALANCE)
-      setAttempting(false)
       return
     }
 
@@ -89,13 +90,14 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       console.log(error)
       // BLOCKYTODO: dodać bardziej złożoną obsługę błędów schodzących z kontraktu
     })
+
     if (response) setApproveHash(response.hash)
 
     const approveResponse = await response.wait()
+    setIsApproveWaitResponse(Boolean(approveResponse))
 
     if (approveResponse.status === 1) {
-      setTransactionApproved(true)
-      if (!isOpen) onDepositHmtSubmit()
+      onDepositHmtSubmit()
     }
   }
 
@@ -104,19 +106,26 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
 
     const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
 
-    const response = await uniContract.depositFor(account, convertedCurrency).catch((error: Error) => {
+    try {
+      setAttempting(true)
+      const response = await uniContract.depositFor(account, convertedCurrency)
+      setDepositForHash(response ? response.hash : undefined)
+      setIsTransactionApproved(response ? true : false)
+    } catch {
+      setError('Unable to execute transaction')
       setAttempting(false)
-      console.log(error)
-    })
+      setIsTransactionApproved(false)
 
-    if (response) setDepositForHash(response.hash)
+      // BLOCKYTODO: w przyszłości można spróbować zastosować paczkę eth-rpc-errors i wyświetlać dokładniejsze komunikaty błędów ponieważ wiadomość error jest zbyt ogólna
+    }
   }
 
-  const isTransactionFullySubmitted = attempting && depositForHash && isTransactionApproved
+  const isDepositFullySubmitted = attempting && Boolean(depositForHash) && isTransactionApproved
+  const isDepositError = !attempting && Boolean(approveHash) && Boolean(error) && !isTransactionApproved
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && (
+      {!attempting && !approveHash && !depositForHash && isOpen && (
         <ContentWrapper gap="lg">
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
@@ -147,18 +156,26 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       {attempting && !depositForHash && !isTransactionApproved && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>{approveHash ? 'Approving...' : 'Confirm your approve'}</Trans>
-              {/* BLOCKYTODO: zaimplementować approveHash oraz depositForHash jako stany pośrednie? */}
-            </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}>Please wait</ThemedText.DeprecatedMain>
+            <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
+              <Trans>
+                {isApproveWaitResponse
+                  ? 'Please confirm your approve in metamask wallet'
+                  : 'Wait for approve confirmation'}
+              </Trans>
+            </ThemedText.DeprecatedMain>
+            {isApproveWaitResponse && (
+              <ThemedText.DeprecatedMain textAlign="center" fontSize={32} marginBottom={36}>
+                <span>{currencyToExchange} </span>
+                HMT will be deposited
+              </ThemedText.DeprecatedMain>
+            )}
           </AutoColumn>
         </LoadingView>
       )}
-      {attempting && !depositForHash && isTransactionApproved && (
+      {attempting && approveHash && !depositForHash && isTransactionApproved && Boolean(!error) && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain textAlign="center" fontSize={32}>
+            <ThemedText.DeprecatedMain textAlign="center" fontSize={32} marginBottom={36}>
               <span>{currencyToExchange} </span>
               HMT will be deposited
             </ThemedText.DeprecatedMain>
@@ -170,7 +187,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           </AutoColumn>
         </LoadingView>
       )}
-      {isTransactionFullySubmitted && (
+      {isDepositFullySubmitted && (
         <SubmittedView onDismiss={wrappedOnDismiss} hash={depositForHash}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
@@ -178,6 +195,15 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
             </ThemedText.DeprecatedLargeHeader>
           </AutoColumn>
         </SubmittedView>
+      )}
+      {isDepositError && (
+        <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
+          <AutoColumn gap="md" justify="center">
+            <ThemedText.DeprecatedLargeHeader>
+              <Trans>{error}</Trans>
+            </ThemedText.DeprecatedLargeHeader>
+          </AutoColumn>
+        </SubmittedWithErrorView>
       )}
     </Modal>
   )

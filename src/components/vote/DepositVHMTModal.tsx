@@ -14,7 +14,7 @@ import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
 import Modal from '../Modal'
-import { LoadingView, SubmittedView } from '../ModalViews'
+import { LoadingView, SubmittedView, SubmittedWithErrorView } from '../ModalViews'
 import { RowBetween } from '../Row'
 
 const ContentWrapper = styled(AutoColumn)`
@@ -49,6 +49,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setWithdrawToHash(undefined)
+    setError('')
     setAttempting(false)
     onDismiss()
   }
@@ -76,20 +77,22 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
       return
     }
 
-    setAttempting(true)
-
     const convertedCurrency = parseUnits(currencyToExchange, uniBalance?.currency.decimals).toString()
 
-    const response = await uniContract.withdrawTo(account, convertedCurrency).catch((error: Error) => {
-      setAttempting(false)
-      console.log(error)
-    })
-    if (response) setWithdrawToHash(response.hash)
+    try {
+      setAttempting(true)
+      const response = await uniContract.withdrawTo(account, convertedCurrency)
+      setWithdrawToHash(response ? response.hash : undefined)
+    } catch {
+      setError('Unable to execute transaction')
+    }
   }
+
+  const isDepositError = attempting && Boolean(error)
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && (
+      {!attempting && !withdrawToHash && isOpen && (
         <ContentWrapper gap="lg">
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
@@ -117,13 +120,12 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !withdrawToHash && (
+      {attempting && !withdrawToHash && !error && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>Approving...</Trans>
-            </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}>Please wait</ThemedText.DeprecatedMain>
+            <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
+              Please approve withdraw in your metamask wallet
+            </ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>
       )}
@@ -135,6 +137,15 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
             </ThemedText.DeprecatedLargeHeader>
           </AutoColumn>
         </SubmittedView>
+      )}
+      {isDepositError && (
+        <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
+          <AutoColumn gap="md" justify="center">
+            <ThemedText.DeprecatedLargeHeader>
+              <Trans>{error}</Trans>
+            </ThemedText.DeprecatedLargeHeader>
+          </AutoColumn>
+        </SubmittedWithErrorView>
       )}
     </Modal>
   )
