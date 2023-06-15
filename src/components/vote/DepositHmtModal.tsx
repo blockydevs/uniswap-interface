@@ -46,7 +46,9 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   const [approveHash, setApproveHash] = useState<string | undefined>()
   const [depositForHash, setDepositForHash] = useState<string | undefined>()
+
   const [error, setError] = useState<string>('')
+  const [isTransactionApproved, setTransactionApproved] = useState<boolean>(false)
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
@@ -75,15 +77,20 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     }
 
     setAttempting(true)
-
     const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
 
     const response = await hmtUniContract.approve(uniContract.address, convertedCurrency).catch((error: Error) => {
-      setAttempting(false)
       console.log(error)
       // BLOCKYTODO: dodać bardziej złożoną obsługę błędów schodzących z kontraktu
     })
     if (response) setApproveHash(response.hash)
+
+    const approveResponse = await response.wait()
+
+    if (approveResponse.status === 1) {
+      setTransactionApproved(true)
+      if (!isOpen) onDepositHmtSubmit()
+    }
   }
 
   async function onDepositHmtSubmit() {
@@ -95,10 +102,11 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       setAttempting(false)
       console.log(error)
     })
+
     if (response) setDepositForHash(response.hash)
   }
 
-  const isTransactionFullySubmitted = attempting && approveHash && depositForHash
+  const isTransactionFullySubmitted = attempting && depositForHash && isTransactionApproved
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
@@ -124,17 +132,18 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !approveHash && !depositForHash && (
+      {attempting && !depositForHash && !isTransactionApproved && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedLargeHeader>
-              <Trans>Approving...</Trans>
+              <Trans>{approveHash ? 'Approving...' : 'Confirm your approve'}</Trans>
+              {/* BLOCKYTODO: zaimplementować approveHash oraz depositForHash jako stany pośrednie? */}
             </ThemedText.DeprecatedLargeHeader>
             <ThemedText.DeprecatedMain fontSize={36}>Please wait</ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>
       )}
-      {attempting && approveHash && !depositForHash && (
+      {attempting && !depositForHash && isTransactionApproved && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain textAlign="center" fontSize={32}>

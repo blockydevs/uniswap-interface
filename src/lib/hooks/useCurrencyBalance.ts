@@ -124,11 +124,8 @@ export function useTokenBalancesWithLoadingIndicator(
     () => [
       address && validatedTokens.length > 0
         ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token) => {
-            const valueVHMT = vhmtBalance
-            const valueHMT = hmtBalance
-
-            const amount = valueVHMT ? JSBI.BigInt(valueVHMT.toString()) : undefined
-            const hmtAmount = valueHMT ? JSBI.BigInt(valueHMT.toString()) : undefined
+            const amount = vhmtBalance ? JSBI.BigInt(vhmtBalance.toString()) : undefined
+            const hmtAmount = hmtBalance ? JSBI.BigInt(hmtBalance.toString()) : undefined
 
             if (amount) {
               memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)

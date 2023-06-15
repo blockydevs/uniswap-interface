@@ -159,11 +159,13 @@ export default function Landing() {
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
   )
+  console.log('UNI BALANCEEEEEE TO EXACT', uniBalance && uniBalance.toExact())
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
     chainId ? hmtContractToken : undefined
   )
+  console.log('HMT BALANCEEEEEE TO EXACT', hmtBalance && hmtBalance.toExact())
 
   const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
@@ -176,12 +178,10 @@ export default function Landing() {
   )
 
   // show this button if user have any HMT currency on his account so he can exchange it to vHMT
-  const showDepositHmtButton = Boolean(
-    hmtBalance &&
-      userDelegatee &&
-      JSBI.notEqual(hmtBalance.quotient, JSBI.BigInt(0)) &&
-      userDelegatee[0] === ZERO_ADDRESS
-  )
+  const showDepositHMTButton = Boolean(hmtBalance && JSBI.notEqual(hmtBalance.quotient, JSBI.BigInt(0)))
+
+  // show this button if user have any vHMT currency on his account so he can exchange it to HMT
+  const showDepositVHMTButton = Boolean(uniBalance && JSBI.notEqual(uniBalance.quotient, JSBI.BigInt(0)))
 
   return (
     <>
@@ -195,12 +195,12 @@ export default function Landing() {
           <DepositHMTModal
             isOpen={showDepositHMTModal}
             onDismiss={toggleDepositHMTModal}
-            title={showDepositHmtButton && <Trans>Deposit HMT</Trans>}
+            title={showDepositHMTButton && <Trans>Deposit HMT</Trans>}
           />
           <DepositVHMTModal
             isOpen={showDepositVHMTModal}
             onDismiss={toggleDepositVHMTModal}
-            title={showUnlockVoting && <Trans>Withdraw HMT</Trans>}
+            title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
           />
           <TopSection gap="md">
             <VoteCard>
@@ -245,7 +245,7 @@ export default function Landing() {
                 <Trans>Proposals</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
-                {showDepositHmtButton ? (
+                {showDepositHMTButton ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}
                     padding="8px"
@@ -255,7 +255,7 @@ export default function Landing() {
                     <Trans>Deposit HMT</Trans>
                   </ButtonPrimary>
                 ) : null}
-                {showUnlockVoting ? (
+                {showDepositVHMTButton ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}
                     padding="8px"
