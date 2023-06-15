@@ -8,7 +8,7 @@ import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { useHMTUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
-import styled from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
@@ -40,7 +40,8 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const hmtContractToken = useHmtContractToken()
   const uniContract = useUniContract()
   const hmtBalance = useTokenBalance(account ?? undefined, chainId ? hmtContractToken : undefined)
-  const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.numerator.toString())
+  const theme = useTheme()
+  const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.toExact())
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
@@ -60,6 +61,11 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
 
   function onInputHmtExchange(value: string) {
     setCurrencyToExchange(value)
+    setError('')
+  }
+
+  function onInputMaxExchange(maxValue: string | undefined) {
+    maxValue && setCurrencyToExchange(maxValue)
     setError('')
   }
 
@@ -115,14 +121,20 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
-              <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
+              <StyledClosed stroke={theme.textPrimary} onClick={wrappedOnDismiss} />
+            </RowBetween>
+            <RowBetween>
+              <ThemedText.BodySecondary>
+                <Trans>HMT balance: {userHmtBalanceAmount}</Trans>
+              </ThemedText.BodySecondary>
             </RowBetween>
             <ExchangeHmtInput
               value={currencyToExchange}
+              maxValue={hmtBalance?.toExact()}
               onChange={onInputHmtExchange}
+              onMaxChange={onInputMaxExchange}
               error={error}
               className="hmt-deposit-input"
-              placeholder="How many HMT you want to deposit?"
             />
             <ButtonPrimary disabled={!!error} onClick={onTransactionApprove}>
               <ThemedText.DeprecatedMediumHeader color="white">

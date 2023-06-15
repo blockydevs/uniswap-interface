@@ -111,14 +111,6 @@ const WrapSmall = styled(RowBetween)`
   `};
 `
 
-const TextButton = styled(ThemedText.DeprecatedMain)`
-  color: ${({ theme }) => theme.accentAction};
-  :hover {
-    cursor: pointer;
-    text-decoration: underline;
-  }
-`
-
 const AddressButton = styled.div`
   padding: 2px 4px;
   border-radius: 8px;
@@ -159,13 +151,11 @@ export default function Landing() {
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
   )
-  console.log('UNI BALANCEEEEEE TO EXACT', uniBalance && uniBalance.toExact())
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
     chainId ? hmtContractToken : undefined
   )
-  console.log('HMT BALANCEEEEEE TO EXACT', hmtBalance && hmtBalance.toExact())
 
   const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 

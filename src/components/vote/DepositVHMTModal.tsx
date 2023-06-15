@@ -7,7 +7,7 @@ import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
-import styled from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
 import { UNI } from '../../constants/tokens'
 import { ThemedText } from '../../theme'
@@ -37,9 +37,9 @@ interface DepositVHMTProps {
 export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVHMTProps) {
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
-
   const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
-  const userVHMTBalanceAmount = uniBalance && Number(uniBalance.numerator.toString())
+  const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+  const theme = useTheme()
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
@@ -55,6 +55,11 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
 
   function onInputHmtExchange(value: string) {
     setCurrencyToExchange(value)
+    setError('')
+  }
+
+  function onInputMaxExchange(maxValue: string | undefined) {
+    maxValue && setCurrencyToExchange(maxValue)
     setError('')
   }
 
@@ -89,14 +94,20 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
-              <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
+              <StyledClosed stroke={theme.textPrimary} onClick={wrappedOnDismiss} />
+            </RowBetween>
+            <RowBetween>
+              <ThemedText.BodySecondary>
+                <Trans>vHMT balance: {userVHMTBalanceAmount}</Trans>
+              </ThemedText.BodySecondary>
             </RowBetween>
             <ExchangeHmtInput
               value={currencyToExchange}
+              maxValue={uniBalance?.toExact()}
               onChange={onInputHmtExchange}
+              onMaxChange={onInputMaxExchange}
               error={error}
               className="hmt-withdraw-input"
-              placeholder="How many HMT you want to withdraw?"
             />
             <ButtonPrimary disabled={!!error} onClick={onWithdrawToVHMTSubmit}>
               <ThemedText.DeprecatedMediumHeader color="white">
