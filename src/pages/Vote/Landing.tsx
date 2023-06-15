@@ -175,7 +175,7 @@ export default function Landing() {
 
   return (
     <>
-      <Trace page={InterfacePageName.VOTE_PAGE} shouldLogImpression>
+      <Trace page={InterfacePageName.LANDING_PAGE} shouldLogImpression>
         <PageWrapper gap="lg" justify="center">
           <DelegateModal
             isOpen={showDelegateModal}

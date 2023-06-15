@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import { CheckCircle } from 'react-feather'
+import { CheckCircle, XCircle } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
 
 import Circle from '../../assets/images/blue-loader.svg'
@@ -13,6 +13,7 @@ import { RowBetween } from '../Row'
 const ConfirmOrLoadingWrapper = styled.div`
   width: 100%;
   padding: 24px;
+  margin-bottom: 24px;
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
@@ -31,9 +32,6 @@ export function LoadingView({ children, onDismiss }: { children: any; onDismiss:
       </ConfirmedIcon>
       <AutoColumn gap="100px" justify="center">
         {children}
-        <ThemedText.DeprecatedSubHeader>
-          <Trans>Confirm this transaction in your wallet</Trans>
-        </ThemedText.DeprecatedSubHeader>
       </AutoColumn>
     </ConfirmOrLoadingWrapper>
   )
@@ -72,6 +70,26 @@ export function SubmittedView({
             </ThemedText.DeprecatedSubHeader>
           </ExternalLink>
         )}
+      </AutoColumn>
+    </ConfirmOrLoadingWrapper>
+  )
+}
+
+export function SubmittedWithErrorView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
+  const theme = useTheme()
+
+  return (
+    <ConfirmOrLoadingWrapper>
+      <AutoColumn gap="30px" justify="center">
+        <RowBetween>
+          <div />
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
+        <ColumnCenter>
+          <XCircle strokeWidth={0.5} size={90} color={theme.accentFailure} />
+        </ColumnCenter>
+
+        {children}
       </AutoColumn>
     </ConfirmOrLoadingWrapper>
   )
