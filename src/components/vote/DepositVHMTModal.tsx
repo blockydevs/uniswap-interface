@@ -8,6 +8,7 @@ import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
 import styled, { useTheme } from 'styled-components/macro'
+import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
 import { UNI } from '../../constants/tokens'
 import { ThemedText } from '../../theme'
@@ -83,8 +84,8 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
       setAttempting(true)
       const response = await uniContract.withdrawTo(account, convertedCurrency)
       setWithdrawToHash(response ? response.hash : undefined)
-    } catch {
-      setError('Unable to execute transaction')
+    } catch (error) {
+      setError(error)
     }
   }
 
@@ -124,7 +125,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
-              Please approve withdraw in your metamask wallet
+              Please confirm the transaction in your wallet
             </ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>
@@ -141,9 +142,19 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
       {isDepositError && (
         <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>{error}</Trans>
-            </ThemedText.DeprecatedLargeHeader>
+            <ThemedText.DeprecatedError error={!!error}>
+              <Trans>Unable to execute transaction</Trans>
+            </ThemedText.DeprecatedError>
+            {error && (
+              <ContentWrapper gap="10px">
+                <ThemedText.DeprecatedLargeHeader textAlign="center">
+                  <Trans>Reason</Trans>:
+                </ThemedText.DeprecatedLargeHeader>
+                <ThemedText.DeprecatedMediumHeader>
+                  {swapErrorToUserReadableMessage(error)}
+                </ThemedText.DeprecatedMediumHeader>
+              </ContentWrapper>
+            )}
           </AutoColumn>
         </SubmittedWithErrorView>
       )}

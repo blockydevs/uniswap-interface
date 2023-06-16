@@ -53,11 +53,6 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const [isTransactionApproved, setIsTransactionApproved] = useState<boolean>(false)
   const [isApproveWaitResponse, setIsApproveWaitResponse] = useState<boolean>(false)
 
-  console.log('approveHash:', approveHash)
-  console.log('depositForHash:', depositForHash)
-  console.log('isTransactionApproved:', isTransactionApproved)
-  console.log('isApproveWaitResponse:', isApproveWaitResponse)
-
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setAttempting(false)
