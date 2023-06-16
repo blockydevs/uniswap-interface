@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { Trans } from '@lingui/macro'
 import { ChangeEvent, useCallback } from 'react'
 import styled from 'styled-components/macro'
@@ -28,7 +27,8 @@ const ContainerRow = styled.div<{ error: boolean }>`
 `
 
 const InputContainer = styled.div`
-  flex: 1;
+  display: flex;
+  align-items: center;
   padding: 1rem;
 `
 
@@ -71,17 +71,29 @@ const ErrorLabel = styled.div`
   left: 1%;
 `
 
+const TextButton = styled(ThemedText.DeprecatedMain)`
+  color: ${({ theme }) => theme.accentAction};
+  :hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`
+
 export default function ExchangeHmtInput({
   className = 'recipient-address-input',
-  placeholder,
+  placeholder = 'Enter amount',
   value,
+  maxValue,
   onChange,
+  onMaxChange,
   error,
 }: {
   className?: string
   placeholder?: string
   value: string
+  maxValue?: string
   onChange: (value: string) => void
+  onMaxChange: (maxValue: string | undefined) => void
   error: string
 }) {
   const handleInput = useCallback(
@@ -106,13 +118,16 @@ export default function ExchangeHmtInput({
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck="false"
-                placeholder={placeholder ?? t`How many HMT you want to exchange?`}
+                placeholder={placeholder ? placeholder : ``}
                 error={!!error}
                 pattern="^(0x[a-fA-F0-9]{40})$"
                 onChange={handleInput}
                 value={value}
               />
             </AutoColumn>
+            <TextButton onClick={() => onMaxChange(maxValue)}>
+              <Trans>Max</Trans>
+            </TextButton>
           </InputContainer>
         </ContainerRow>
         <ErrorLabel>
