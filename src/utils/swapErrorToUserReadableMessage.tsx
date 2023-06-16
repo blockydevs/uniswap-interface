@@ -3,9 +3,10 @@ import { t } from '@lingui/macro'
 function getReason(error: any): string | undefined {
   let reason: string | undefined
   while (error) {
-    reason = error.reason ?? error.message ?? reason
-    error = error.error ?? error.data?.originalError
+    reason = error.reason ?? error.message ?? reason ?? error
+    error = error.error ?? error.data?.originalError ?? error.code
   }
+
   return reason
 }
 
@@ -44,8 +45,8 @@ export function swapErrorToUserReadableMessage(error: any): string {
   }
 
   let reason = getReason(error)
-  if (reason?.indexOf('execution reverted: ') === 0) reason = reason.substr('execution reverted: '.length)
 
+  if (reason?.indexOf('execution reverted: ') === 0) reason = reason.substr('execution reverted: '.length)
   switch (reason) {
     case 'UniswapV2Router: EXPIRED':
       return t`This transaction could not be sent because the deadline has passed. Please check that your transaction deadline is not too low.`
@@ -64,6 +65,8 @@ export function swapErrorToUserReadableMessage(error: any): string {
       return t`This transaction will not succeed due to price movement. Try increasing your slippage tolerance. Note: fee on transfer and rebase tokens are incompatible with Uniswap V3.`
     case 'TF':
       return t`The output token cannot be transferred. There may be an issue with the output token. Note: fee on transfer and rebase tokens are incompatible with Uniswap V3.`
+    case 'Spender allowance too low':
+      return t`Spender allowance too low`
     default:
       if (reason?.indexOf('undefined is not an object') !== -1) {
         console.error(error, reason)

@@ -9,6 +9,7 @@ import { useUniContract } from 'state/governance/hooks'
 import { useHMTUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
 import styled, { useTheme } from 'styled-components/macro'
+import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
@@ -47,59 +48,70 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   const [approveHash, setApproveHash] = useState<string | undefined>()
   const [depositForHash, setDepositForHash] = useState<string | undefined>()
+  const [validationInputError, setValidationInputError] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [isTransactionApproved, setIsTransactionApproved] = useState<boolean>(false)
   const [isApproveWaitResponse, setIsApproveWaitResponse] = useState<boolean>(false)
 
+  console.log('approveHash:', approveHash)
+  console.log('depositForHash:', depositForHash)
+  console.log('isTransactionApproved:', isTransactionApproved)
+  console.log('isApproveWaitResponse:', isApproveWaitResponse)
+
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
+    setAttempting(false)
+    setCurrencyToExchange('')
     setApproveHash(undefined)
     setDepositForHash(undefined)
-    setAttempting(false)
+    setValidationInputError('')
+    setError('')
     setIsTransactionApproved(false)
     setIsApproveWaitResponse(false)
-    setError('')
     onDismiss()
   }
 
   function onInputHmtExchange(value: string) {
     setCurrencyToExchange(value)
-    setError('')
+    setValidationInputError('')
   }
 
   function onInputMaxExchange(maxValue: string | undefined) {
     maxValue && setCurrencyToExchange(maxValue)
-    setError('')
+    setValidationInputError('')
   }
 
   async function onTransactionApprove() {
     if (!uniContract || !hmtUniContract) return
     if (currencyToExchange.length === 0) {
-      setError(ExchangeInputErrors.EMPTY_INPUT)
+      setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       return
     }
     if (userHmtBalanceAmount && userHmtBalanceAmount < Number(currencyToExchange)) {
-      setError(ExchangeInputErrors.EXCEEDS_BALANCE)
+      setValidationInputError(ExchangeInputErrors.EXCEEDS_BALANCE)
       return
     }
 
-    setAttempting(true)
-    const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
+    try {
+      setAttempting(true)
+      const convertedCurrency = parseUnits(currencyToExchange, hmtContractToken?.decimals).toString()
 
-    const response = await hmtUniContract.approve(uniContract.address, convertedCurrency).catch((error: Error) => {
-      console.log(error)
-      // BLOCKYTODO: dodać bardziej złożoną obsługę błędów schodzących z kontraktu
-    })
+      const response = await hmtUniContract.approve(uniContract.address, convertedCurrency)
 
-    if (response) setApproveHash(response.hash)
+      if (response) setApproveHash(response.hash)
 
-    const approveResponse = await response.wait()
+      const approveResponse = await response.wait()
 
-    if (approveResponse.status === 1) {
-      await onDepositHmtSubmit()
+      if (approveResponse.status === 1) {
+        setIsTransactionApproved(true)
+        await onDepositHmtSubmit()
+      }
+
+      setIsApproveWaitResponse(Boolean(approveResponse))
+    } catch (error) {
+      setError(error)
+      setAttempting(false)
     }
-
-    setIsApproveWaitResponse(Boolean(approveResponse))
   }
 
   async function onDepositHmtSubmit() {
@@ -111,9 +123,8 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       setAttempting(true)
       const response = await uniContract.depositFor(account, convertedCurrency)
       setDepositForHash(response ? response.hash : undefined)
-      setIsTransactionApproved(response ? true : false)
-    } catch {
-      setError('Unable to execute transaction')
+    } catch (error) {
+      setError(error)
       setAttempting(false)
       setIsTransactionApproved(false)
 
@@ -122,11 +133,11 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   }
 
   const isDepositFullySubmitted = attempting && Boolean(depositForHash) && isTransactionApproved
-  const isDepositError = !attempting && Boolean(approveHash) && Boolean(error) && !isTransactionApproved
+  const isDepositError = !attempting && Boolean(error) && !isTransactionApproved
 
   return (
-    <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && !approveHash && !depositForHash && isOpen && (
+    <Modal isOpen={isOpen || !!error || isApproveWaitResponse} onDismiss={wrappedOnDismiss} maxHeight={90}>
+      {!attempting && !approveHash && !depositForHash && isOpen && !error && (
         <ContentWrapper gap="lg">
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
@@ -143,7 +154,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
               maxValue={hmtBalance?.toExact()}
               onChange={onInputHmtExchange}
               onMaxChange={onInputMaxExchange}
-              error={error}
+              error={validationInputError}
               className="hmt-deposit-input"
             />
             <ButtonPrimary disabled={!!error} onClick={onTransactionApprove}>
@@ -154,12 +165,14 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !depositForHash && !isTransactionApproved && (
+      {attempting && !depositForHash && !isApproveWaitResponse && !validationInputError && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
               <Trans>
-                {approveHash ? 'Wait for approve confirmation' : 'Please confirm your approve in metamask wallet'}
+                {approveHash || (approveHash && isTransactionApproved)
+                  ? 'Please wait for the approve transaction to be confirmed'
+                  : 'Please confirm the transaction in your wallet'}
               </Trans>
             </ThemedText.DeprecatedMain>
             {isApproveWaitResponse && Boolean(!error) && (
@@ -184,9 +197,19 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       {isDepositError && (
         <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>{error}</Trans>
-            </ThemedText.DeprecatedLargeHeader>
+            <ThemedText.DeprecatedError error={!!error}>
+              <Trans>Unable to execute transaction</Trans>
+            </ThemedText.DeprecatedError>
+            {error && (
+              <ContentWrapper gap="10px">
+                <ThemedText.DeprecatedLargeHeader textAlign="center">
+                  <Trans>Reason</Trans>:
+                </ThemedText.DeprecatedLargeHeader>
+                <ThemedText.DeprecatedMediumHeader>
+                  {swapErrorToUserReadableMessage(error)}
+                </ThemedText.DeprecatedMediumHeader>
+              </ContentWrapper>
+            )}
           </AutoColumn>
         </SubmittedWithErrorView>
       )}
