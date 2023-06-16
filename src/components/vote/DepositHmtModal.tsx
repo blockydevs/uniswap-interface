@@ -94,11 +94,12 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     if (response) setApproveHash(response.hash)
 
     const approveResponse = await response.wait()
-    setIsApproveWaitResponse(Boolean(approveResponse))
 
     if (approveResponse.status === 1) {
-      onDepositHmtSubmit()
+      await onDepositHmtSubmit()
     }
+
+    setIsApproveWaitResponse(Boolean(approveResponse))
   }
 
   async function onDepositHmtSubmit() {
@@ -158,35 +159,19 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
               <Trans>
-                {isApproveWaitResponse
-                  ? 'Please confirm your approve in metamask wallet'
-                  : 'Wait for approve confirmation'}
+                {approveHash ? 'Wait for approve confirmation' : 'Please confirm your approve in metamask wallet'}
               </Trans>
             </ThemedText.DeprecatedMain>
-            {isApproveWaitResponse && (
-              <ThemedText.DeprecatedMain textAlign="center" fontSize={32} marginBottom={36}>
+            {isApproveWaitResponse && Boolean(!error) && (
+              <ThemedText.BodyPrimary textAlign="center" fontSize={32} marginBottom={36} marginTop={36}>
                 <span>{currencyToExchange} </span>
                 HMT will be deposited
-              </ThemedText.DeprecatedMain>
+              </ThemedText.BodyPrimary>
             )}
           </AutoColumn>
         </LoadingView>
       )}
-      {attempting && approveHash && !depositForHash && isTransactionApproved && Boolean(!error) && (
-        <LoadingView onDismiss={wrappedOnDismiss}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain textAlign="center" fontSize={32} marginBottom={36}>
-              <span>{currencyToExchange} </span>
-              HMT will be deposited
-            </ThemedText.DeprecatedMain>
-            <ButtonPrimary disabled={!!error} onClick={onDepositHmtSubmit}>
-              <ThemedText.DeprecatedMediumHeader color="white">
-                <Trans>Confirm deposit</Trans>
-              </ThemedText.DeprecatedMediumHeader>
-            </ButtonPrimary>
-          </AutoColumn>
-        </LoadingView>
-      )}
+
       {isDepositFullySubmitted && (
         <SubmittedView onDismiss={wrappedOnDismiss} hash={depositForHash}>
           <AutoColumn gap="md" justify="center">
