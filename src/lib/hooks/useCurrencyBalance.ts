@@ -4,7 +4,6 @@ import { useWeb3React } from '@web3-react/core'
 import { SupportedChainId } from 'constants/chains'
 import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from 'lib/hooks/multicall'
-import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
 import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
@@ -88,7 +87,6 @@ export function useTokenBalancesWithLoadingIndicator(
   const { account, chainId } = useWeb3React() // we cannot fetch balances cross-chain
   const uniContract = useUniContract()
   const hmtUniContract = useHMTUniContract()
-  const currentBlock = useBlockNumber()
 
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
@@ -119,7 +117,7 @@ export function useTokenBalancesWithLoadingIndicator(
     return () => {
       isCancelled = true
     }
-  }, [account, uniContract, hmtUniContract, currentBlock])
+  }, [account, uniContract, hmtUniContract])
 
   return useMemo(
     () => [
