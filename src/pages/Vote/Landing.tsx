@@ -235,6 +235,8 @@ export default function Landing() {
                 <Trans>Proposals</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
+                {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
+                {/* BLOCKYTODO: Loader przesuwa przyciski */}
                 {showDepositHMTButton ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}
@@ -255,8 +257,7 @@ export default function Landing() {
                     <Trans>Withdraw HMT</Trans>
                   </ButtonPrimary>
                 ) : null}
-                {/* BLOCKYTODO: Loader przesuwa przyciski */}
-                {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
+
                 {showUnlockVoting ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}

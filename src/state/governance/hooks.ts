@@ -17,7 +17,6 @@ import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_tit
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { useContract } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
-import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
@@ -402,7 +401,6 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
 
-  const currentBlock = useBlockNumber()
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   // BLOCKYTODO: refactor all useEffects to one reusable hook
@@ -424,7 +422,7 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
     }
 
     getUserVotesFromUni()
-  }, [currentBlock, account, uniContract, uni])
+  }, [account, uniContract, uni])
 
   return { isLoading, availableVotes }
 }
