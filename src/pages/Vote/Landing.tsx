@@ -5,7 +5,7 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { CardBGImage, CardNoise, CardSection, DataCard } from 'components/earn/styled'
+import { DataCard } from 'components/earn/styled'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Icons/LoadingSpinner'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
@@ -15,6 +15,7 @@ import DelegateModal from 'components/vote/DelegateModal'
 import DepositHMTModal from 'components/vote/DepositHMTModal'
 import DepositVHMTModal from 'components/vote/DepositVHMTModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
+import { SupportedChainId } from 'constants/chains'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
@@ -192,43 +193,6 @@ export default function Landing() {
             onDismiss={toggleDepositVHMTModal}
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
           />
-          <TopSection gap="md">
-            <VoteCard>
-              <CardBGImage />
-              <CardNoise />
-              <CardSection>
-                <AutoColumn gap="md">
-                  <RowBetween>
-                    <ThemedText.DeprecatedWhite fontWeight={600}>
-                      <Trans>Uniswap Governance</Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </RowBetween>
-                  <RowBetween>
-                    <ThemedText.DeprecatedWhite fontSize={14}>
-                      <Trans>
-                        UNI tokens represent voting shares in Uniswap governance. You can vote on each proposal yourself
-                        or delegate your votes to a third party.
-                      </Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </RowBetween>
-                  <ExternalLink
-                    style={{
-                      color: theme.white,
-                      textDecoration: 'underline',
-                    }}
-                    href="https://uniswap.org/blog/uni"
-                    target="_blank"
-                  >
-                    <ThemedText.DeprecatedWhite fontSize={14}>
-                      <Trans>Read more about Uniswap governance</Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </ExternalLink>
-                </AutoColumn>
-              </CardSection>
-              <CardBGImage />
-              <CardNoise />
-            </VoteCard>
-          </TopSection>
           <TopSection gap="2px">
             <WrapSmall>
               <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
@@ -306,7 +270,7 @@ export default function Landing() {
                     </ThemedText.DeprecatedBody>
                     <AddressButton>
                       <StyledExternalLink
-                        href={getExplorerLink(1, userDelegatee, ExplorerDataType.ADDRESS)}
+                        href={getExplorerLink(SupportedChainId.SEPOLIA, userDelegatee, ExplorerDataType.ADDRESS)}
                         style={{ margin: '0 4px' }}
                       >
                         {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>
@@ -347,9 +311,6 @@ export default function Landing() {
                 )
               })}
           </TopSection>
-          <ThemedText.DeprecatedSubHeader color="text3">
-            <Trans>A minimum threshold of 0.25% of the total UNI supply is required to submit proposals</Trans>
-          </ThemedText.DeprecatedSubHeader>
         </PageWrapper>
       </Trace>
       <SwitchLocaleLink />

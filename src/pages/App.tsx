@@ -23,7 +23,6 @@ import { getCLS, getFCP, getFID, getLCP, Metric } from 'web-vitals'
 import { useAnalyticsReporter } from '../components/analytics'
 import ErrorBoundary from '../components/ErrorBoundary'
 import NavBar from '../components/NavBar'
-import Polling from '../components/Polling'
 import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
@@ -161,7 +160,8 @@ export default function App() {
           </HeaderWrapper>
           <BodyWrapper>
             <Popups />
-            <Polling />
+            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania, na razie zakomentowany */}
+            {/* <Polling /> */}
             <TopLevelModals />
             <Suspense fallback={<Loader />}>
               {isLoaded ? (

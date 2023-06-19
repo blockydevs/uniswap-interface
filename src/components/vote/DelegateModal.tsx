@@ -4,7 +4,6 @@ import { useWeb3React } from '@web3-react/core'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components/macro'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
 import { UNI } from '../../constants/tokens'
 import useENS from '../../hooks/useENS'
@@ -99,10 +98,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
               <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
             </RowBetween>
             <ThemedText.DeprecatedBody>
-              <Trans>Earned UNI tokens represent voting shares in Uniswap governance.</Trans>
-            </ThemedText.DeprecatedBody>
-            <ThemedText.DeprecatedBody>
-              <Trans>You can either vote on each proposal yourself or delegate your votes to a third party.</Trans>
+              <Trans>vHMT tokens represent voting shares in MetaHuman governance.</Trans>
             </ThemedText.DeprecatedBody>
             {/* {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />} */}
             <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
@@ -125,7 +121,6 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
             <ThemedText.DeprecatedLargeHeader>
               {account ? <Trans>Delegating votes</Trans> : <Trans>Unlocking Votes</Trans>}
             </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}> {formatCurrencyAmount(uniBalance, 4)}</ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>
       )}
@@ -135,7 +130,6 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
             <ThemedText.DeprecatedLargeHeader>
               <Trans>Transaction Submitted</Trans>
             </ThemedText.DeprecatedLargeHeader>
-            <ThemedText.DeprecatedMain fontSize={36}>{formatCurrencyAmount(uniBalance, 4)}</ThemedText.DeprecatedMain>
           </AutoColumn>
         </SubmittedView>
       )}

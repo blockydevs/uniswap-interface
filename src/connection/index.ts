@@ -7,20 +7,19 @@ import { Connector } from '@web3-react/types'
 import COINBASE_ICON from 'assets/images/coinbaseWalletIcon.svg'
 import GNOSIS_ICON from 'assets/images/gnosis.png'
 import METAMASK_ICON from 'assets/images/metamask.svg'
-import UNIWALLET_ICON from 'assets/images/uniwallet.png'
 import WALLET_CONNECT_ICON from 'assets/images/walletConnectIcon.svg'
 import INJECTED_DARK_ICON from 'assets/svg/browser-wallet-dark.svg'
 import INJECTED_LIGHT_ICON from 'assets/svg/browser-wallet-light.svg'
 import UNISWAP_LOGO from 'assets/svg/logo.svg'
 import { SupportedChainId } from 'constants/chains'
 import { useCallback } from 'react'
-import { isMobile, isNonIOSPhone } from 'utils/userAgent'
+import { isMobile } from 'utils/userAgent'
 
 import { RPC_URLS } from '../constants/networks'
 import { RPC_PROVIDERS } from '../constants/providers'
 import { Connection, ConnectionType } from './types'
 import { getIsCoinbaseWallet, getIsInjected, getIsMetaMaskWallet } from './utils'
-import { UniwalletConnect, WalletConnectPopup } from './WalletConnect'
+import { WalletConnectPopup } from './WalletConnect'
 
 function onError(error: Error) {
   console.debug(`web3-react error: ${error}`)
@@ -87,19 +86,6 @@ export const walletConnectConnection: Connection = {
   shouldDisplay: () => !getIsInjectedMobileBrowser(),
 }
 
-const [web3UniwalletConnect, web3UniwalletConnectHooks] = initializeConnector<UniwalletConnect>(
-  (actions) => new UniwalletConnect({ actions, onError })
-)
-export const uniwalletConnectConnection: Connection = {
-  getName: () => 'Uniswap Wallet',
-  connector: web3UniwalletConnect,
-  hooks: web3UniwalletConnectHooks,
-  type: ConnectionType.UNIWALLET,
-  getIcon: () => UNIWALLET_ICON,
-  shouldDisplay: () => Boolean(!getIsInjectedMobileBrowser() && !isNonIOSPhone),
-  isNew: true,
-}
-
 const [web3CoinbaseWallet, web3CoinbaseWalletHooks] = initializeConnector<CoinbaseWallet>(
   (actions) =>
     new CoinbaseWallet({
@@ -134,7 +120,6 @@ const coinbaseWalletConnection: Connection = {
 
 export function getConnections() {
   return [
-    uniwalletConnectConnection,
     injectedConnection,
     walletConnectConnection,
     coinbaseWalletConnection,
@@ -159,8 +144,6 @@ export function useGetConnection() {
           return coinbaseWalletConnection
         case ConnectionType.WALLET_CONNECT:
           return walletConnectConnection
-        case ConnectionType.UNIWALLET:
-          return uniwalletConnectConnection
         case ConnectionType.NETWORK:
           return networkConnection
         case ConnectionType.GNOSIS_SAFE:
