@@ -322,7 +322,7 @@ export default function VotePage() {
                 <GrayCard>
                   <ThemedText.DeprecatedBlack>
                     <Trans>
-                      Only UNI votes that were self delegated or delegated to another address before block{' '}
+                      Only vHMT votes that were self delegated or delegated to another address before block{' '}
                       {proposalData.startBlock} are eligible for voting.
                     </Trans>{' '}
                     {showLinkForUnlock && (
