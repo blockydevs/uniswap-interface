@@ -15,7 +15,6 @@ import DelegateModal from 'components/vote/DelegateModal'
 import DepositHMTModal from 'components/vote/DepositHMTModal'
 import DepositVHMTModal from 'components/vote/DepositVHMTModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
-import { SupportedChainId } from 'constants/chains'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
@@ -32,7 +31,7 @@ import { ApplicationModal } from 'state/application/reducer'
 import { useTokenBalance } from 'state/connection/hooks'
 import { ProposalData, ProposalState } from 'state/governance/hooks'
 import { useAllProposalData, useUserDelegatee, useUserVotes } from 'state/governance/hooks'
-import styled, { useTheme } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
 import { shortenAddress } from 'utils'
 import { shortenString } from 'utils'
@@ -126,7 +125,6 @@ const StyledExternalLink = styled(ExternalLink)`
 `
 
 export default function Landing() {
-  const theme = useTheme()
   const { account, chainId } = useWeb3React()
 
   const [hideCancelled, setHideCancelled] = useState(true)
@@ -263,14 +261,14 @@ export default function Landing() {
             {!showUnlockVoting && (
               <RowBetween>
                 <div />
-                {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS ? (
+                {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <RowFixed>
                     <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
                       <Trans>Delegated to:</Trans>
                     </ThemedText.DeprecatedBody>
                     <AddressButton>
                       <StyledExternalLink
-                        href={getExplorerLink(SupportedChainId.SEPOLIA, userDelegatee, ExplorerDataType.ADDRESS)}
+                        href={getExplorerLink(chainId, userDelegatee, ExplorerDataType.ADDRESS)}
                         style={{ margin: '0 4px' }}
                       >
                         {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>

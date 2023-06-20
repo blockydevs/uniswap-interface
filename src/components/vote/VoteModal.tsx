@@ -90,11 +90,11 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>
                 {voteOption === VoteOption.Against ? (
-                  <Trans>Vote against proposal {shortenedID}</Trans>
+                  <Trans>Vote against</Trans>
                 ) : voteOption === VoteOption.For ? (
-                  <Trans>Vote for proposal {shortenedID}</Trans>
+                  <Trans>Vote for</Trans>
                 ) : (
-                  <Trans>Vote to abstain on proposal {shortenedID}</Trans>
+                  <Trans>Vote to abstain</Trans>
                 )}
               </ThemedText.DeprecatedMediumHeader>
               <StyledClosed onClick={wrappedOnDismiss} />
@@ -105,11 +105,11 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
             <ButtonPrimary onClick={onVote}>
               <ThemedText.DeprecatedMediumHeader color="white">
                 {voteOption === VoteOption.Against ? (
-                  <Trans>Vote against proposal {shortenedID}</Trans>
+                  <Trans>Vote against</Trans>
                 ) : voteOption === VoteOption.For ? (
-                  <Trans>Vote for proposal {shortenedID}</Trans>
+                  <Trans>Vote for</Trans>
                 ) : (
-                  <Trans>Vote to abstain on proposal {shortenedID}</Trans>
+                  <Trans>Vote to abstain</Trans>
                 )}
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
