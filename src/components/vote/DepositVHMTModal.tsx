@@ -67,7 +67,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
 
   async function onWithdrawToVHMTSubmit() {
     if (!uniContract) return
-    if (currencyToExchange.length === 0) {
+    if (currencyToExchange.length === 0 || currencyToExchange === '0') {
       setError(ExchangeInputErrors.EMPTY_INPUT)
       setAttempting(false)
       return

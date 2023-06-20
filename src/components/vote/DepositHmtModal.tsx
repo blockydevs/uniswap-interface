@@ -78,7 +78,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
 
   async function onTransactionApprove() {
     if (!uniContract || !hmtUniContract) return
-    if (currencyToExchange.length === 0) {
+    if (currencyToExchange.length === 0 || currencyToExchange === '0') {
       setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       return
     }
