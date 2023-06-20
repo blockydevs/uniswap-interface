@@ -51,6 +51,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
   const [validationInputError, setValidationInputError] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [isTransactionApproved, setIsTransactionApproved] = useState<boolean>(false)
+
   const [isApproveWaitResponse, setIsApproveWaitResponse] = useState<boolean>(false)
 
   // wrapper to reset state on modal close
@@ -78,7 +79,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
 
   async function onTransactionApprove() {
     if (!uniContract || !hmtUniContract) return
-    if (currencyToExchange.length === 0) {
+    if (currencyToExchange.length === 0 || currencyToExchange === '0') {
       setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       return
     }
@@ -165,7 +166,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
               <Trans>
-                {approveHash || (approveHash && isTransactionApproved)
+                {approveHash && !isTransactionApproved
                   ? 'Please wait for the approve transaction to be confirmed'
                   : 'Please confirm the transaction in your wallet'}
               </Trans>

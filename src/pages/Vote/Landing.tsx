@@ -5,12 +5,10 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { CardBGImage, CardNoise, CardSection, DataCard } from 'components/earn/styled'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Icons/LoadingSpinner'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import Toggle from 'components/Toggle'
 import DelegateModal from 'components/vote/DelegateModal'
 import DepositHMTModal from 'components/vote/DepositHMTModal'
 import DepositVHMTModal from 'components/vote/DepositVHMTModal'
@@ -18,7 +16,6 @@ import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
 import {
@@ -29,9 +26,9 @@ import {
 } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import { useTokenBalance } from 'state/connection/hooks'
-import { ProposalData, ProposalState } from 'state/governance/hooks'
+import { ProposalData } from 'state/governance/hooks'
 import { useAllProposalData, useUserDelegatee, useUserVotes } from 'state/governance/hooks'
-import styled, { useTheme } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
 import { shortenAddress } from 'utils'
 import { shortenString } from 'utils'
@@ -99,11 +96,6 @@ const ProposalTitle = styled.span`
   padding-right: 10px;
 `
 
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
-  overflow: hidden;
-`
-
 const WrapSmall = styled(RowBetween)`
   margin-bottom: 1rem;
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
@@ -125,10 +117,7 @@ const StyledExternalLink = styled(ExternalLink)`
 `
 
 export default function Landing() {
-  const theme = useTheme()
   const { account, chainId } = useWeb3React()
-
-  const [hideCancelled, setHideCancelled] = useState(true)
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -192,43 +181,6 @@ export default function Landing() {
             onDismiss={toggleDepositVHMTModal}
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
           />
-          <TopSection gap="md">
-            <VoteCard>
-              <CardBGImage />
-              <CardNoise />
-              <CardSection>
-                <AutoColumn gap="md">
-                  <RowBetween>
-                    <ThemedText.DeprecatedWhite fontWeight={600}>
-                      <Trans>Uniswap Governance</Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </RowBetween>
-                  <RowBetween>
-                    <ThemedText.DeprecatedWhite fontSize={14}>
-                      <Trans>
-                        UNI tokens represent voting shares in Uniswap governance. You can vote on each proposal yourself
-                        or delegate your votes to a third party.
-                      </Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </RowBetween>
-                  <ExternalLink
-                    style={{
-                      color: theme.white,
-                      textDecoration: 'underline',
-                    }}
-                    href="https://uniswap.org/blog/uni"
-                    target="_blank"
-                  >
-                    <ThemedText.DeprecatedWhite fontSize={14}>
-                      <Trans>Read more about Uniswap governance</Trans>
-                    </ThemedText.DeprecatedWhite>
-                  </ExternalLink>
-                </AutoColumn>
-              </CardSection>
-              <CardBGImage />
-              <CardNoise />
-            </VoteCard>
-          </TopSection>
           <TopSection gap="2px">
             <WrapSmall>
               <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
@@ -236,7 +188,6 @@ export default function Landing() {
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
-                {/* BLOCKYTODO: Loader przesuwa przyciski */}
                 {showDepositHMTButton ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}
@@ -299,14 +250,14 @@ export default function Landing() {
             {!showUnlockVoting && (
               <RowBetween>
                 <div />
-                {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS ? (
+                {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <RowFixed>
                     <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
                       <Trans>Delegated to:</Trans>
                     </ThemedText.DeprecatedBody>
                     <AddressButton>
                       <StyledExternalLink
-                        href={getExplorerLink(1, userDelegatee, ExplorerDataType.ADDRESS)}
+                        href={getExplorerLink(chainId, userDelegatee, ExplorerDataType.ADDRESS)}
                         style={{ margin: '0 4px' }}
                       >
                         {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>
@@ -319,24 +270,9 @@ export default function Landing() {
               </RowBetween>
             )}
             {allProposals?.length === 0 && <ProposalEmptyState />}
-            {allProposals?.length > 0 && (
-              <AutoColumn gap="md">
-                <RowBetween></RowBetween>
-                <RowBetween>
-                  <ThemedText.DeprecatedMain>
-                    <Trans>Show Cancelled</Trans>
-                  </ThemedText.DeprecatedMain>
-                  <Toggle
-                    isActive={!hideCancelled}
-                    toggle={() => setHideCancelled((hideCancelled) => !hideCancelled)}
-                  />
-                </RowBetween>
-              </AutoColumn>
-            )}
             {allProposals
               ?.slice(0)
               ?.reverse()
-              ?.filter((p: ProposalData) => (hideCancelled ? p.status !== ProposalState.CANCELED : true))
               ?.map((p: ProposalData) => {
                 return (
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
@@ -347,9 +283,6 @@ export default function Landing() {
                 )
               })}
           </TopSection>
-          <ThemedText.DeprecatedSubHeader color="text3">
-            <Trans>A minimum threshold of 0.25% of the total UNI supply is required to submit proposals</Trans>
-          </ThemedText.DeprecatedSubHeader>
         </PageWrapper>
       </Trace>
       <SwitchLocaleLink />

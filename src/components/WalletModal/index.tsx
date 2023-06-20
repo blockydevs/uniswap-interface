@@ -13,7 +13,6 @@ import { flexColumnNoWrap } from 'theme/styles'
 
 import ConnectionErrorView from './ConnectionErrorView'
 import Option from './Option'
-import PrivacyPolicyNotice from './PrivacyPolicyNotice'
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -33,9 +32,9 @@ const OptionGrid = styled.div`
   `};
 `
 
-const PrivacyPolicyWrapper = styled.div`
-  padding: 0 4px;
-`
+// const PrivacyPolicyWrapper = styled.div`
+//   padding: 0 4px;
+// `
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
   const { connector, chainId } = useWeb3React()
@@ -68,9 +67,10 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
                 <Option key={connection.getName()} connection={connection} />
               ))}
           </OptionGrid>
-          <PrivacyPolicyWrapper>
+          {/* BLOCKYTODO: tymczasowo zakomentowana polityka prywatności. W przyszłości może zostać podmieniona na nową bądź zostać całkowicie usunięta */}
+          {/* <PrivacyPolicyWrapper>
             <PrivacyPolicyNotice />
-          </PrivacyPolicyWrapper>
+          </PrivacyPolicyWrapper> */}
         </AutoColumn>
       )}
     </Wrapper>
