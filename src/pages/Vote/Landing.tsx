@@ -183,9 +183,6 @@ export default function Landing() {
           />
           <TopSection gap="2px">
             <WrapSmall>
-              <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
-                <Trans>Proposals</Trans>
-              </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showDepositHMTButton ? (
@@ -247,8 +244,12 @@ export default function Landing() {
                 </ButtonPrimary> */}
               </AutoRow>
             </WrapSmall>
+
             {!showUnlockVoting && (
               <RowBetween>
+                <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
+                  <Trans>Proposals</Trans>
+                </ThemedText.DeprecatedMediumHeader>
                 <div />
                 {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <RowFixed>

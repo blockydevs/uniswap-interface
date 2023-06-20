@@ -280,6 +280,7 @@ export default function VotePage() {
             onDismiss={toggleVoteModal}
             proposalId={proposalData?.id}
             voteOption={voteOption}
+            availableVotes={availableVotes}
           />
           <DelegateModal
             isOpen={showDelegateModal}
