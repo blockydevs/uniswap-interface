@@ -5,12 +5,10 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { DataCard } from 'components/earn/styled'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Icons/LoadingSpinner'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import Toggle from 'components/Toggle'
 import DelegateModal from 'components/vote/DelegateModal'
 import DepositHMTModal from 'components/vote/DepositHMTModal'
 import DepositVHMTModal from 'components/vote/DepositVHMTModal'
@@ -18,7 +16,6 @@ import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
 import {
@@ -29,7 +26,7 @@ import {
 } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import { useTokenBalance } from 'state/connection/hooks'
-import { ProposalData, ProposalState } from 'state/governance/hooks'
+import { ProposalData } from 'state/governance/hooks'
 import { useAllProposalData, useUserDelegatee, useUserVotes } from 'state/governance/hooks'
 import styled from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
@@ -99,11 +96,6 @@ const ProposalTitle = styled.span`
   padding-right: 10px;
 `
 
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
-  overflow: hidden;
-`
-
 const WrapSmall = styled(RowBetween)`
   margin-bottom: 1rem;
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
@@ -126,8 +118,6 @@ const StyledExternalLink = styled(ExternalLink)`
 
 export default function Landing() {
   const { account, chainId } = useWeb3React()
-
-  const [hideCancelled, setHideCancelled] = useState(true)
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -198,7 +188,6 @@ export default function Landing() {
               </ThemedText.DeprecatedMediumHeader>
               <AutoRow gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
-                {/* BLOCKYTODO: Loader przesuwa przyciski */}
                 {showDepositHMTButton ? (
                   <ButtonPrimary
                     style={{ width: 'fit-content', height: '40px' }}
@@ -281,24 +270,9 @@ export default function Landing() {
               </RowBetween>
             )}
             {allProposals?.length === 0 && <ProposalEmptyState />}
-            {allProposals?.length > 0 && (
-              <AutoColumn gap="md">
-                <RowBetween></RowBetween>
-                <RowBetween>
-                  <ThemedText.DeprecatedMain>
-                    <Trans>Show Cancelled</Trans>
-                  </ThemedText.DeprecatedMain>
-                  <Toggle
-                    isActive={!hideCancelled}
-                    toggle={() => setHideCancelled((hideCancelled) => !hideCancelled)}
-                  />
-                </RowBetween>
-              </AutoColumn>
-            )}
             {allProposals
               ?.slice(0)
               ?.reverse()
-              ?.filter((p: ProposalData) => (hideCancelled ? p.status !== ProposalState.CANCELED : true))
               ?.map((p: ProposalData) => {
                 return (
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>

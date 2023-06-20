@@ -5,7 +5,6 @@ import { Row } from 'nft/components/Flex'
 import { HumanProtocolIcon } from 'nft/components/icons'
 import { useProfilePageState } from 'nft/hooks'
 import { ProfilePageStateType } from 'nft/types'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import { Bag } from './Bag'
@@ -23,7 +22,6 @@ const Nav = styled.nav`
 const Navbar = ({ blur }: { blur: boolean }) => {
   const isNftPage = useIsNftPage()
   const sellPageState = useProfilePageState((state) => state.state)
-  const navigate = useNavigate()
 
   return (
     <>

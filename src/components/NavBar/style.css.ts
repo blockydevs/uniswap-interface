@@ -7,8 +7,8 @@ export const logoContainer = style([
   sprinkles({
     display: 'flex',
     marginRight: '12',
+    marginLeft: '12',
     alignItems: 'center',
-    cursor: 'pointer',
   }),
 ])
 
