@@ -3,11 +3,9 @@ import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
-import styled from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
-import { UNI } from '../../constants/tokens'
 import useENS from '../../hooks/useENS'
-import { useTokenBalance } from '../../state/connection/hooks'
 import { useDelegateCallback } from '../../state/governance/hooks'
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
@@ -27,12 +25,6 @@ const StyledClosed = styled(X)`
   }
 `
 
-// const TextButton = styled.div`
-//   :hover {
-//     cursor: pointer;
-//   }
-// `
-
 interface VoteModalProps {
   isOpen: boolean
   onDismiss: () => void
@@ -40,24 +32,9 @@ interface VoteModalProps {
 }
 
 export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalProps) {
-  const { account, chainId } = useWeb3React()
-
-  // state for delegate input
-  // const [usingDelegate, setUsingDelegate] = useState(false)
-
-  // const [typed, setTyped] = useState('')
-  // function handleRecipientType(val: string) {
-  //   setTyped(val)
-  // }
-
-  // monitor for self delegation or input for third part delegate
-  // default is self delegation
-
+  const { account } = useWeb3React()
   const { address: parsedAddress } = useENS(account)
-
-  // get the number of votes available to delegate
-  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
-
+  const theme = useTheme()
   const delegateCallback = useDelegateCallback()
 
   // monitor call to help UI loading state
@@ -95,23 +72,16 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
-              <StyledClosed stroke="black" onClick={wrappedOnDismiss} />
+              <StyledClosed stroke={theme.textPrimary} onClick={wrappedOnDismiss} />
             </RowBetween>
             <ThemedText.DeprecatedBody>
               <Trans>vHMT tokens represent voting shares in MetaHuman governance.</Trans>
             </ThemedText.DeprecatedBody>
-            {/* {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />} */}
             <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
               <ThemedText.DeprecatedMediumHeader color="white">
-                {/* {usingDelegate ? <Trans>Delegate Votes</Trans> : <Trans>Self Delegate</Trans>} */}
                 <Trans>Self Delegate</Trans>
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
-            {/* <TextButton onClick={() => setUsingDelegate(!usingDelegate)}>
-              <ThemedText.DeprecatedBlue>
-                {usingDelegate ? <Trans>Remove Delegate</Trans> : <Trans>Add Delegate +</Trans>}
-              </ThemedText.DeprecatedBlue>
-            </TextButton> */}
           </AutoColumn>
         </ContentWrapper>
       )}

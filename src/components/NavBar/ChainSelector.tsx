@@ -18,15 +18,7 @@ import * as styles from './ChainSelector.css'
 import ChainSelectorRow from './ChainSelectorRow'
 import { NavDropdown } from './NavDropdown'
 
-const NETWORK_SELECTOR_CHAINS = [
-  SupportedChainId.MAINNET,
-  // SupportedChainId.POLYGON,
-  // SupportedChainId.OPTIMISM,
-  // SupportedChainId.ARBITRUM_ONE,
-  // SupportedChainId.CELO,
-  // SupportedChainId.BNB,
-  SupportedChainId.SEPOLIA,
-]
+const NETWORK_SELECTOR_CHAINS = [SupportedChainId.SEPOLIA, SupportedChainId.MAINNET]
 
 interface ChainSelectorProps {
   leftAlign?: boolean
@@ -34,6 +26,7 @@ interface ChainSelectorProps {
 
 export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   const { chainId } = useWeb3React()
+
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const isMobile = useIsMobile()
 
@@ -59,6 +52,10 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
     },
     [selectChain, setIsOpen]
   )
+
+  // useEffect(() => {
+  //   onSelectChain(SupportedChainId.SEPOLIA)
+  // }, [onSelectChain])
 
   if (!chainId) {
     return null
