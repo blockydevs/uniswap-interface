@@ -306,7 +306,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           description = UNISWAP_GRANTS_PROPOSAL_DESCRIPTION
         }
 
-        let title = description.length > 30 ? description.substring(0, 30) + '...' : description
+        let title = description?.split(/#+\s|\n/g)[1]
         if (startBlock === POLYGON_START_BLOCK) {
           title = POLYGON_PROPOSAL_TITLE
         }
