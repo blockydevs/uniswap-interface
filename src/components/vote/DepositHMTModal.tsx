@@ -33,9 +33,10 @@ interface DepositHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
+  setBalanceRefreshKey: any
 }
 
-export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMTProps) {
+export default function DepositHMTModal({ isOpen, onDismiss, title, setBalanceRefreshKey }: DepositHMTProps) {
   const { account, chainId } = useWeb3React()
   const hmtUniContract = useHMTUniContract()
   const hmtContractToken = useHmtContractToken()
@@ -119,6 +120,10 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
       setAttempting(true)
       const response = await uniContract.depositFor(account, convertedCurrency)
       setDepositForHash(response ? response.hash : undefined)
+
+      const depositWaitResponse = await response.wait()
+      console.log('depositWaitResponse:', depositWaitResponse)
+      if (depositWaitResponse) setBalanceRefreshKey((prevKey: number) => prevKey + 1)
     } catch (error) {
       setError(error)
       setAttempting(false)

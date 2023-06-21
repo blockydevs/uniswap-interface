@@ -16,6 +16,8 @@ import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
 import {
@@ -117,7 +119,11 @@ const StyledExternalLink = styled(ExternalLink)`
 `
 
 export default function Landing() {
+  const [balanceRefreshKey, setBalanceRefreshKey] = useState<number>(0)
   const { account, chainId } = useWeb3React()
+
+  const balance = useSelector((state: any) => state.governace)
+  console.log('balance z REDUXA:', balance)
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -138,7 +144,8 @@ export default function Landing() {
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
-    chainId ? UNI[chainId] : undefined
+    chainId ? UNI[chainId] : undefined,
+    balanceRefreshKey
   )
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
@@ -175,6 +182,7 @@ export default function Landing() {
             isOpen={showDepositHMTModal}
             onDismiss={toggleDepositHMTModal}
             title={showDepositHMTButton && <Trans>Deposit HMT</Trans>}
+            setBalanceRefreshKey={setBalanceRefreshKey}
           />
           <DepositVHMTModal
             isOpen={showDepositVHMTModal}

@@ -4,6 +4,7 @@ import application from './application/reducer'
 import burn from './burn/reducer'
 import burnV3 from './burn/v3/reducer'
 import connection from './connection/reducer'
+import governace from './governance/reducer'
 import lists from './lists/reducer'
 import logs from './logs/slice'
 import mint from './mint/reducer'
@@ -26,5 +27,6 @@ export default {
   multicall: multicall.reducer,
   lists,
   logs,
+  governace,
   [routingApi.reducerPath]: routingApi.reducer,
 }

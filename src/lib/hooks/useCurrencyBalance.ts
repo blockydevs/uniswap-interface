@@ -6,7 +6,9 @@ import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
+import { hmtBalanceUpdate } from 'state/governance/reducer'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
@@ -78,13 +80,16 @@ export function useHmtContractToken() {
  */
 export function useTokenBalancesWithLoadingIndicator(
   address?: string,
-  tokens?: (Token | undefined)[]
+  tokens?: (Token | undefined)[],
+  balanceRefreshKey?: number
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const [vhmtBalance, setVhmtBalance] = useState<BigNumber[]>([])
   const [hmtBalance, setHmtBalance] = useState<BigNumber[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const { account, chainId } = useWeb3React() // we cannot fetch balances cross-chain
+  const dispatch = useDispatch()
+
   const uniContract = useUniContract()
   const hmtUniContract = useHMTUniContract()
 
@@ -94,24 +99,26 @@ export function useTokenBalancesWithLoadingIndicator(
   )
 
   useEffect(() => {
-    setIsLoading(true)
-
-    try {
-      const fetchBalance = async () => {
+    const fetchBalance = async () => {
+      setIsLoading(true)
+      try {
         const resultVHMT = await uniContract?.functions.balanceOf(account)
         const resultHMT = await hmtUniContract?.functions.balanceOf(account)
 
         setVhmtBalance(resultVHMT)
-        setHmtBalance(resultHMT)
+        if (resultHMT) setHmtBalance(resultHMT[0])
+
+        const convertedHMTResult = resultHMT && BigInt(resultHMT).toString()
+        convertedHMTResult && dispatch(hmtBalanceUpdate(convertedHMTResult))
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
       }
-      fetchBalance()
-    } catch (error) {
-      console.log(error)
-      setIsLoading(false)
-    } finally {
-      setIsLoading(false)
     }
-  }, [account, uniContract, hmtUniContract])
+
+    fetchBalance()
+  }, [account, uniContract, hmtUniContract, balanceRefreshKey, dispatch])
 
   return useMemo(
     () => [
@@ -138,16 +145,22 @@ export function useTokenBalancesWithLoadingIndicator(
 
 export function useTokenBalances(
   address?: string,
-  tokens?: (Token | undefined)[]
+  tokens?: (Token | undefined)[],
+  balanceRefreshKey?: number
 ): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
-  return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
+  return useTokenBalancesWithLoadingIndicator(address, tokens, balanceRefreshKey)[0]
 }
 
 // get the balance for a single token/account combo
-export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
+export function useTokenBalance(
+  account?: string,
+  token?: Token,
+  balanceRefreshKey?: number
+): CurrencyAmount<Token> | undefined {
   const tokenBalances = useTokenBalances(
     account,
-    useMemo(() => [token], [token])
+    useMemo(() => [token], [token]),
+    balanceRefreshKey
   )
   if (!token) return undefined
   return tokenBalances[token.address]
