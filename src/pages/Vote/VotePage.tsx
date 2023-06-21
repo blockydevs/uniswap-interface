@@ -359,6 +359,16 @@ export default function VotePage() {
                 >
                   <Trans>Vote Against</Trans>
                 </ButtonPrimary>
+                <ButtonPrimary
+                  padding="8px"
+                  $borderRadius="8px"
+                  onClick={() => {
+                    setVoteOption(VoteOption.Abstain)
+                    toggleVoteModal()
+                  }}
+                >
+                  <Trans>Vote Abstain</Trans>
+                </ButtonPrimary>
               </RowFixed>
             )}
             {showQueueButton && (
