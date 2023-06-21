@@ -95,16 +95,14 @@ export function useTokenBalancesWithLoadingIndicator(
 
   useEffect(() => {
     setIsLoading(true)
-    let isCancelled = false
 
     try {
       const fetchBalance = async () => {
         const resultVHMT = await uniContract?.functions.balanceOf(account)
         const resultHMT = await hmtUniContract?.functions.balanceOf(account)
-        if (!isCancelled) {
-          setVhmtBalance(resultVHMT)
-          setHmtBalance(resultHMT)
-        }
+
+        setVhmtBalance(resultVHMT)
+        setHmtBalance(resultHMT)
       }
       fetchBalance()
     } catch (error) {
@@ -112,10 +110,6 @@ export function useTokenBalancesWithLoadingIndicator(
       setIsLoading(false)
     } finally {
       setIsLoading(false)
-    }
-
-    return () => {
-      isCancelled = true
     }
   }, [account, uniContract, hmtUniContract])
 
@@ -133,7 +127,6 @@ export function useTokenBalancesWithLoadingIndicator(
             if (hmtAmount && hmtUniContract) {
               memo[hmtUniContract.address] = CurrencyAmount.fromRawAmount(token, hmtAmount)
             }
-
             return memo
           }, {})
         : {},
