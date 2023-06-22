@@ -1,4 +1,6 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Trans } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { parseUnits } from 'ethers/lib/utils'
@@ -33,8 +35,7 @@ interface DepositVHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
-  uniBalance: any
-  //BLOCKYTODO: any zamienić na prawidłowe typowanie
+  uniBalance: CurrencyAmount<Token> | undefined
 }
 
 export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance }: DepositVHMTProps) {
@@ -69,8 +70,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
   }
 
   const transactionAdder = useCallback(
-    (response: any, convertedCurrency: string) => {
-      //BLOCKYTODO: any zamienić na prawidłowe typowanie
+    (response: TransactionResponse, convertedCurrency: string) => {
       addTransaction(response, {
         type: TransactionType.EXCHANGE_CURRENCY,
         spender: account,

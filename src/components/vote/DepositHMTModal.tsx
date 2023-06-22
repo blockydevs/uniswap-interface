@@ -1,5 +1,7 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { parseUnits } from '@ethersproject/units'
 import { Trans } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
@@ -35,8 +37,7 @@ interface DepositHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
-  hmtBalance: any
-  //BLOCKYTODO: any zamienić na prawidłowe typowanie
+  hmtBalance: CurrencyAmount<Token> | undefined
 }
 
 export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }: DepositHMTProps) {
@@ -82,8 +83,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
   }
 
   const transactionAdder = useCallback(
-    (response: any, convertedCurrency: string) => {
-      //BLOCKYTODO: any zamienić na prawidłowe typowanie
+    (response: TransactionResponse, convertedCurrency: string) => {
       addTransaction(response, {
         type: TransactionType.EXCHANGE_CURRENCY,
         spender: account,

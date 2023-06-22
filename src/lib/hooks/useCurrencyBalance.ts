@@ -93,7 +93,6 @@ export function useTokenBalancesWithLoadingIndicator(
   const uniContract = useUniContract()
   const hmtUniContract = useHMTUniContract()
   const transactions = useAppSelector((state) => state.transactions)
-  console.log('transactions:', transactions)
 
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
