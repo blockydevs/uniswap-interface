@@ -84,6 +84,7 @@ export interface ProposalData {
   status: ProposalState
   forCount: CurrencyAmount<Token>
   againstCount: CurrencyAmount<Token>
+  abstainCount: CurrencyAmount<Token>
   startBlock: number
   endBlock: number
   eta: BigNumber
@@ -313,6 +314,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
         const forVotes = proposalVotes[i]?.forVotes || 0
         const againstVotes = proposalVotes[i]?.againstVotes || 0
+        const abstainVotes = proposalVotes[i]?.abstainVotes || 0
 
         return {
           id: proposal.id.toString(),
@@ -322,6 +324,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           status: proposalStatuses[i] ?? ProposalState.UNDETERMINED,
           forCount: CurrencyAmount.fromRawAmount(uni, forVotes),
           againstCount: CurrencyAmount.fromRawAmount(uni, againstVotes),
+          abstainCount: CurrencyAmount.fromRawAmount(uni, abstainVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
           eta: BigNumber.from(12),

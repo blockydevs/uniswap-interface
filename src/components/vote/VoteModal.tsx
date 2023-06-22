@@ -3,7 +3,6 @@ import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
-import { shortenString } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
 import Circle from '../../assets/images/blue-loader.svg'
@@ -48,8 +47,6 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
   const { chainId } = useWeb3React()
   const voteCallback = useVoteCallback()
   const { availableVotes } = useUserVotes()
-
-  const shortenedID = proposalId && shortenString(proposalId)
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
