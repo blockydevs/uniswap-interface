@@ -116,11 +116,13 @@ const StyledExternalLink = styled(ExternalLink)`
   color: ${({ theme }) => theme.textPrimary};
 `
 
+const StyledButtonsContainer = styled(AutoRow)`
+  flex-wrap: nowrap;
+  white-space: nowrap;
+`
+
 export default function Landing() {
   const { account, chainId } = useWeb3React()
-
-  // const hmtBalanceUpdated = useSelector((state: any) => state.governace.hmtBalance)
-  // console.log('hmtBalanceUpdated z REDUXA:', hmtBalanceUpdated)
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -143,13 +145,11 @@ export default function Landing() {
     account ?? undefined,
     chainId ? UNI[chainId] : undefined
   )
-  console.log('uniBalance:', Number(uniBalance?.toExact()))
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
     chainId ? hmtContractToken : undefined
   )
-  console.log('hmtBalance:', Number(hmtBalance?.toExact()))
 
   const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
@@ -190,7 +190,7 @@ export default function Landing() {
           />
           <TopSection gap="2px">
             <WrapSmall>
-              <AutoRow gap="6px" justify="flex-end">
+              <StyledButtonsContainer gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showDepositHMTButton ? (
                   <ButtonPrimary
@@ -249,15 +249,14 @@ export default function Landing() {
                 >
                   <Trans>Create Proposal</Trans>
                 </ButtonPrimary> */}
-              </AutoRow>
+              </StyledButtonsContainer>
             </WrapSmall>
-
+            <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
+              <Trans>Proposals</Trans>
+            </ThemedText.DeprecatedMediumHeader>
+            <div />
             {!showUnlockVoting && (
               <RowBetween>
-                <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
-                  <Trans>Proposals</Trans>
-                </ThemedText.DeprecatedMediumHeader>
-                <div />
                 {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <RowFixed>
                     <ThemedText.DeprecatedBody fontWeight={500} mr="4px">

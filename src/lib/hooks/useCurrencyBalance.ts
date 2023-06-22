@@ -8,7 +8,6 @@ import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
-import { hmtBalanceUpdate } from 'state/governance/reducer'
 import { useAppSelector } from 'state/hooks'
 
 import { nativeOnChain } from '../../constants/tokens'
@@ -108,9 +107,6 @@ export function useTokenBalancesWithLoadingIndicator(
 
         if (resultVHMT) setVhmtBalance(resultVHMT)
         if (resultHMT) setHmtBalance(resultHMT[0])
-
-        const convertedHMTResult = resultHMT && BigInt(resultHMT).toString()
-        convertedHMTResult && dispatch(hmtBalanceUpdate(convertedHMTResult))
       } catch (error) {
         console.log(error)
       } finally {
