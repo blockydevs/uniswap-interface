@@ -121,11 +121,11 @@ export function validateUrlChainParam(chainName: string | undefined) {
 // TODO(cartcrom): refactor into safer lookup & replace usage
 export const CHAIN_NAME_TO_CHAIN_ID: { [key in Chain]: SupportedChainId } = {
   [Chain.Ethereum]: SupportedChainId.MAINNET,
-  [Chain.Sepolia]: SupportedChainId.SEPOLIA,
   [Chain.EthereumGoerli]: SupportedChainId.GOERLI,
   [Chain.Polygon]: SupportedChainId.POLYGON,
   [Chain.Celo]: SupportedChainId.CELO,
   [Chain.Optimism]: SupportedChainId.OPTIMISM,
+  [Chain.EthereumSepolia]: SupportedChainId.SEPOLIA,
   [Chain.Arbitrum]: SupportedChainId.ARBITRUM_ONE,
   [Chain.UnknownChain]: SupportedChainId.MAINNET,
   [Chain.Bnb]: SupportedChainId.BNB,

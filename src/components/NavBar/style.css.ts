@@ -9,6 +9,7 @@ export const logoContainer = style([
     marginRight: '12',
     marginLeft: '12',
     alignItems: 'center',
+    cursor: 'pointer',
   }),
 ])
 
