@@ -304,8 +304,8 @@ function SwapSummary({ info }: { info: ExactInputSwapTransactionInfo | ExactOutp
   }
 }
 
-function DepositHMTSummary() {
-  return <Trans>Deposit HMT Summary</Trans>
+function ExchangeCurrency() {
+  return <Trans>Exchange currency</Trans>
 }
 
 export function TransactionSummary({ info }: { info: TransactionInfo }) {
@@ -361,7 +361,7 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
     case TransactionType.SUBMIT_PROPOSAL:
       return <SubmitProposalTransactionSummary />
 
-    case TransactionType.DEPOSIT_HMT:
-      return <DepositHMTSummary />
+    case TransactionType.EXCHANGE_CURRENCY:
+      return <ExchangeCurrency />
   }
 }

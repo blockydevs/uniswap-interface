@@ -37,6 +37,7 @@ interface DepositHMTProps {
   title: ReactNode
   setBalanceRefreshKey: any
   hmtBalance: any
+  //BLOCKYTODO: any zamienić na prawidłowe typowanie
 }
 
 export default function DepositHMTModal({
@@ -88,9 +89,10 @@ export default function DepositHMTModal({
   }
 
   const transactionAdder = useCallback(
-    (response: any, convertedCurrency: any) => {
+    (response: any, convertedCurrency: string) => {
+      //BLOCKYTODO: any zamienić na prawidłowe typowanie
       addTransaction(response, {
-        type: TransactionType.DEPOSIT_HMT,
+        type: TransactionType.EXCHANGE_CURRENCY,
         spender: account,
         currencyAmount: convertedCurrency,
       })

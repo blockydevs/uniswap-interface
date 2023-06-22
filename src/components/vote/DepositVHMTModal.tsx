@@ -2,10 +2,12 @@ import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { parseUnits } from 'ethers/lib/utils'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TransactionType } from 'state/transactions/types'
 import styled, { useTheme } from 'styled-components/macro'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
@@ -33,6 +35,7 @@ interface DepositVHMTProps {
   title: ReactNode
   setBalanceRefreshKey: any
   uniBalance: any
+  //BLOCKYTODO: any zamienić na prawidłowe typowanie
 }
 
 export default function DepositVHMTModal({
@@ -45,6 +48,7 @@ export default function DepositVHMTModal({
   const { account } = useWeb3React()
   const uniContract = useUniContract()
   const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+  const addTransaction = useTransactionAdder()
 
   const theme = useTheme()
 
@@ -71,6 +75,18 @@ export default function DepositVHMTModal({
     setError('')
   }
 
+  const transactionAdder = useCallback(
+    (response: any, convertedCurrency: string) => {
+      //BLOCKYTODO: any zamienić na prawidłowe typowanie
+      addTransaction(response, {
+        type: TransactionType.EXCHANGE_CURRENCY,
+        spender: account,
+        currencyAmount: convertedCurrency,
+      })
+    },
+    [account, addTransaction]
+  )
+
   async function onWithdrawToVHMTSubmit() {
     if (!uniContract) return
     if (currencyToExchange.length === 0 || currencyToExchange === '0') {
@@ -89,6 +105,7 @@ export default function DepositVHMTModal({
     try {
       setAttempting(true)
       const response = await uniContract.withdrawTo(account, convertedCurrency)
+      transactionAdder(response, currencyToExchange)
       setWithdrawToHash(response ? response.hash : undefined)
 
       const withdrawWaitResponse = await response.wait()

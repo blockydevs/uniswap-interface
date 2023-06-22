@@ -67,6 +67,8 @@ export function swapErrorToUserReadableMessage(error: any): string {
       return t`The output token cannot be transferred. There may be an issue with the output token. Note: fee on transfer and rebase tokens are incompatible with Uniswap V3.`
     case 'Spender allowance too low':
       return t`Spender allowance too low`
+    case 'No transaction hash found.':
+      return t`No transaction hash found`
     default:
       if (reason?.indexOf('undefined is not an object') !== -1) {
         console.error(error, reason)
