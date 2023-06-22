@@ -376,6 +376,7 @@ export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean 
 
   const { account } = useWeb3React()
   const uniContract = useUniContract()
+  const transactions = useAppSelector((state) => state.transactions)
 
   useEffect(() => {
     setIsLoading(true)
@@ -393,7 +394,7 @@ export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean 
     }
 
     getDelegatee()
-  }, [account, uniContract])
+  }, [account, uniContract, transactions])
 
   return { userDelegatee, isLoading }
 }
@@ -456,7 +457,6 @@ export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount
 export function useDelegateCallback(): (delegatee: string | undefined) => undefined | Promise<string> {
   const { account, chainId, provider } = useWeb3React()
   const addTransaction = useTransactionAdder()
-
   const uniContract = useUniContract()
 
   return useCallback(
