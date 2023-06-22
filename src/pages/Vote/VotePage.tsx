@@ -93,8 +93,6 @@ const ArrowWrapper = styled(StyledInternalLink)`
   }
 `
 const CardWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
 `
@@ -116,10 +114,12 @@ const ProgressWrapper = styled.div`
   position: relative;
 `
 
-const Progress = styled.div<{ status: 'for' | 'against'; percentageString?: string }>`
+const Progress = styled.div<{ status: 'for' | 'against' | 'abstain'; percentageString?: string }>`
   height: 4px;
   border-radius: 4px;
-  background-color: ${({ theme, status }) => (status === 'for' ? theme.accentSuccess : theme.accentFailure)};
+  background-color: ${({ theme, status }) => status === 'for' && theme.accentSuccess};
+  background-color: ${({ theme, status }) => status === 'against' && theme.accentFailure};
+  background-color: ${({ theme, status }) => status === 'abstain' && theme.accentWarning};
   width: ${({ percentageString }) => percentageString ?? '0%'};
 `
 
@@ -222,11 +222,18 @@ export default function VotePage() {
   const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
 
   // get total votes and format percentages for UI
-  const totalVotes = proposalData?.forCount?.add(proposalData.againstCount)
+  const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
+
   const forPercentage = totalVotes
     ? proposalData?.forCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
     : undefined
-  const againstPercentage = forPercentage ? new Fraction(100).subtract(forPercentage) : undefined
+  const abstainPercentage = totalVotes
+    ? proposalData?.abstainCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
+    : undefined
+  const againstPercentage =
+    forPercentage && abstainPercentage
+      ? new Fraction(100).subtract(forPercentage).subtract(abstainPercentage)
+      : undefined
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
@@ -349,6 +356,7 @@ export default function VotePage() {
                 >
                   <Trans>Vote For</Trans>
                 </ButtonPrimary>
+
                 <ButtonPrimary
                   padding="8px"
                   $borderRadius="8px"
@@ -367,7 +375,7 @@ export default function VotePage() {
                     toggleVoteModal()
                   }}
                 >
-                  <Trans>Vote Abstain</Trans>
+                  <Trans>Abstain</Trans>
                 </ButtonPrimary>
               </RowFixed>
             )}
@@ -459,6 +467,30 @@ export default function VotePage() {
                       status="against"
                       percentageString={
                         proposalData?.againstCount?.greaterThan(0) ? `${againstPercentage?.toFixed(0) ?? 0}%` : '0%'
+                      }
+                    />
+                  </ProgressWrapper>
+                </CardSection>
+              </StyledDataCard>
+              <StyledDataCard>
+                <CardSection>
+                  <AutoColumn gap="md">
+                    <WrapSmall>
+                      <ThemedText.DeprecatedBlack fontWeight={600}>
+                        <Trans>Abstain</Trans>
+                      </ThemedText.DeprecatedBlack>
+                      {proposalData && (
+                        <ThemedText.DeprecatedBlack fontWeight={600}>
+                          {proposalData.abstainCount.toFixed(0, { groupSeparator: ',' })}
+                        </ThemedText.DeprecatedBlack>
+                      )}
+                    </WrapSmall>
+                  </AutoColumn>
+                  <ProgressWrapper>
+                    <Progress
+                      status="abstain"
+                      percentageString={
+                        proposalData?.abstainCount?.greaterThan(0) ? `${abstainPercentage?.toFixed(0) ?? 0}%` : '0%'
                       }
                     />
                   </ProgressWrapper>
