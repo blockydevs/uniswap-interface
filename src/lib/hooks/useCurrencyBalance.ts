@@ -105,7 +105,7 @@ export function useTokenBalancesWithLoadingIndicator(
         const resultVHMT = await uniContract?.functions.balanceOf(account)
         const resultHMT = await hmtUniContract?.functions.balanceOf(account)
 
-        setVhmtBalance(resultVHMT)
+        if (resultVHMT) setVhmtBalance(resultVHMT)
         if (resultHMT) setHmtBalance(resultHMT[0])
 
         const convertedHMTResult = resultHMT && BigInt(resultHMT).toString()

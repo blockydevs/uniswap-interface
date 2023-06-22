@@ -17,7 +17,6 @@ import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
 import {
@@ -122,8 +121,8 @@ export default function Landing() {
   const [balanceRefreshKey, setBalanceRefreshKey] = useState<number>(0)
   const { account, chainId } = useWeb3React()
 
-  const balance = useSelector((state: any) => state.governace)
-  console.log('balance z REDUXA:', balance)
+  // const hmtBalanceUpdated = useSelector((state: any) => state.governace.hmtBalance)
+  // console.log('hmtBalanceUpdated z REDUXA:', hmtBalanceUpdated)
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -147,11 +146,14 @@ export default function Landing() {
     chainId ? UNI[chainId] : undefined,
     balanceRefreshKey
   )
+  console.log('uniBalance:', Number(uniBalance?.toExact()))
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
-    chainId ? hmtContractToken : undefined
+    chainId ? hmtContractToken : undefined,
+    balanceRefreshKey
   )
+  console.log('hmtBalance:', Number(hmtBalance?.toExact()))
 
   const { userDelegatee }: { userDelegatee: string; isLoading: boolean } = useUserDelegatee()
 
@@ -183,11 +185,14 @@ export default function Landing() {
             onDismiss={toggleDepositHMTModal}
             title={showDepositHMTButton && <Trans>Deposit HMT</Trans>}
             setBalanceRefreshKey={setBalanceRefreshKey}
+            hmtBalance={hmtBalance}
           />
           <DepositVHMTModal
             isOpen={showDepositVHMTModal}
             onDismiss={toggleDepositVHMTModal}
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
+            setBalanceRefreshKey={setBalanceRefreshKey}
+            uniBalance={uniBalance}
           />
           <TopSection gap="2px">
             <WrapSmall>

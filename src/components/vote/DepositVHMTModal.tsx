@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { parseUnits } from 'ethers/lib/utils'
-import { useTokenBalance } from 'lib/hooks/useCurrencyBalance'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
@@ -10,7 +9,6 @@ import { ExchangeInputErrors } from 'state/governance/types'
 import styled, { useTheme } from 'styled-components/macro'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
-import { UNI } from '../../constants/tokens'
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
@@ -33,13 +31,21 @@ interface DepositVHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
+  setBalanceRefreshKey: any
+  uniBalance: any
 }
 
-export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVHMTProps) {
-  const { account, chainId } = useWeb3React()
+export default function DepositVHMTModal({
+  isOpen,
+  onDismiss,
+  title,
+  setBalanceRefreshKey,
+  uniBalance,
+}: DepositVHMTProps) {
+  const { account } = useWeb3React()
   const uniContract = useUniContract()
-  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
   const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+
   const theme = useTheme()
 
   const [attempting, setAttempting] = useState(false)
@@ -84,8 +90,12 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
       setAttempting(true)
       const response = await uniContract.withdrawTo(account, convertedCurrency)
       setWithdrawToHash(response ? response.hash : undefined)
+
+      const withdrawWaitResponse = await response.wait()
+      if (withdrawWaitResponse) setBalanceRefreshKey((prevKey: number) => prevKey + 1)
     } catch (error) {
       setError(error)
+      setAttempting(false)
     }
   }
 

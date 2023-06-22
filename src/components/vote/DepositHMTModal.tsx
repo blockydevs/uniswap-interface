@@ -2,7 +2,7 @@ import { parseUnits } from '@ethersproject/units'
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
-import { useHmtContractToken, useTokenBalance } from 'lib/hooks/useCurrencyBalance'
+import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
@@ -34,14 +34,20 @@ interface DepositHMTProps {
   onDismiss: () => void
   title: ReactNode
   setBalanceRefreshKey: any
+  hmtBalance: any
 }
 
-export default function DepositHMTModal({ isOpen, onDismiss, title, setBalanceRefreshKey }: DepositHMTProps) {
-  const { account, chainId } = useWeb3React()
+export default function DepositHMTModal({
+  isOpen,
+  onDismiss,
+  title,
+  setBalanceRefreshKey,
+  hmtBalance,
+}: DepositHMTProps) {
+  const { account } = useWeb3React()
   const hmtUniContract = useHMTUniContract()
   const hmtContractToken = useHmtContractToken()
   const uniContract = useUniContract()
-  const hmtBalance = useTokenBalance(account ?? undefined, chainId ? hmtContractToken : undefined)
   const theme = useTheme()
   const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.toExact())
 
