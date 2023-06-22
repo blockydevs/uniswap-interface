@@ -16,7 +16,6 @@ import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { darken } from 'polished'
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
 import {
@@ -118,7 +117,6 @@ const StyledExternalLink = styled(ExternalLink)`
 `
 
 export default function Landing() {
-  const [balanceRefreshKey, setBalanceRefreshKey] = useState<number>(0)
   const { account, chainId } = useWeb3React()
 
   // const hmtBalanceUpdated = useSelector((state: any) => state.governace.hmtBalance)
@@ -143,15 +141,13 @@ export default function Landing() {
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
-    chainId ? UNI[chainId] : undefined,
-    balanceRefreshKey
+    chainId ? UNI[chainId] : undefined
   )
   console.log('uniBalance:', Number(uniBalance?.toExact()))
 
   const hmtBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
-    chainId ? hmtContractToken : undefined,
-    balanceRefreshKey
+    chainId ? hmtContractToken : undefined
   )
   console.log('hmtBalance:', Number(hmtBalance?.toExact()))
 
@@ -184,14 +180,12 @@ export default function Landing() {
             isOpen={showDepositHMTModal}
             onDismiss={toggleDepositHMTModal}
             title={showDepositHMTButton && <Trans>Deposit HMT</Trans>}
-            setBalanceRefreshKey={setBalanceRefreshKey}
             hmtBalance={hmtBalance}
           />
           <DepositVHMTModal
             isOpen={showDepositVHMTModal}
             onDismiss={toggleDepositVHMTModal}
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
-            setBalanceRefreshKey={setBalanceRefreshKey}
             uniBalance={uniBalance}
           />
           <TopSection gap="2px">

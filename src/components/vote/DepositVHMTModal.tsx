@@ -33,18 +33,11 @@ interface DepositVHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
-  setBalanceRefreshKey: any
   uniBalance: any
   //BLOCKYTODO: any zamienić na prawidłowe typowanie
 }
 
-export default function DepositVHMTModal({
-  isOpen,
-  onDismiss,
-  title,
-  setBalanceRefreshKey,
-  uniBalance,
-}: DepositVHMTProps) {
+export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance }: DepositVHMTProps) {
   const { account } = useWeb3React()
   const uniContract = useUniContract()
   const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
@@ -107,9 +100,6 @@ export default function DepositVHMTModal({
       const response = await uniContract.withdrawTo(account, convertedCurrency)
       transactionAdder(response, currencyToExchange)
       setWithdrawToHash(response ? response.hash : undefined)
-
-      const withdrawWaitResponse = await response.wait()
-      if (withdrawWaitResponse) setBalanceRefreshKey((prevKey: number) => prevKey + 1)
     } catch (error) {
       setError(error)
       setAttempting(false)

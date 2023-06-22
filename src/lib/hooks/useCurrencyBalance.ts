@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
 import { hmtBalanceUpdate } from 'state/governance/reducer'
+import { useAppSelector } from 'state/hooks'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
@@ -80,8 +81,7 @@ export function useHmtContractToken() {
  */
 export function useTokenBalancesWithLoadingIndicator(
   address?: string,
-  tokens?: (Token | undefined)[],
-  balanceRefreshKey?: number
+  tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const [vhmtBalance, setVhmtBalance] = useState<BigNumber[]>([])
   const [hmtBalance, setHmtBalance] = useState<BigNumber[]>([])
@@ -92,6 +92,8 @@ export function useTokenBalancesWithLoadingIndicator(
 
   const uniContract = useUniContract()
   const hmtUniContract = useHMTUniContract()
+  const transactions = useAppSelector((state) => state.transactions)
+  console.log('transactions:', transactions)
 
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
@@ -118,7 +120,7 @@ export function useTokenBalancesWithLoadingIndicator(
     }
 
     fetchBalance()
-  }, [account, uniContract, hmtUniContract, balanceRefreshKey, dispatch])
+  }, [account, uniContract, hmtUniContract, dispatch, transactions])
 
   return useMemo(
     () => [
@@ -145,22 +147,16 @@ export function useTokenBalancesWithLoadingIndicator(
 
 export function useTokenBalances(
   address?: string,
-  tokens?: (Token | undefined)[],
-  balanceRefreshKey?: number
+  tokens?: (Token | undefined)[]
 ): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
-  return useTokenBalancesWithLoadingIndicator(address, tokens, balanceRefreshKey)[0]
+  return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
 }
 
 // get the balance for a single token/account combo
-export function useTokenBalance(
-  account?: string,
-  token?: Token,
-  balanceRefreshKey?: number
-): CurrencyAmount<Token> | undefined {
+export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
   const tokenBalances = useTokenBalances(
     account,
-    useMemo(() => [token], [token]),
-    balanceRefreshKey
+    useMemo(() => [token], [token])
   )
   if (!token) return undefined
   return tokenBalances[token.address]
