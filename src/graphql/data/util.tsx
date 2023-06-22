@@ -107,7 +107,6 @@ export function gqlToCurrency(token: {
 
 const URL_CHAIN_PARAM_TO_BACKEND: { [key: string]: Chain } = {
   ethereum: Chain.Ethereum,
-  sepolia: Chain.Sepolia,
   polygon: Chain.Polygon,
   celo: Chain.Celo,
   arbitrum: Chain.Arbitrum,
@@ -123,7 +122,6 @@ export function validateUrlChainParam(chainName: string | undefined) {
 export const CHAIN_NAME_TO_CHAIN_ID: { [key in Chain]: SupportedChainId } = {
   [Chain.Ethereum]: SupportedChainId.MAINNET,
   [Chain.EthereumGoerli]: SupportedChainId.GOERLI,
-  [Chain.Sepolia]: SupportedChainId.SEPOLIA,
   [Chain.Polygon]: SupportedChainId.POLYGON,
   [Chain.Celo]: SupportedChainId.CELO,
   [Chain.Optimism]: SupportedChainId.OPTIMISM,

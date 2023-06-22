@@ -44,6 +44,7 @@ export enum TransactionType {
   REPAY,
   DEPLOY,
   CANCEL,
+  DEPOSIT_HMT,
 }
 
 interface BaseTransactionInfo {
@@ -79,6 +80,12 @@ export interface ApproveTransactionInfo extends BaseTransactionInfo {
   type: TransactionType.APPROVAL
   tokenAddress: string
   spender: string
+}
+
+interface DepositTransaction_HMT extends BaseTransactionInfo {
+  type: TransactionType.DEPOSIT_HMT
+  spender: string | undefined
+  currencyAmount: string
 }
 
 interface BaseSwapTransactionInfo extends BaseTransactionInfo {
@@ -196,6 +203,7 @@ export type TransactionInfo =
   | CollectFeesTransactionInfo
   | RemoveLiquidityV3TransactionInfo
   | SubmitProposalTransactionInfo
+  | DepositTransaction_HMT
 
 export interface TransactionDetails {
   hash: string

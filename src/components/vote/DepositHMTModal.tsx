@@ -3,11 +3,13 @@ import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { useHMTUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TransactionType } from 'state/transactions/types'
 import styled, { useTheme } from 'styled-components/macro'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
@@ -50,6 +52,7 @@ export default function DepositHMTModal({
   const uniContract = useUniContract()
   const theme = useTheme()
   const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.toExact())
+  const addTransaction = useTransactionAdder()
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
@@ -83,6 +86,17 @@ export default function DepositHMTModal({
     maxValue && setCurrencyToExchange(maxValue)
     setValidationInputError('')
   }
+
+  const transactionAdder = useCallback(
+    (response: any, convertedCurrency: any) => {
+      addTransaction(response, {
+        type: TransactionType.DEPOSIT_HMT,
+        spender: account,
+        currencyAmount: convertedCurrency,
+      })
+    },
+    [account, addTransaction]
+  )
 
   async function onTransactionApprove() {
     if (!uniContract || !hmtUniContract) return
@@ -125,10 +139,10 @@ export default function DepositHMTModal({
     try {
       setAttempting(true)
       const response = await uniContract.depositFor(account, convertedCurrency)
+      transactionAdder(response, convertedCurrency)
       setDepositForHash(response ? response.hash : undefined)
 
       const depositWaitResponse = await response.wait()
-      console.log('depositWaitResponse:', depositWaitResponse)
       if (depositWaitResponse) setBalanceRefreshKey((prevKey: number) => prevKey + 1)
     } catch (error) {
       setError(error)
