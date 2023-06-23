@@ -44,23 +44,29 @@ function StatusText({ status }: { status: ProposalState }) {
   }
 }
 
-const StyledProposalContainer = styled.span<{ status: ProposalState }>`
-  font-size: 0.825rem;
-  font-weight: 600;
+const StyledProposalContainer = styled.div<{ status: ProposalState }>`
+  display: flex;
+  font-size: 1rem;
+  font-weight: 500;
   padding: 0.5rem;
   border-radius: 8px;
   color: ${({ status, theme }) => handleColorType(status, theme)};
-  border: 1px solid ${({ status, theme }) => handleColorType(status, theme)};
-  width: fit-content;
-  justify-self: flex-end;
-  text-transform: uppercase;
-  flex: 0 0 100px;
   text-align: center;
+  align-items: center;
+  gap: 14px;
+`
+
+const Dot = styled.div<{ status: ProposalState }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: ${({ status, theme }) => handleColorType(status, theme)};
 `
 
 export function ProposalStatus({ status }: { status: ProposalState }) {
   return (
     <StyledProposalContainer status={status}>
+      <Dot status={status} />
       <StatusText status={status} />
     </StyledProposalContainer>
   )
