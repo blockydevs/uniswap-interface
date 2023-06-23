@@ -52,7 +52,7 @@ const ShareAction = styled.div`
   display: flex;
   align-items: center;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 16px;
   font-weight: 400;
   gap: 12px;

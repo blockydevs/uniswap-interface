@@ -34,7 +34,7 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   width: ${({ width }) => width ?? '100%'};
   font-weight: 500;
   text-align: center;
-  border-radius: ${({ $borderRadius }) => $borderRadius ?? '20px'};
+  border-radius: ${({ $borderRadius }) => $borderRadius ?? '4px'};
   outline: none;
   border: 1px solid transparent;
   color: ${({ theme }) => theme.textPrimary};
@@ -99,7 +99,7 @@ export const SmallButtonPrimary = styled(ButtonPrimary)`
   font-size: 16px;
   padding: ${({ padding }) => padding ?? '8px 12px'};
 
-  border-radius: 12px;
+  border-radius: 4px;
 `
 
 const BaseButtonLight = styled(BaseButton)`
@@ -163,7 +163,7 @@ export const ButtonSecondary = styled(BaseButton)`
   color: ${({ theme }) => theme.accentAction};
   background-color: transparent;
   font-size: 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: ${({ padding }) => (padding ? padding : '10px')};
 
   &:focus {
@@ -358,13 +358,13 @@ export function ButtonRadioChecked({ active = false, children, ...rest }: { acti
 
   if (!active) {
     return (
-      <ButtonOutlined $borderRadius="12px" padding="12px 8px" {...rest}>
+      <ButtonOutlined $borderRadius="4px" padding="12px 8px" {...rest}>
         <RowBetween>{children}</RowBetween>
       </ButtonOutlined>
     )
   } else {
     return (
-      <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="12px">
+      <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="4px">
         <RowBetween>
           {children}
           <CheckboxWrapper>
@@ -474,7 +474,7 @@ function pickThemeButtonTextColor({ theme, emphasis }: { theme: DefaultTheme; em
 const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   align-items: center;
   background-color: ${pickThemeButtonBackgroundColor};
-  border-radius: 16px;
+  border-radius: 4px;
   border: 0;
   color: ${pickThemeButtonTextColor};
   cursor: pointer;

@@ -5,7 +5,7 @@ export const IconHoverText = styled.span`
   color: ${({ theme }) => theme.textPrimary};
   position: absolute;
   top: 28px;
-  border-radius: 8px;
+  border-radius: 4px;
   transform: translateX(-50%);
   opacity: 0;
   font-size: 12px;
