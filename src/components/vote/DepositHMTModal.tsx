@@ -1,13 +1,17 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { parseUnits } from '@ethersproject/units'
 import { Trans } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
-import { useHmtContractToken, useTokenBalance } from 'lib/hooks/useCurrencyBalance'
-import { ReactNode, useState } from 'react'
+import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
+import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { useHMTUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TransactionType } from 'state/transactions/types'
 import styled, { useTheme } from 'styled-components/macro'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
@@ -33,16 +37,17 @@ interface DepositHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
+  hmtBalance: CurrencyAmount<Token> | undefined
 }
 
-export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMTProps) {
-  const { account, chainId } = useWeb3React()
+export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }: DepositHMTProps) {
+  const { account } = useWeb3React()
   const hmtUniContract = useHMTUniContract()
   const hmtContractToken = useHmtContractToken()
   const uniContract = useUniContract()
-  const hmtBalance = useTokenBalance(account ?? undefined, chainId ? hmtContractToken : undefined)
   const theme = useTheme()
   const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.toExact())
+  const addTransaction = useTransactionAdder()
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
@@ -76,6 +81,17 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     maxValue && setCurrencyToExchange(maxValue)
     setValidationInputError('')
   }
+
+  const transactionAdder = useCallback(
+    (response: TransactionResponse, convertedCurrency: string) => {
+      addTransaction(response, {
+        type: TransactionType.EXCHANGE_CURRENCY,
+        spender: account,
+        currencyAmount: convertedCurrency,
+      })
+    },
+    [account, addTransaction]
+  )
 
   async function onTransactionApprove() {
     if (!uniContract || !hmtUniContract) return
@@ -118,6 +134,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title }: DepositHMT
     try {
       setAttempting(true)
       const response = await uniContract.depositFor(account, convertedCurrency)
+      transactionAdder(response, convertedCurrency)
       setDepositForHash(response ? response.hash : undefined)
     } catch (error) {
       setError(error)

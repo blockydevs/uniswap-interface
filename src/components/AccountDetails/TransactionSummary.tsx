@@ -304,6 +304,10 @@ function SwapSummary({ info }: { info: ExactInputSwapTransactionInfo | ExactOutp
   }
 }
 
+function ExchangeCurrency() {
+  return <Trans>Exchange currency</Trans>
+}
+
 export function TransactionSummary({ info }: { info: TransactionInfo }) {
   switch (info.type) {
     case TransactionType.ADD_LIQUIDITY_V3_POOL:
@@ -356,5 +360,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
 
     case TransactionType.SUBMIT_PROPOSAL:
       return <SubmitProposalTransactionSummary />
+
+    case TransactionType.EXCHANGE_CURRENCY:
+      return <ExchangeCurrency />
   }
 }

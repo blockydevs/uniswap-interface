@@ -6,7 +6,9 @@ import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useHMTUniContract, useUniContract } from 'state/governance/hooks'
+import { useAppSelector } from 'state/hooks'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
@@ -85,8 +87,11 @@ export function useTokenBalancesWithLoadingIndicator(
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const { account, chainId } = useWeb3React() // we cannot fetch balances cross-chain
+  const dispatch = useDispatch()
+
   const uniContract = useUniContract()
   const hmtUniContract = useHMTUniContract()
+  const transactions = useAppSelector((state) => state.transactions)
 
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
@@ -94,30 +99,23 @@ export function useTokenBalancesWithLoadingIndicator(
   )
 
   useEffect(() => {
-    setIsLoading(true)
-    let isCancelled = false
-
-    try {
-      const fetchBalance = async () => {
+    const fetchBalance = async () => {
+      setIsLoading(true)
+      try {
         const resultVHMT = await uniContract?.functions.balanceOf(account)
         const resultHMT = await hmtUniContract?.functions.balanceOf(account)
-        if (!isCancelled) {
-          setVhmtBalance(resultVHMT)
-          setHmtBalance(resultHMT)
-        }
+
+        if (resultVHMT) setVhmtBalance(resultVHMT)
+        if (resultHMT) setHmtBalance(resultHMT[0])
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
       }
-      fetchBalance()
-    } catch (error) {
-      console.log(error)
-      setIsLoading(false)
-    } finally {
-      setIsLoading(false)
     }
 
-    return () => {
-      isCancelled = true
-    }
-  }, [account, uniContract, hmtUniContract])
+    fetchBalance()
+  }, [account, uniContract, hmtUniContract, dispatch, transactions])
 
   return useMemo(
     () => [
@@ -133,7 +131,6 @@ export function useTokenBalancesWithLoadingIndicator(
             if (hmtAmount && hmtUniContract) {
               memo[hmtUniContract.address] = CurrencyAmount.fromRawAmount(token, hmtAmount)
             }
-
             return memo
           }, {})
         : {},

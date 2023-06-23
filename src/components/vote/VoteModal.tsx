@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
@@ -6,7 +7,7 @@ import styled, { useTheme } from 'styled-components/macro'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useUserVotes, useVoteCallback } from '../../state/governance/hooks'
+import { useVoteCallback } from '../../state/governance/hooks'
 import { VoteOption } from '../../state/governance/types'
 import { CustomLightSpinner, ThemedText } from '../../theme'
 import { ExternalLink } from '../../theme'
@@ -41,12 +42,12 @@ interface VoteModalProps {
   onDismiss: () => void
   voteOption: VoteOption | undefined
   proposalId: string | undefined // id for the proposal to vote on
+  availableVotes: CurrencyAmount<Token> | undefined // id for the proposal to vote on
 }
 
-export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }: VoteModalProps) {
+export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, availableVotes }: VoteModalProps) {
   const { chainId } = useWeb3React()
   const voteCallback = useVoteCallback()
-  const { availableVotes } = useUserVotes()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()

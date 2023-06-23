@@ -19,6 +19,7 @@ import { useContract } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useAppSelector } from 'state/hooks'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
 
 import {
@@ -307,7 +308,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           description = UNISWAP_GRANTS_PROPOSAL_DESCRIPTION
         }
 
-        let title = description.length > 30 ? description.substring(0, 30) + '...' : description
+        let title = description?.split(/#+\s|\n/g)[1]
         if (startBlock === POLYGON_START_BLOCK) {
           title = POLYGON_PROPOSAL_TITLE
         }
@@ -375,6 +376,7 @@ export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean 
 
   const { account } = useWeb3React()
   const uniContract = useUniContract()
+  const transactions = useAppSelector((state) => state.transactions)
 
   useEffect(() => {
     setIsLoading(true)
@@ -392,7 +394,7 @@ export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean 
     }
 
     getDelegatee()
-  }, [account, uniContract])
+  }, [account, uniContract, transactions])
 
   return { userDelegatee, isLoading }
 }
@@ -403,10 +405,10 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
   const [isLoading, setIsLoading] = useState(true)
   const { account, chainId } = useWeb3React()
   const uniContract = useUniContract()
+  const transactions = useAppSelector((state) => state.transactions)
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
-  // BLOCKYTODO: refactor all useEffects to one reusable hook
   useEffect(() => {
     setIsLoading(true)
     async function getUserVotesFromUni() {
@@ -425,7 +427,7 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
     }
 
     getUserVotesFromUni()
-  }, [account, uniContract, uni])
+  }, [account, uniContract, uni, transactions])
 
   return { isLoading, availableVotes }
 }
@@ -455,7 +457,6 @@ export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount
 export function useDelegateCallback(): (delegatee: string | undefined) => undefined | Promise<string> {
   const { account, chainId, provider } = useWeb3React()
   const addTransaction = useTransactionAdder()
-
   const uniContract = useUniContract()
 
   return useCallback(

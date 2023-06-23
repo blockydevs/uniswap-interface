@@ -44,6 +44,7 @@ export enum TransactionType {
   REPAY,
   DEPLOY,
   CANCEL,
+  EXCHANGE_CURRENCY,
 }
 
 interface BaseTransactionInfo {
@@ -177,6 +178,12 @@ interface SubmitProposalTransactionInfo {
   type: TransactionType.SUBMIT_PROPOSAL
 }
 
+interface ExchangeCurrency extends BaseTransactionInfo {
+  type: TransactionType.EXCHANGE_CURRENCY
+  spender: string | undefined
+  currencyAmount: string
+}
+
 export type TransactionInfo =
   | ApproveTransactionInfo
   | ExactOutputSwapTransactionInfo
@@ -196,6 +203,7 @@ export type TransactionInfo =
   | CollectFeesTransactionInfo
   | RemoveLiquidityV3TransactionInfo
   | SubmitProposalTransactionInfo
+  | ExchangeCurrency
 
 export interface TransactionDetails {
   hash: string

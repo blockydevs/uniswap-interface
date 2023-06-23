@@ -1,16 +1,18 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Trans } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
 import { parseUnits } from 'ethers/lib/utils'
-import { useTokenBalance } from 'lib/hooks/useCurrencyBalance'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
 import { useUniContract } from 'state/governance/hooks'
 import { ExchangeInputErrors } from 'state/governance/types'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TransactionType } from 'state/transactions/types'
 import styled, { useTheme } from 'styled-components/macro'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 
-import { UNI } from '../../constants/tokens'
 import { ThemedText } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
@@ -33,13 +35,15 @@ interface DepositVHMTProps {
   isOpen: boolean
   onDismiss: () => void
   title: ReactNode
+  uniBalance: CurrencyAmount<Token> | undefined
 }
 
-export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVHMTProps) {
-  const { account, chainId } = useWeb3React()
+export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance }: DepositVHMTProps) {
+  const { account } = useWeb3React()
   const uniContract = useUniContract()
-  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
   const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+  const addTransaction = useTransactionAdder()
+
   const theme = useTheme()
 
   const [attempting, setAttempting] = useState(false)
@@ -65,6 +69,17 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
     setError('')
   }
 
+  const transactionAdder = useCallback(
+    (response: TransactionResponse, convertedCurrency: string) => {
+      addTransaction(response, {
+        type: TransactionType.EXCHANGE_CURRENCY,
+        spender: account,
+        currencyAmount: convertedCurrency,
+      })
+    },
+    [account, addTransaction]
+  )
+
   async function onWithdrawToVHMTSubmit() {
     if (!uniContract) return
     if (currencyToExchange.length === 0 || currencyToExchange === '0') {
@@ -83,9 +98,11 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title }: DepositVH
     try {
       setAttempting(true)
       const response = await uniContract.withdrawTo(account, convertedCurrency)
+      transactionAdder(response, currencyToExchange)
       setWithdrawToHash(response ? response.hash : undefined)
     } catch (error) {
       setError(error)
+      setAttempting(false)
     }
   }
 

@@ -116,6 +116,11 @@ const StyledExternalLink = styled(ExternalLink)`
   color: ${({ theme }) => theme.textPrimary};
 `
 
+const StyledButtonsContainer = styled(AutoRow)`
+  flex-wrap: nowrap;
+  white-space: nowrap;
+`
+
 export default function Landing() {
   const { account, chainId } = useWeb3React()
 
@@ -175,18 +180,17 @@ export default function Landing() {
             isOpen={showDepositHMTModal}
             onDismiss={toggleDepositHMTModal}
             title={showDepositHMTButton && <Trans>Deposit HMT</Trans>}
+            hmtBalance={hmtBalance}
           />
           <DepositVHMTModal
             isOpen={showDepositVHMTModal}
             onDismiss={toggleDepositVHMTModal}
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
+            uniBalance={uniBalance}
           />
           <TopSection gap="2px">
             <WrapSmall>
-              <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
-                <Trans>Proposals</Trans>
-              </ThemedText.DeprecatedMediumHeader>
-              <AutoRow gap="6px" justify="flex-end">
+              <StyledButtonsContainer gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
                 {showDepositHMTButton ? (
                   <ButtonPrimary
@@ -245,11 +249,14 @@ export default function Landing() {
                 >
                   <Trans>Create Proposal</Trans>
                 </ButtonPrimary> */}
-              </AutoRow>
+              </StyledButtonsContainer>
             </WrapSmall>
+            <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
+              <Trans>Proposals</Trans>
+            </ThemedText.DeprecatedMediumHeader>
+            <div />
             {!showUnlockVoting && (
               <RowBetween>
-                <div />
                 {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <RowFixed>
                     <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
