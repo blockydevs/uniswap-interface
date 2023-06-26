@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { Trace } from '@uniswap/analytics'
 import { InterfacePageName } from '@uniswap/analytics-events'
@@ -16,6 +15,7 @@ import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components/macro'
+import { getDateFromBlock } from 'utils/getDateFromBlock'
 
 import { ButtonPrimary } from '../../components/Button'
 import { GrayCard } from '../../components/Card'
@@ -57,7 +57,11 @@ import { ProposalStatus } from './styled'
 
 const PageWrapper = styled(AutoColumn)`
   padding-top: 68px;
-  width: 100%;
+  width: 820px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    width: unset;
+  }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding: 48px 8px 0px;
@@ -73,7 +77,7 @@ const ProposalInfo = styled(AutoColumn)`
   border-radius: 12px;
   padding: 1.5rem;
   position: relative;
-  max-width: 640px;
+  max-width: 820px;
   width: 100%;
 `
 
@@ -92,6 +96,7 @@ const ArrowWrapper = styled(StyledInternalLink)`
     text-decoration: none;
   }
 `
+
 const CardWrapper = styled.div`
   gap: 12px;
   width: 100%;
@@ -143,23 +148,19 @@ const ProposerAddressLink = styled(ExternalLink)`
   word-break: break-all;
 `
 
-function getDateFromBlock(
-  targetBlock: number | undefined,
-  currentBlock: number | undefined,
-  averageBlockTimeInSeconds: number | undefined,
-  currentTimestamp: BigNumber | undefined
-): Date | undefined {
-  if (targetBlock && currentBlock && averageBlockTimeInSeconds && currentTimestamp) {
-    const date = new Date()
-    date.setTime(
-      currentTimestamp
-        .add(BigNumber.from(averageBlockTimeInSeconds).mul(BigNumber.from(targetBlock - currentBlock)))
-        .toNumber() * ms`1 second`
-    )
-    return date
-  }
-  return undefined
-}
+const ButtonContainer = styled('div')`
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 16px 24px;
+`
+
+const InnerButtonTextContainer = styled('div')`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
 
 export default function VotePage() {
   // see https://github.com/remix-run/react-router/issues/8200#issuecomment-962520661
@@ -172,6 +173,10 @@ export default function VotePage() {
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
+
+  const forVotes = proposalData?.forCount.toFixed(0, { groupSeparator: ',' })
+  const againstVotes = proposalData?.againstCount.toFixed(0, { groupSeparator: ',' })
+  const abstainVotes = proposalData?.abstainCount.toFixed(0, { groupSeparator: ',' })
 
   // update vote option based on button interactions
   const [voteOption, setVoteOption] = useState<VoteOption | undefined>(undefined)
@@ -346,21 +351,28 @@ export default function VotePage() {
               )}
             </AutoColumn>
             {showVotingButtons && (
-              <RowFixed style={{ width: '100%', gap: '12px' }}>
-                <ButtonPrimary
-                  padding="8px"
-                  $borderRadius="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.For)
-                    toggleVoteModal()
-                  }}
-                >
-                  <Trans>Vote For</Trans>
-                </ButtonPrimary>
+              <RowFixed style={{ width: '100%', gap: '8px' }}>
+                <ButtonContainer>
+                  <InnerButtonTextContainer>
+                    <ThemedText.BodyPrimary>
+                      <Trans>Votes For</Trans>
+                    </ThemedText.BodyPrimary>
+                    <ThemedText.BodyPrimary>{forVotes}</ThemedText.BodyPrimary>
+                  </InnerButtonTextContainer>
+
+                  <ButtonPrimary
+                    padding="8px"
+                    onClick={() => {
+                      setVoteOption(VoteOption.For)
+                      toggleVoteModal()
+                    }}
+                  >
+                    <Trans>Vote For</Trans>
+                  </ButtonPrimary>
+                </ButtonContainer>
 
                 <ButtonPrimary
                   padding="8px"
-                  $borderRadius="8px"
                   onClick={() => {
                     setVoteOption(VoteOption.Against)
                     toggleVoteModal()
@@ -370,7 +382,6 @@ export default function VotePage() {
                 </ButtonPrimary>
                 <ButtonPrimary
                   padding="8px"
-                  $borderRadius="8px"
                   onClick={() => {
                     setVoteOption(VoteOption.Abstain)
                     toggleVoteModal()
@@ -384,7 +395,6 @@ export default function VotePage() {
               <RowFixed style={{ width: '100%', gap: '12px' }}>
                 <ButtonPrimary
                   padding="8px"
-                  $borderRadius="8px"
                   onClick={() => {
                     toggleQueueModal()
                   }}
@@ -405,7 +415,6 @@ export default function VotePage() {
                 <RowFixed style={{ width: '100%', gap: '12px' }}>
                   <ButtonPrimary
                     padding="8px"
-                    $borderRadius="8px"
                     onClick={() => {
                       toggleExecuteModal()
                     }}
@@ -457,9 +466,7 @@ export default function VotePage() {
                         <Trans>Against</Trans>
                       </ThemedText.DeprecatedBlack>
                       {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.againstCount.toFixed(0, { groupSeparator: ',' })}
-                        </ThemedText.DeprecatedBlack>
+                        <ThemedText.DeprecatedBlack fontWeight={600}>{againstVotes}</ThemedText.DeprecatedBlack>
                       )}
                     </WrapSmall>
                   </AutoColumn>
@@ -481,9 +488,7 @@ export default function VotePage() {
                         <Trans>Abstain</Trans>
                       </ThemedText.DeprecatedBlack>
                       {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.abstainCount.toFixed(0, { groupSeparator: ',' })}
-                        </ThemedText.DeprecatedBlack>
+                        <ThemedText.DeprecatedBlack fontWeight={600}>{abstainVotes}</ThemedText.DeprecatedBlack>
                       )}
                     </WrapSmall>
                   </AutoColumn>
