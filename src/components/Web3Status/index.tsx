@@ -8,6 +8,7 @@ import Loader from 'components/Icons/LoadingSpinner'
 import { IconWrapper } from 'components/Identicon/StatusIcon'
 import { useGetConnection } from 'connection'
 import { Portal } from 'nft/components/common/Portal'
+import { ArrowDown, ArrowUp } from 'nft/components/icons'
 import { useIsNftClaimAvailable } from 'nft/hooks/useIsNftClaimAvailable'
 import { darken } from 'polished'
 import { useCallback, useMemo } from 'react'
@@ -35,7 +36,7 @@ const Web3StatusGeneric = styled(ButtonSecondary)`
   border-radius: ${FULL_BORDER_RADIUS}px;
   cursor: pointer;
   user-select: none;
-  height: 36px;
+  height: 46px;
   margin-right: 2px;
   margin-left: 2px;
   :focus {
@@ -120,7 +121,7 @@ const Text = styled.p`
   margin: 0 0.5rem 0 0.25rem;
   font-size: 1rem;
   width: fit-content;
-  font-weight: 500;
+  font-weight: 700;
 `
 
 const NetworkIcon = styled(AlertTriangle)`
@@ -151,11 +152,12 @@ function Web3StatusInner() {
   const { account, connector, chainId, ENSName } = useWeb3React()
   const getConnection = useGetConnection()
   const connection = getConnection(connector)
-  const [, toggleAccountDrawer] = useAccountDrawer()
+  const [isDrawerOpen, setIsDrawerOpen] = useAccountDrawer()
+
   const handleWalletDropdownClick = useCallback(() => {
     sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)
-    toggleAccountDrawer()
-  }, [toggleAccountDrawer])
+    setIsDrawerOpen()
+  }, [setIsDrawerOpen])
   const isClaimAvailable = useIsNftClaimAvailable((state) => state.isClaimAvailable)
 
   const error = useAppSelector((state) => state.connection.errorByConnectionType[getConnection(connector).type])
@@ -208,6 +210,7 @@ function Web3StatusInner() {
               <Text>{ENSName || shortenAddress(account)}</Text>
             </AddressAndChevronContainer>
           )}
+          {isDrawerOpen ? <ArrowUp /> : <ArrowDown />}
         </Web3StatusConnected>
       </TraceEvent>
     )

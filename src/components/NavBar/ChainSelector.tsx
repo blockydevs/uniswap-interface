@@ -9,10 +9,11 @@ import useSyncChainQuery from 'hooks/useSyncChainQuery'
 import { Box } from 'nft/components/Box'
 import { Portal } from 'nft/components/common/Portal'
 import { Column, Row } from 'nft/components/Flex'
+import { ArrowDown, ArrowUp } from 'nft/components/icons'
 import { useIsMobile } from 'nft/hooks'
 import { useCallback, useRef, useState } from 'react'
-import { AlertTriangle, ChevronDown, ChevronUp } from 'react-feather'
-import { useTheme } from 'styled-components/macro'
+import { AlertTriangle } from 'react-feather'
+import styled, { useTheme } from 'styled-components/macro'
 
 import * as styles from './ChainSelector.css'
 import ChainSelectorRow from './ChainSelectorRow'
@@ -23,6 +24,10 @@ const NETWORK_SELECTOR_CHAINS = [SupportedChainId.SEPOLIA, SupportedChainId.MAIN
 interface ChainSelectorProps {
   leftAlign?: boolean
 }
+
+const ChainSelectorContainer = styled(Box)`
+  border-radius: ${({ theme }) => theme.border.normal};
+`
 
 export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   const { chainId } = useWeb3React()
@@ -53,13 +58,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
     [selectChain, setIsOpen]
   )
 
-  // useEffect(() => {
-  //   onSelectChain(SupportedChainId.SEPOLIA)
-  // }, [onSelectChain])
-
-  if (!chainId) {
-    return null
-  }
+  if (!chainId) return null
 
   const isSupported = !!info
 
@@ -85,7 +84,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   }
 
   return (
-    <Box position="relative" ref={ref}>
+    <ChainSelectorContainer position="relative" ref={ref}>
       <MouseoverTooltip text={t`Your wallet's current network is unsupported.`} disabled={isSupported}>
         <Row
           as="button"
@@ -99,10 +98,10 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
           ) : (
             <img src={info.logoUrl} alt={info.label} className={styles.Image} data-testid="chain-selector-logo" />
           )}
-          {isOpen ? <ChevronUp {...chevronProps} /> : <ChevronDown {...chevronProps} />}
+          {isOpen ? <ArrowUp {...chevronProps} /> : <ArrowDown {...chevronProps} />}
         </Row>
       </MouseoverTooltip>
       {isOpen && (isMobile ? <Portal>{dropdown}</Portal> : <>{dropdown}</>)}
-    </Box>
+    </ChainSelectorContainer>
   )
 }

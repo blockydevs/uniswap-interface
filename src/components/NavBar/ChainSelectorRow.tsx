@@ -12,7 +12,6 @@ const Container = styled.button<{ disabled: boolean }>`
   align-items: center;
   background: none;
   border: none;
-  border-radius: 12px;
   color: ${({ theme }) => theme.textPrimary};
   cursor: ${({ disabled }) => (disabled ? 'auto' : 'pointer')};
   display: grid;
@@ -20,7 +19,7 @@ const Container = styled.button<{ disabled: boolean }>`
   justify-content: space-between;
   line-height: 24px;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-  padding: 10px 8px;
+  padding: 8px 16px;
   text-align: left;
   transition: ${({ theme }) => theme.transition.duration.medium} ${({ theme }) => theme.transition.timing.ease}
     background-color;
@@ -39,6 +38,9 @@ const Label = styled.div`
   grid-column: 2;
   grid-row: 1;
   font-size: 16px;
+  margin-left: 20px;
+  color: ${({ theme }) => theme.textPrimary};
+  font-weight: 500;
 `
 
 const Status = styled.div`

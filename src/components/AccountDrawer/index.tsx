@@ -4,8 +4,8 @@ import { ScrollBarStyles } from 'components/Common'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
+import { CloseDrawerIcon } from 'nft/components/icons'
 import { useCallback, useEffect, useRef } from 'react'
-import { ChevronsRight } from 'react-feather'
 import styled from 'styled-components/macro'
 import { BREAKPOINTS, ClickableStyle } from 'theme'
 import { Z_INDEX } from 'theme/zIndex'
@@ -14,8 +14,7 @@ import DefaultMenu from './DefaultMenu'
 
 const DRAWER_WIDTH_XL = '390px'
 const DRAWER_WIDTH = '320px'
-const DRAWER_MARGIN = '8px'
-const DRAWER_OFFSET = '10px'
+const DRAWER_MARGIN = '0px'
 const DRAWER_TOP_MARGIN_MOBILE_WEB = '72px'
 
 const accountDrawerOpenAtom = atom(false)
@@ -78,17 +77,16 @@ const AccountDrawerScrollWrapper = styled.div`
 
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
-  border-radius: 12px;
 `
 
 const Container = styled.div`
+  height: 100%;
+  position: fixed;
+  right: 2.5px;
+  top: ${DRAWER_MARGIN};
   display: flex;
   flex-direction: row;
-  height: calc(100% - 2 * ${DRAWER_MARGIN});
   overflow: hidden;
-  position: fixed;
-  right: ${DRAWER_MARGIN};
-  top: ${DRAWER_MARGIN};
   z-index: ${Z_INDEX.fixed};
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
@@ -104,6 +102,8 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   margin-right: ${({ open }) => (open ? 0 : '-' + DRAWER_WIDTH)};
   height: 100%;
   overflow: hidden;
+  box-shadow: 0px 6px 30px 5px rgba(233, 235, 250, 0.52), 0px 16px 24px 2px rgba(233, 235, 250, 0.44),
+    0px 8px 10px -5px rgba(233, 235, 250, 0.3);
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     z-index: ${Z_INDEX.modal};
@@ -123,26 +123,22 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
     width: ${DRAWER_WIDTH_XL};
   }
 
-  border-radius: 12px;
+  border-radius: 0px;
   width: ${DRAWER_WIDTH};
   font-size: 16px;
   background-color: ${({ theme }) => theme.backgroundSurface};
-  border: ${({ theme }) => `1px solid ${theme.backgroundOutline}`};
+  /* border: ${({ theme }) => `1px solid ${theme.backgroundOutline}`}; */
 
   box-shadow: ${({ theme }) => theme.deepShadow};
   transition: margin-right ${({ theme }) => theme.transition.duration.medium};
 `
 
-const CloseIcon = styled(ChevronsRight).attrs({ size: 24 })`
-  stroke: ${({ theme }) => theme.textSecondary};
-`
-
 const CloseDrawer = styled.div`
   ${ClickableStyle}
   cursor: pointer;
-  height: 100%;
+  height: 72px;
   // When the drawer is not hovered, the icon should be 18px from the edge of the sidebar.
-  padding: 24px calc(18px + ${DRAWER_OFFSET}) 24px 14px;
+  padding: 24px;
   border-radius: 20px 0 0 20px;
   transition: ${({ theme }) =>
     `${theme.transition.duration.medium} ${theme.transition.timing.ease} background-color, ${theme.transition.duration.medium} ${theme.transition.timing.ease} margin`};
@@ -206,7 +202,7 @@ function AccountDrawer() {
           properties={{ type: 'close' }}
         >
           <CloseDrawer onClick={toggleWalletDrawer}>
-            <CloseIcon />
+            <CloseDrawerIcon />
           </CloseDrawer>
         </TraceEvent>
       )}

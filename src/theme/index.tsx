@@ -64,7 +64,7 @@ const opacities = {
 }
 
 const fonts = {
-  code: 'courier, courier new, serif',
+  code: 'Inter, courier, courier new, serif',
 }
 
 const gapValues = {
@@ -74,6 +74,11 @@ const gapValues = {
   lg: '24px',
   xl: '32px',
 }
+
+const borderRadiusValues = {
+  normal: '8px',
+}
+
 export type Gap = keyof typeof gapValues
 
 function getSettings(darkMode: boolean) {
@@ -96,6 +101,7 @@ function getSettings(darkMode: boolean) {
     breakpoint: BREAKPOINTS,
     transition: transitions,
     opacity: opacities,
+    border: borderRadiusValues,
   }
 }
 

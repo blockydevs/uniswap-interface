@@ -64,9 +64,6 @@ export default function SettingsMenu({ onClose }: { onClose: () => void }) {
       <ThemeToggleContainer>
         <ThemeToggle />
       </ThemeToggleContainer>
-      {/* <BalanceToggleContainer>
-        <SmallBalanceToggle />
-      </BalanceToggleContainer> */}
       <SectionTitle data-testid="wallet-header">
         <Trans>Language</Trans>
       </SectionTitle>
