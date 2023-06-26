@@ -17,7 +17,7 @@ type TextProps = Omit<TextPropsOriginal, 'css'>
 export const ThemedText = {
   // todo: there should be just one `Body` with default color, no need to make all variations
   BodyPrimary(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={16} color="textPrimary" {...props} />
+    return <TextWrapper fontWeight={600} fontSize={16} color="textPrimary" {...props} />
   },
   BodySecondary(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={16} color="textSecondary" {...props} />

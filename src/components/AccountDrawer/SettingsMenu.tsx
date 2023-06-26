@@ -1,15 +1,14 @@
 import { Trans } from '@lingui/macro'
+import { GitVersionRow } from 'components/AccountDrawer/GitVersionRow'
+import { SlideOutMenu } from 'components/AccountDrawer/SlideOutMenu'
 import { LOCALE_LABEL, SUPPORTED_LOCALES, SupportedLocale } from 'constants/locales'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useLocationLinkProps } from 'hooks/useLocationLinkProps'
-import { Check } from 'react-feather'
+import { Checkbox } from 'nft/components/layout/Checkbox'
+import { useReducer } from 'react'
 import { Link } from 'react-router-dom'
-import styled, { useTheme } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { ClickableStyle, ThemedText } from 'theme'
-import ThemeToggle from 'theme/components/ThemeToggle'
-
-import { GitVersionRow } from './GitVersionRow'
-import { SlideOutMenu } from './SlideOutMenu'
 
 const InternalLinkMenuItem = styled(Link)`
   ${ClickableStyle}
@@ -18,57 +17,51 @@ const InternalLinkMenuItem = styled(Link)`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 12px 0;
-  justify-content: space-between;
+  padding: 9px;
   text-decoration: none;
   color: ${({ theme }) => theme.textPrimary};
+  gap: 9px;
+`
+
+const LanguageItem = styled.div`
+  display: flex;
 `
 
 function LanguageMenuItem({ locale, isActive }: { locale: SupportedLocale; isActive: boolean }) {
   const { to, onClick } = useLocationLinkProps(locale)
-  const theme = useTheme()
+  const [hovered, toggleHovered] = useReducer((s) => !s, false)
 
   if (!to) return null
 
   return (
-    <InternalLinkMenuItem onClick={onClick} to={to}>
+    <InternalLinkMenuItem onClick={onClick} to={to} onMouseEnter={toggleHovered} onMouseLeave={toggleHovered}>
+      <Checkbox hovered={hovered} checked={isActive}>
+        <span />
+      </Checkbox>
       <ThemedText.BodySmall data-testid="wallet-language-item">{LOCALE_LABEL[locale]}</ThemedText.BodySmall>
-      {isActive && <Check color={theme.accentActive} opacity={1} size={20} />}
     </InternalLinkMenuItem>
   )
 }
 
 const SectionTitle = styled(ThemedText.SubHeader)`
-  color: ${({ theme }) => theme.textSecondary};
-  padding-bottom: 24px;
+  color: ${({ theme }) => theme.textTertiary};
+  padding: 16px 0;
+  font-size: 14px;
+  font-weight: 600;
 `
-
-const ThemeToggleContainer = styled.div`
-  margin: 0 0 6px;
-  padding-bottom: 24px;
-`
-
-// const BalanceToggleContainer = styled.div`
-//   padding: 16px 0;
-//   margin-bottom: 26px;
-// `
 
 export default function SettingsMenu({ onClose }: { onClose: () => void }) {
   const activeLocale = useActiveLocale()
 
   return (
     <SlideOutMenu title={<Trans>Settings</Trans>} onClose={onClose}>
-      <SectionTitle>
-        <Trans>Preferences</Trans>
-      </SectionTitle>
-      <ThemeToggleContainer>
-        <ThemeToggle />
-      </ThemeToggleContainer>
       <SectionTitle data-testid="wallet-header">
         <Trans>Language</Trans>
       </SectionTitle>
-      {SUPPORTED_LOCALES.map((locale) => (
-        <LanguageMenuItem locale={locale} isActive={activeLocale === locale} key={locale} />
+      {SUPPORTED_LOCALES.map((locale, index) => (
+        <LanguageItem key={index}>
+          <LanguageMenuItem locale={locale} isActive={activeLocale === locale} key={locale} />
+        </LanguageItem>
       ))}
       <GitVersionRow />
     </SlideOutMenu>

@@ -127,8 +127,6 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   width: ${DRAWER_WIDTH};
   font-size: 16px;
   background-color: ${({ theme }) => theme.backgroundSurface};
-  /* border: ${({ theme }) => `1px solid ${theme.backgroundOutline}`}; */
-
   box-shadow: ${({ theme }) => theme.deepShadow};
   transition: margin-right ${({ theme }) => theme.transition.duration.medium};
 `
@@ -137,7 +135,6 @@ const CloseDrawer = styled.div`
   ${ClickableStyle}
   cursor: pointer;
   height: 72px;
-  // When the drawer is not hovered, the icon should be 18px from the edge of the sidebar.
   padding: 24px;
   border-radius: 20px 0 0 20px;
   transition: ${({ theme }) =>
@@ -154,28 +151,13 @@ const CloseDrawer = styled.div`
 
 function AccountDrawer() {
   const [walletDrawerOpen, toggleWalletDrawer] = useAccountDrawer()
+
   const scrollRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!walletDrawerOpen) {
       scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [walletDrawerOpen])
-
-  // close on escape keypress
-  useEffect(() => {
-    const escapeKeyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && walletDrawerOpen) {
-        event.preventDefault()
-        toggleWalletDrawer()
-      }
-    }
-
-    document.addEventListener('keydown', escapeKeyDownHandler)
-
-    return () => {
-      document.removeEventListener('keydown', escapeKeyDownHandler)
-    }
-  }, [walletDrawerOpen, toggleWalletDrawer])
 
   // close on escape keypress
   useEffect(() => {

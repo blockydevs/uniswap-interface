@@ -158,6 +158,7 @@ export const darkTheme: Theme = {
   accentWarning: colors.gold200,
   accentFailure: colors.red300,
   accentCritical: colors.red300,
+  accentGray: colors.graySecondary,
 
   accentActionSoft: opacify(24, colors.blue400),
   accentActiveSoft: opacify(24, colors.blue400),
@@ -212,6 +213,7 @@ export const lightTheme = {
   accentWarning: colors.gold400,
   accentFailure: colors.red400,
   accentCritical: colors.red400,
+  accentGray: colors.graySecondary,
 
   accentActionSoft: opacify(12, colors.pink400),
   accentActiveSoft: opacify(24, colors.blue400),
