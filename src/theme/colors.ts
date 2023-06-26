@@ -203,10 +203,10 @@ export const lightTheme = {
   backgroundScrolledSurface: opacify(72, colors.white),
 
   textPrimary: colors.violetMain,
-  textSecondary: colors.graySecondary,
+  textSecondary: colors.violetLight,
   textTertiary: colors.gray300,
 
-  accentAction: colors.violetActive,
+  accentAction: colors.violetMain,
   accentActive: colors.violetActive,
   accentSuccess: colors.green300,
   accentWarning: colors.gold400,

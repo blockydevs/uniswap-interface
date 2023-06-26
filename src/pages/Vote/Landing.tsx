@@ -115,6 +115,8 @@ const ProposalTitle = styled.span`
 `
 
 const WrapSmall = styled(RowBetween)`
+  display: flex;
+  flex-direction: column;
   margin-bottom: 1rem;
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     flex-wrap: wrap;
@@ -141,13 +143,14 @@ const StyledButtonsContainer = styled(AutoRow)`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
     flex-wrap: wrap;
+    justify-content: center;
   }
 `
 
 const StyledButtonPrimary = styled(ButtonPrimary)`
-  max-width: 35%;
-  width: 100%;
+  width: 200px;
   margin-left: auto;
+  transition: 0.3s;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     font-size: 16px;
@@ -155,11 +158,11 @@ const StyledButtonPrimary = styled(ButtonPrimary)`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     font-size: 14px;
-    max-width: 50%;
+    width: 50%;
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
-    max-width: 100%;
+    width: 85%;
   }
 `
 
@@ -170,6 +173,32 @@ const StyledRowBetween = styled(RowBetween)`
     align-items: unset;
     gap: 10px;
     margin-bottom: 20px;
+  }
+`
+
+const UnlockVotingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 28px 12px 0 0;
+  padding: 15px 16px;
+  background: ${({ theme }) => theme.white};
+
+  > button {
+    width: 147px;
+    height: 42px;
+    margin-left: auto;
+    background: ${({ theme }) => theme.textSecondary};
+
+    @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+      width: 90%;
+      margin: 0 auto;
+    }
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    flex-direction: column;
+    gap: 10px;
   }
 `
 
@@ -255,13 +284,17 @@ export default function Landing() {
                     <Trans>Withdraw HMT</Trans>
                   </StyledButtonPrimary>
                 ) : null}
-
-                {showUnlockVoting ? (
+              </StyledButtonsContainer>
+              {showUnlockVoting ? (
+                <UnlockVotingContainer>
+                  <ThemedText.BodySecondary fontWeight={500} mr="4px">
+                    <Trans>You have to delegate to unlock voting</Trans>
+                  </ThemedText.BodySecondary>
                   <StyledButtonPrimary style={{ height: '40px' }} padding="8px" onClick={toggleDelegateModal}>
                     <Trans>Unlock Voting</Trans>
                   </StyledButtonPrimary>
-                ) : null}
-              </StyledButtonsContainer>
+                </UnlockVotingContainer>
+              ) : null}
             </WrapSmall>
             {!showUnlockVoting && (
               <RowBetween>
