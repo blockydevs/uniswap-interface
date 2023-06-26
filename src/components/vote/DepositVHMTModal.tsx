@@ -142,7 +142,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
-              Please confirm the transaction in your wallet
+              Confirm this transaction in your wallet
             </ThemedText.DeprecatedMain>
           </AutoColumn>
         </LoadingView>

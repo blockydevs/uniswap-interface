@@ -184,8 +184,8 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
             <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
               <Trans>
                 {approveHash && !isTransactionApproved
-                  ? 'Please wait for the approve transaction to be confirmed'
-                  : 'Please confirm the transaction in your wallet'}
+                  ? 'Wait for the approve transaction to be confirmed'
+                  : 'Confirm this transaction in your wallet'}
               </Trans>
             </ThemedText.DeprecatedMain>
             {isApproveWaitResponse && Boolean(!error) && (

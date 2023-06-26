@@ -66,7 +66,7 @@ const LazyLoadSpinner = () => (
   <SpinnerSVG width="94" height="94" viewBox="0 0 94 94" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M92 47C92 22.1472 71.8528 2 47 2C22.1472 2 2 22.1472 2 47C2 71.8528 22.1472 92 47 92"
-      stroke="#2172E5"
+      stroke="#320A8D"
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -147,7 +147,6 @@ export default function App() {
       <Trace page={currentPage}>
         <StatsigProvider
           user={statsigUser}
-          // TODO: replace with proxy and cycle key
           sdkKey={STATSIG_DUMMY_KEY}
           waitForInitialization={false}
           options={{
@@ -160,7 +159,7 @@ export default function App() {
           </HeaderWrapper>
           <BodyWrapper>
             <Popups />
-            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania, na razie zakomentowany */}
+            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania? - na razie zakomentowany */}
             {/* <Polling /> */}
             <TopLevelModals />
             <Suspense fallback={<Loader />}>
