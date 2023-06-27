@@ -14,10 +14,14 @@ import { ChainSelector } from './ChainSelector'
 import * as styles from './style.css'
 
 const Nav = styled.nav`
-  padding: 20px 12px;
+  padding: 12px 60px;
   width: 100%;
   height: ${({ theme }) => theme.navHeight}px;
   z-index: 2;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 12px 8px 12px 16px;
+  }
 `
 
 const Navbar = ({ blur }: { blur: boolean }) => {

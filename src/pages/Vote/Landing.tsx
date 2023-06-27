@@ -60,22 +60,28 @@ const PageWrapper = styled(AutoColumn)`
 const ProposalsContainer = styled(AutoColumn)`
   max-width: 820px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    gap: 12px;
+  }
 `
 
 const Proposal = styled(Button)`
-  padding: 0.75rem 1rem;
   width: 100%;
-  margin-top: 1rem;
-  border-radius: 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   text-align: left;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
   outline: none;
   cursor: pointer;
-  color: ${({ theme }) => theme.textPrimary};
   text-decoration: none;
-  background-color: ${({ theme }) => theme.deprecated_bg1};
+  font-size: 14px;
+  background-color: ${({ theme }) => theme.white};
+
   &:focus {
     background-color: ${({ theme }) => darken(0.05, theme.deprecated_bg1)};
   }
@@ -84,7 +90,6 @@ const Proposal = styled(Button)`
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    border: 2px solid green;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -93,7 +98,8 @@ const Proposal = styled(Button)`
 const ProposalNumber = styled.span`
   flex: 0 0 40px;
   margin-right: 20px;
-  opacity: ${({ theme }) => theme.opacity.hover};
+  color: ${({ theme }) => theme.textPrimary};
+  font-weight: 600;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     margin-right: 10px;
@@ -101,16 +107,16 @@ const ProposalNumber = styled.span`
 `
 
 const ProposalTitle = styled.span`
-  font-weight: 600;
   flex: 1;
-  max-width: 420px;
+  padding: 0 24px 0 10px;
   white-space: initial;
   word-wrap: break-word;
-  padding-right: 10px;
+  font-weight: 400;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     padding-right: 0;
-    padding-top: 6px;
+    padding-top: 12px;
+    padding-left: 0;
   }
 `
 
@@ -342,9 +348,9 @@ export default function Landing() {
                 )}
               </RowBetween>
             )}
-            <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
+            <ThemedText.HeadlineLarge style={{ margin: '28px 0 12px 0', flexShrink: 0 }}>
               <Trans>Proposals</Trans>
-            </ThemedText.DeprecatedMediumHeader>
+            </ThemedText.HeadlineLarge>
             <div />
 
             {allProposals?.length === 0 && <ProposalEmptyState />}
