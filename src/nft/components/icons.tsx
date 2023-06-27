@@ -1460,3 +1460,12 @@ export const CloseDrawerIcon = (props: SVGProps) => (
     <path d="M10.1815 6L8.77148 7.41L13.3515 12L8.77148 16.59L10.1815 18L16.1815 12L10.1815 6Z" fill="#24046D" />
   </svg>
 )
+
+export const WarningCircleIcon = (props: SVGProps) => (
+  <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path
+      d="M12 2.27979C6.48 2.27979 2 6.75979 2 12.2798C2 17.7998 6.48 22.2798 12 22.2798C17.52 22.2798 22 17.7998 22 12.2798C22 6.75979 17.52 2.27979 12 2.27979ZM13 17.2798H11V15.2798H13V17.2798ZM13 13.2798H11V7.27979H13V13.2798Z"
+      fill="#F9FAFF"
+    />
+  </svg>
+)

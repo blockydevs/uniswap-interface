@@ -15,7 +15,11 @@ export const LightCard = styled(Card)`
 `
 
 export const GrayCard = styled(Card)`
-  background-color: ${({ theme }) => theme.deprecated_bg3};
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: ${({ theme }) => theme.accentAction};
+  color: ${({ theme }) => theme.white};
 `
 
 export const DarkGrayCard = styled(Card)`

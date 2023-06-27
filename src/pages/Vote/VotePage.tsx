@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Trace } from '@uniswap/analytics'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { CurrencyAmount, Fraction, Token } from '@uniswap/sdk-core'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExecuteModal from 'components/vote/ExecuteModal'
 import QueueModal from 'components/vote/QueueModal'
@@ -10,6 +10,8 @@ import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import ms from 'ms.macro'
+import { Box } from 'nft/components/Box'
+import { WarningCircleIcon } from 'nft/components/icons'
 import { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
@@ -87,6 +89,8 @@ const ArrowWrapper = styled(StyledInternalLink)`
   gap: 8px;
   height: 24px;
   color: ${({ theme }) => theme.textPrimary};
+  font-size: 15px;
+  font-weight: 600;
 
   a {
     color: ${({ theme }) => theme.textPrimary};
@@ -94,6 +98,15 @@ const ArrowWrapper = styled(StyledInternalLink)`
   }
   :hover {
     text-decoration: none;
+  }
+`
+
+const StyledAutoColumn = styled(AutoColumn)`
+  width: 100%;
+  margin-top: 24px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    margin-top: 24px;
   }
 `
 
@@ -119,12 +132,10 @@ const ProgressWrapper = styled.div`
   position: relative;
 `
 
-const Progress = styled.div<{ status: 'for' | 'against' | 'abstain'; percentageString?: string }>`
+const Progress = styled.div<{ percentageString?: string }>`
   height: 4px;
   border-radius: 4px;
-  background-color: ${({ theme, status }) => status === 'for' && theme.accentSuccess};
-  background-color: ${({ theme, status }) => status === 'against' && theme.accentFailure};
-  background-color: ${({ theme, status }) => status === 'abstain' && theme.accentWarning};
+  background-color: ${({ theme }) => theme.textPrimary};
   width: ${({ percentageString }) => percentageString ?? '0%'};
 `
 
@@ -154,12 +165,15 @@ const ButtonContainer = styled('div')`
   align-items: center;
   text-align: center;
   padding: 16px 24px;
+  background: ${({ theme }) => theme.backgroundGray};
+  border-radius: 7px;
 `
 
 const InnerButtonTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 24px;
 `
 
 export default function VotePage() {
@@ -173,10 +187,6 @@ export default function VotePage() {
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
-
-  const forVotes = proposalData?.forCount.toFixed(0, { groupSeparator: ',' })
-  const againstVotes = proposalData?.againstCount.toFixed(0, { groupSeparator: ',' })
-  const abstainVotes = proposalData?.abstainCount.toFixed(0, { groupSeparator: ',' })
 
   // update vote option based on button interactions
   const [voteOption, setVoteOption] = useState<VoteOption | undefined>(undefined)
@@ -229,16 +239,14 @@ export default function VotePage() {
   // get total votes and format percentages for UI
   const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
 
-  const forPercentage = totalVotes
-    ? proposalData?.forCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
-    : undefined
-  const abstainPercentage = totalVotes
-    ? proposalData?.abstainCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
-    : undefined
-  const againstPercentage =
-    forPercentage && abstainPercentage
-      ? new Fraction(100).subtract(forPercentage).subtract(abstainPercentage)
-      : undefined
+  const forVotes = proposalData?.forCount.toFixed(0, { groupSeparator: ',' })
+  const againstVotes = proposalData?.againstCount.toFixed(0, { groupSeparator: ',' })
+  const abstainVotes = proposalData?.abstainCount.toFixed(0, { groupSeparator: ',' })
+
+  const quorumVotes = proposalData?.forCount?.add(proposalData?.abstainCount)
+
+  const quorumPercentage =
+    proposalData && totalVotes ? quorumVotes?.asFraction?.divide(totalVotes.asFraction)?.multiply(100) : undefined
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
@@ -305,15 +313,15 @@ export default function VotePage() {
             <RowBetween style={{ width: '100%' }}>
               <ArrowWrapper to="/">
                 <Trans>
-                  <ArrowLeft size={20} /> All Proposals
+                  <ArrowLeft size={20} /> Proposals
                 </Trans>
               </ArrowWrapper>
               {proposalData && <ProposalStatus status={proposalData.status} />}
             </RowBetween>
-            <AutoColumn gap="10px" style={{ width: '100%' }}>
-              <ThemedText.DeprecatedLargeHeader style={{ marginBottom: '.5rem' }}>
+            <StyledAutoColumn gap="10px">
+              <ThemedText.SubHeaderLarge style={{ marginBottom: '.5rem' }}>
                 {proposalData?.title}
-              </ThemedText.DeprecatedLargeHeader>
+              </ThemedText.SubHeaderLarge>
               <RowBetween>
                 <ThemedText.DeprecatedMain>
                   {startDate && startDate > now ? (
@@ -333,43 +341,59 @@ export default function VotePage() {
               </RowBetween>
               {proposalData && proposalData.status === ProposalState.ACTIVE && !showVotingButtons && (
                 <GrayCard>
-                  <ThemedText.DeprecatedBlack>
-                    <Trans>
-                      Only vHMT votes that were self delegated before block {proposalData.startBlock} are eligible for
-                      voting.
-                    </Trans>{' '}
-                    {showLinkForUnlock && (
-                      <span>
-                        <Trans>
-                          <StyledInternalLink to="/vote">Unlock voting</StyledInternalLink> to prepare for the next
-                          proposal.
-                        </Trans>
-                      </span>
-                    )}
-                  </ThemedText.DeprecatedBlack>
+                  <Box>
+                    <WarningCircleIcon />
+                  </Box>
+                  <Trans>
+                    Only vHMT votes that were self delegated before block {proposalData.startBlock} are eligible for
+                    voting.
+                  </Trans>{' '}
+                  {showLinkForUnlock && (
+                    <span>
+                      <Trans>
+                        <StyledInternalLink to="/vote">Unlock voting</StyledInternalLink> to prepare for the next
+                        proposal.
+                      </Trans>
+                    </span>
+                  )}
                 </GrayCard>
               )}
-            </AutoColumn>
-            {showVotingButtons && (
-              <RowFixed style={{ width: '100%', gap: '8px' }}>
-                <ButtonContainer>
-                  <InnerButtonTextContainer>
-                    <ThemedText.BodyPrimary>
-                      <Trans>Votes For</Trans>
-                    </ThemedText.BodyPrimary>
-                    <ThemedText.BodyPrimary>{forVotes}</ThemedText.BodyPrimary>
-                  </InnerButtonTextContainer>
+            </StyledAutoColumn>
 
-                  <ButtonPrimary
-                    padding="8px"
-                    onClick={() => {
-                      setVoteOption(VoteOption.For)
-                      toggleVoteModal()
-                    }}
-                  >
+            <RowFixed style={{ width: '100%', gap: '8px' }}>
+              <ButtonContainer>
+                <InnerButtonTextContainer>
+                  <ThemedText.BodyPrimary fontSize={14}>
+                    <Trans>Votes For</Trans>
+                  </ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
+                    {forVotes}
+                  </ThemedText.BodyPrimary>
+                </InnerButtonTextContainer>
+
+                <ButtonPrimary
+                  padding="8px"
+                  onClick={() => {
+                    setVoteOption(VoteOption.For)
+                    toggleVoteModal()
+                  }}
+                  disabled={!showVotingButtons}
+                >
+                  <ThemedText.BodyPrimary>
                     <Trans>Vote For</Trans>
-                  </ButtonPrimary>
-                </ButtonContainer>
+                  </ThemedText.BodyPrimary>
+                </ButtonPrimary>
+              </ButtonContainer>
+
+              <ButtonContainer>
+                <InnerButtonTextContainer>
+                  <ThemedText.BodyPrimary fontSize={14}>
+                    <Trans>Votes Against</Trans>
+                  </ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
+                    {againstVotes}
+                  </ThemedText.BodyPrimary>
+                </InnerButtonTextContainer>
 
                 <ButtonPrimary
                   padding="8px"
@@ -377,20 +401,39 @@ export default function VotePage() {
                     setVoteOption(VoteOption.Against)
                     toggleVoteModal()
                   }}
+                  disabled={!showVotingButtons}
                 >
-                  <Trans>Vote Against</Trans>
+                  <ThemedText.BodyPrimary>
+                    <Trans>Vote Against</Trans>
+                  </ThemedText.BodyPrimary>
                 </ButtonPrimary>
+              </ButtonContainer>
+
+              <ButtonContainer>
+                <InnerButtonTextContainer>
+                  <ThemedText.BodyPrimary fontSize={14}>
+                    <Trans>Votes Abstain</Trans>
+                  </ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
+                    {abstainVotes}
+                  </ThemedText.BodyPrimary>
+                </InnerButtonTextContainer>
+
                 <ButtonPrimary
                   padding="8px"
                   onClick={() => {
                     setVoteOption(VoteOption.Abstain)
                     toggleVoteModal()
                   }}
+                  disabled={!showVotingButtons}
                 >
-                  <Trans>Abstain</Trans>
+                  <ThemedText.BodyPrimary>
+                    <Trans>Abstain</Trans>
+                  </ThemedText.BodyPrimary>
                 </ButtonPrimary>
-              </RowFixed>
-            )}
+              </ButtonContainer>
+            </RowFixed>
+
             {showQueueButton && (
               <RowFixed style={{ width: '100%', gap: '12px' }}>
                 <ButtonPrimary
@@ -431,74 +474,25 @@ export default function VotePage() {
                 <CardSection>
                   <AutoColumn gap="md">
                     <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>For</Trans>
-                      </ThemedText.DeprecatedBlack>
+                      <ThemedText.BodyPrimary>
+                        <Trans>Quorum</Trans>
+                      </ThemedText.BodyPrimary>
                       {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData && proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
+                        <ThemedText.BodyPrimary>
+                          {totalVotes && totalVotes.toFixed(0, { groupSeparator: ',' })}
                           {quorumAmount && (
-                            <span style={{ fontWeight: 400 }}>
+                            <span>
                               {` / ${quorumAmount.toExact({
                                 groupSeparator: ',',
                               })}`}
                             </span>
                           )}
-                        </ThemedText.DeprecatedBlack>
+                        </ThemedText.BodyPrimary>
                       )}
                     </WrapSmall>
                   </AutoColumn>
                   <ProgressWrapper>
-                    <Progress
-                      status="for"
-                      percentageString={
-                        proposalData?.forCount.greaterThan(0) ? `${forPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
-                  </ProgressWrapper>
-                </CardSection>
-              </StyledDataCard>
-              <StyledDataCard>
-                <CardSection>
-                  <AutoColumn gap="md">
-                    <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>Against</Trans>
-                      </ThemedText.DeprecatedBlack>
-                      {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>{againstVotes}</ThemedText.DeprecatedBlack>
-                      )}
-                    </WrapSmall>
-                  </AutoColumn>
-                  <ProgressWrapper>
-                    <Progress
-                      status="against"
-                      percentageString={
-                        proposalData?.againstCount?.greaterThan(0) ? `${againstPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
-                  </ProgressWrapper>
-                </CardSection>
-              </StyledDataCard>
-              <StyledDataCard>
-                <CardSection>
-                  <AutoColumn gap="md">
-                    <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>Abstain</Trans>
-                      </ThemedText.DeprecatedBlack>
-                      {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>{abstainVotes}</ThemedText.DeprecatedBlack>
-                      )}
-                    </WrapSmall>
-                  </AutoColumn>
-                  <ProgressWrapper>
-                    <Progress
-                      status="abstain"
-                      percentageString={
-                        proposalData?.abstainCount?.greaterThan(0) ? `${abstainPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
+                    <Progress percentageString={`${quorumPercentage ?? 0}%`} />
                   </ProgressWrapper>
                 </CardSection>
               </StyledDataCard>
