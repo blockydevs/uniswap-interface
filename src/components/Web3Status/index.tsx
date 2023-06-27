@@ -8,7 +8,7 @@ import Loader from 'components/Icons/LoadingSpinner'
 import { IconWrapper } from 'components/Identicon/StatusIcon'
 import { useGetConnection } from 'connection'
 import { Portal } from 'nft/components/common/Portal'
-import { ArrowDown, ArrowUp } from 'nft/components/icons'
+import { ArrowUp } from 'nft/components/icons'
 import { useIsNftClaimAvailable } from 'nft/hooks/useIsNftClaimAvailable'
 import { darken } from 'polished'
 import { useCallback, useMemo } from 'react'
@@ -210,7 +210,7 @@ function Web3StatusInner() {
               <Text>{ENSName || shortenAddress(account)}</Text>
             </AddressAndChevronContainer>
           )}
-          {isDrawerOpen ? <ArrowUp /> : <ArrowDown />}
+          {isDrawerOpen && pending.length > 0 ? <ArrowUp /> : undefined}
         </Web3StatusConnected>
       </TraceEvent>
     )

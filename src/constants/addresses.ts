@@ -15,10 +15,10 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
 }
 
 export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
-  [SupportedChainId.SEPOLIA]: '0x11d2AAEf4C91377b417F2243f20C5c8E74E86AD6',
+  [SupportedChainId.SEPOLIA]: '0x8BF933f792FB2672d971ce1e55343f8289F4A9A4',
 }
 
-export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0x125aef64BF8E474B37B63b002ec3550b57656fc5')
+export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0x0A893634C183CAA7F867dc1f7cA9C007dE8031A5')
 
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
 
