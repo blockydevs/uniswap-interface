@@ -184,6 +184,7 @@ export default function VotePage() {
   const { chainId, account } = useWeb3React()
 
   const quorumAmount = useQuorum()
+  const quorumNumber = Number(quorumAmount?.toExact())
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
@@ -239,14 +240,11 @@ export default function VotePage() {
   // get total votes and format percentages for UI
   const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
 
-  const forVotes = proposalData?.forCount.toFixed(0, { groupSeparator: ',' })
-  const againstVotes = proposalData?.againstCount.toFixed(0, { groupSeparator: ',' })
-  const abstainVotes = proposalData?.abstainCount.toFixed(0, { groupSeparator: ',' })
+  const forVotes = Number(proposalData?.forCount.toExact())
+  const againstVotes = Number(proposalData?.againstCount.toExact())
+  const abstainVotes = Number(proposalData?.abstainCount.toExact())
 
-  const quorumVotes = proposalData?.forCount?.add(proposalData?.abstainCount)
-
-  const quorumPercentage =
-    proposalData && totalVotes ? quorumVotes?.asFraction?.divide(totalVotes.asFraction)?.multiply(100) : undefined
+  const quorumPercentage = ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
@@ -379,7 +377,7 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={15} color="white">
                     <Trans>Vote For</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
@@ -403,7 +401,7 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={15} color="white">
                     <Trans>Vote Against</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
@@ -427,7 +425,7 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary>
+                  <ThemedText.BodyPrimary fontSize={15} color="white">
                     <Trans>Abstain</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
