@@ -66,6 +66,11 @@ const ProposalsContainer = styled(AutoColumn)`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     gap: 12px;
+    padding: 0 16px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    padding: unset;
   }
 `
 
