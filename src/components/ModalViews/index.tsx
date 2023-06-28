@@ -10,6 +10,14 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { AutoColumn, ColumnCenter } from '../Column'
 import { RowBetween } from '../Row'
 
+const StyledRowBetween = styled(RowBetween)`
+  > div:nth-child(1) {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+`
+
 const ConfirmOrLoadingWrapper = styled.div`
   width: 100%;
   padding: 24px;
@@ -23,10 +31,16 @@ const ConfirmedIcon = styled(ColumnCenter)`
 export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
   return (
     <ConfirmOrLoadingWrapper>
-      <RowBetween>
-        <div />
-        <CloseIcon onClick={onDismiss} />
-      </RowBetween>
+      <StyledRowBetween>
+        <ThemedText.HeadlineLarge>
+          <Trans>Submitting Vote</Trans>
+        </ThemedText.HeadlineLarge>
+
+        <div>
+          <CloseIcon onClick={onDismiss} />
+        </div>
+      </StyledRowBetween>
+
       <ConfirmedIcon>
         <CustomLightSpinner src={Circle} alt="loader" size="90px" />
       </ConfirmedIcon>

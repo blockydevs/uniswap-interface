@@ -181,13 +181,13 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
       {attempting && !depositForHash && !isApproveWaitResponse && !validationInputError && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
+            <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
               <Trans>
                 {approveHash && !isTransactionApproved
                   ? 'Wait for the approve transaction to be confirmed'
                   : 'Confirm this transaction in your wallet'}
               </Trans>
-            </ThemedText.DeprecatedMain>
+            </ThemedText.HeadlineSmall>
             {isApproveWaitResponse && Boolean(!error) && (
               <ThemedText.BodyPrimary textAlign="center" fontSize={32} marginBottom={36} marginTop={36}>
                 <span>{currencyToExchange} </span>

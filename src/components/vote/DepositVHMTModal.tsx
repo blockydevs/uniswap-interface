@@ -141,9 +141,9 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
       {attempting && !withdrawToHash && !error && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
+            <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
               Confirm this transaction in your wallet
-            </ThemedText.DeprecatedMain>
+            </ThemedText.HeadlineSmall>
           </AutoColumn>
         </LoadingView>
       )}
