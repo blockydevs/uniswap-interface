@@ -187,9 +187,7 @@ export default function VotePage() {
   // see https://github.com/remix-run/react-router/issues/8200#issuecomment-962520661
   const { governorIndex, id } = useParams() as { governorIndex: string; id: string }
   const parsedGovernorIndex = Number.parseInt(governorIndex)
-
   const { chainId, account } = useWeb3React()
-
   const quorumAmount = useQuorum()
   const quorumNumber = Number(quorumAmount?.toExact())
 
@@ -306,6 +304,7 @@ export default function VotePage() {
             proposalId={proposalData?.id}
             voteOption={voteOption}
             availableVotes={availableVotes}
+            id={id}
           />
           <DelegateModal
             isOpen={showDelegateModal}

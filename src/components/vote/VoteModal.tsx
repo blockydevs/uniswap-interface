@@ -1,15 +1,16 @@
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
+import { LoadingView } from 'components/ModalViews'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
+import { shortenString } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
-import Circle from '../../assets/images/blue-loader.svg'
 import { useVoteCallback } from '../../state/governance/hooks'
 import { VoteOption } from '../../state/governance/types'
-import { CustomLightSpinner, ThemedText } from '../../theme'
+import { ThemedText } from '../../theme'
 import { ExternalLink } from '../../theme'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ButtonPrimary } from '../Button'
@@ -19,10 +20,19 @@ import { RowBetween } from '../Row'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
-  padding: 24px;
+  padding: 24px 32px 32px 32px;
+`
+
+const TopLabelContainer = styled.div`
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
 `
 
 const StyledClosed = styled(X)`
+  position: absolute;
+  right: 0;
   :hover {
     cursor: pointer;
   }
@@ -43,9 +53,10 @@ interface VoteModalProps {
   voteOption: VoteOption | undefined
   proposalId: string | undefined // id for the proposal to vote on
   availableVotes: CurrencyAmount<Token> | undefined // id for the proposal to vote on
+  id: string
 }
 
-export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, availableVotes }: VoteModalProps) {
+export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, availableVotes, id }: VoteModalProps) {
   const { chainId } = useWeb3React()
   const voteCallback = useVoteCallback()
 
@@ -84,24 +95,27 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, a
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !hash && (
         <ContentWrapper gap="lg">
-          <AutoColumn gap="lg" justify="center">
-            <RowBetween>
-              <ThemedText.DeprecatedMediumHeader fontWeight={500}>
+          <AutoColumn gap="xl" justify="center">
+            <TopLabelContainer>
+              <ThemedText.HeadlineSmall fontSize={28}>
                 {voteOption === VoteOption.Against ? (
-                  <Trans>Vote against</Trans>
+                  <Trans>Vote against proposal</Trans>
                 ) : voteOption === VoteOption.For ? (
-                  <Trans>Vote for</Trans>
+                  <Trans>Vote for proposal</Trans>
                 ) : (
-                  <Trans>Vote to abstain</Trans>
+                  <Trans>Abstain from proposal</Trans>
                 )}
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.HeadlineSmall>
               <StyledClosed onClick={wrappedOnDismiss} />
-            </RowBetween>
-            <ThemedText.DeprecatedLargeHeader>
+            </TopLabelContainer>
+            <ThemedText.BodyPrimary fontWeight={400}>
+              <Trans>{`You're voting for proposal`} </Trans> {shortenString(id)}
+            </ThemedText.BodyPrimary>
+            <ThemedText.HeadlineLarge>
               <Trans>{formatCurrencyAmount(availableVotes, 4)} Votes</Trans>
-            </ThemedText.DeprecatedLargeHeader>
+            </ThemedText.HeadlineLarge>
             <ButtonPrimary onClick={onVote}>
-              <ThemedText.DeprecatedMediumHeader color="white">
+              <ThemedText.BodyPrimary color="white" fontSize={15}>
                 {voteOption === VoteOption.Against ? (
                   <Trans>Vote against</Trans>
                 ) : voteOption === VoteOption.For ? (
@@ -109,31 +123,19 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, a
                 ) : (
                   <Trans>Vote to abstain</Trans>
                 )}
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.BodyPrimary>
             </ButtonPrimary>
           </AutoColumn>
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <ConfirmOrLoadingWrapper>
-          <RowBetween>
-            <div />
-            <StyledClosed onClick={wrappedOnDismiss} />
-          </RowBetween>
-          <ConfirmedIcon>
-            <CustomLightSpinner src={Circle} alt="loader" size="90px" />
-          </ConfirmedIcon>
-          <AutoColumn gap="100px" justify="center">
-            <AutoColumn gap="md" justify="center">
-              <ThemedText.DeprecatedLargeHeader>
-                <Trans>Submitting Vote</Trans>
-              </ThemedText.DeprecatedLargeHeader>
-            </AutoColumn>
-            <ThemedText.DeprecatedSubHeader>
-              <Trans>Confirm this transaction in your wallet</Trans>
-            </ThemedText.DeprecatedSubHeader>
+        <LoadingView onDismiss={wrappedOnDismiss}>
+          <AutoColumn gap="md" justify="center">
+            <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
+              Confirm this transaction in your wallet
+            </ThemedText.HeadlineSmall>
           </AutoColumn>
-        </ConfirmOrLoadingWrapper>
+        </LoadingView>
       )}
       {hash && (
         <ConfirmOrLoadingWrapper>
