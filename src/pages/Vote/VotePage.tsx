@@ -152,11 +152,18 @@ const WrapSmall = styled(RowBetween)`
 `
 
 const DetailText = styled.div`
+  color: ${({ theme }) => theme.textPrimary};
   word-break: break-all;
+
+  span:nth-child(0),
+  a {
+    color: ${({ theme }) => theme.textVioletSecondary};
+  }
 `
 
 const ProposerAddressLink = styled(ExternalLink)`
   word-break: break-all;
+  color: ${({ theme }) => theme.textVioletSecondary};
 `
 
 const ButtonContainer = styled('div')`
@@ -495,10 +502,10 @@ export default function VotePage() {
                 </CardSection>
               </StyledDataCard>
             </CardWrapper>
-            <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+            <AutoColumn gap="16px">
+              <ThemedText.SubHeaderLarge>
                 <Trans>Details</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               {proposalData?.details?.map((d, i) => {
                 return (
                   <DetailText key={i}>
@@ -517,9 +524,9 @@ export default function VotePage() {
               })}
             </AutoColumn>
             <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+              <ThemedText.SubHeaderLarge>
                 <Trans>Description</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               <MarkDownWrapper>
                 <ReactMarkdown
                   source={proposalData?.description}
@@ -530,9 +537,9 @@ export default function VotePage() {
               </MarkDownWrapper>
             </AutoColumn>
             <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+              <ThemedText.SubHeaderLarge>
                 <Trans>Proposer</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               <ProposerAddressLink
                 href={
                   proposalData?.proposer && chainId

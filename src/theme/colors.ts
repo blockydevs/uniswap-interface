@@ -98,6 +98,7 @@ export const colors = {
   violetLight: '#6309FF',
   violetMain: '#320A8D',
   violetActive: '#24046D',
+  violetLightSecondary: '#8409FF',
   graySecondary: '#858EC6',
   grayBackground: '#F6F7FE',
 }
@@ -151,6 +152,7 @@ export const darkTheme: Theme = {
   textPrimary: colors.white,
   textSecondary: colors.gray300,
   textTertiary: colors.gray500,
+  textVioletSecondary: colors.violetLightSecondary,
 
   accentAction: colors.blue400,
   accentActive: colors.blue400,
@@ -206,6 +208,7 @@ export const lightTheme = {
   textPrimary: colors.violetMain,
   textSecondary: colors.violetLight,
   textTertiary: colors.gray300,
+  textVioletSecondary: colors.violetLightSecondary,
 
   accentAction: colors.violetMain,
   accentActive: colors.violetActive,
