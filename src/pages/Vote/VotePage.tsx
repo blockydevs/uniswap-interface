@@ -344,7 +344,7 @@ export default function VotePage() {
                     ))}
                 </ThemedText.DeprecatedMain>
               </RowBetween>
-              {proposalData && proposalData.status === ProposalState.ACTIVE && !showVotingButtons && (
+              {proposalData && proposalData.status === ProposalState.ACTIVE && showVotingButtons === false && (
                 <GrayCard>
                   <Box>
                     <WarningCircleIcon />
@@ -384,7 +384,10 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary fontSize={15} color="white">
+                  <ThemedText.BodyPrimary
+                    fontSize={15}
+                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
+                  >
                     <Trans>Vote For</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
@@ -408,7 +411,10 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary fontSize={15} color="white">
+                  <ThemedText.BodyPrimary
+                    fontSize={15}
+                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
+                  >
                     <Trans>Vote Against</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
@@ -432,7 +438,10 @@ export default function VotePage() {
                   }}
                   disabled={!showVotingButtons}
                 >
-                  <ThemedText.BodyPrimary fontSize={15} color="white">
+                  <ThemedText.BodyPrimary
+                    fontSize={15}
+                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
+                  >
                     <Trans>Abstain</Trans>
                   </ThemedText.BodyPrimary>
                 </ButtonPrimary>
