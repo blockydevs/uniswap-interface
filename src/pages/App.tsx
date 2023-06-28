@@ -1,6 +1,7 @@
 import { getDeviceId, sendAnalyticsEvent, Trace, user } from '@uniswap/analytics'
 import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
+import Footer from 'components/Footer/Footer'
 import Loader from 'components/Icons/LoadingSpinner'
 import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
@@ -30,6 +31,16 @@ import NotFound from './NotFound'
 
 const Vote = lazy(() => retry(() => import('./Vote')))
 
+const HeaderWrapper = styled.div`
+  ${flexRowNoWrap};
+  background-color: ${({ theme }) => theme.background};
+  width: 100%;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  z-index: ${Z_INDEX.dropdown};
+`
+
 const BodyWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -40,14 +51,13 @@ const BodyWrapper = styled.div`
   flex: 1;
 `
 
-const HeaderWrapper = styled.div`
+const FooterWrapper = styled.div`
   ${flexRowNoWrap};
-  background-color: ${({ theme }) => theme.background};
   width: 100%;
-  justify-content: space-between;
   position: fixed;
-  top: 0;
+  bottom: 0;
   z-index: ${Z_INDEX.dropdown};
+  background-color: ${({ theme }) => theme.background};
 `
 
 function getCurrentPageFromLocation(locationPathname: string): InterfacePageName | undefined {
@@ -184,6 +194,9 @@ export default function App() {
               )}
             </Suspense>
           </BodyWrapper>
+          <FooterWrapper>
+            <Footer />
+          </FooterWrapper>
         </StatsigProvider>
       </Trace>
     </ErrorBoundary>
