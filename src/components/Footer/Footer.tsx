@@ -15,13 +15,18 @@ const MainContainer = styled.footer`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     flex-direction: column;
-    padding: 12px 8px 12px 16px;
+    align-items: unset;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 50px 24px 32px 24px;
   }
 `
 
 const LabelsContainer = styled.div`
   display: flex;
   flex-direction: column;
+  order: -1;
 `
 
 const TermsContainer = styled.div`
@@ -45,7 +50,7 @@ const SocialMediaContainer = styled.div`
   align-items: center;
   gap: 25px;
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     order: 0;
     margin-bottom: 32px;
   }

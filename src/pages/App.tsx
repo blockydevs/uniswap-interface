@@ -49,12 +49,15 @@ const BodyWrapper = styled.div`
   padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
   align-items: center;
   flex: 1;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    align-items: unset;
+  }
 `
 
 const FooterWrapper = styled.div`
   ${flexRowNoWrap};
   width: 100%;
-  position: fixed;
   bottom: 0;
   z-index: ${Z_INDEX.dropdown};
   background-color: ${({ theme }) => theme.background};
