@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { DiscordIcon, GithubIconMenu, LinkedinIcon, TelegramIcon, TwitterIcon } from 'nft/components/icons'
-import { useIsTablet } from 'nft/hooks'
+import { useScreenSize } from 'hooks/useScreenSize'
+import { DiscordIcon, GithubIconMenu, LinkedinIcon, TwitterIcon, YoutubeIcon } from 'nft/components/icons'
 import styled from 'styled-components/macro'
 
 const MainContainer = styled.footer`
@@ -27,6 +27,10 @@ const LabelsContainer = styled.div`
   display: flex;
   flex-direction: column;
   order: -1;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    order: 5;
+  }
 `
 
 const TermsContainer = styled.div`
@@ -68,19 +72,21 @@ const SocialMediaContainer = styled.div`
 `
 
 const SOCIAL_MEDIA = [
-  { icon: <GithubIconMenu />, link: '' },
-  { icon: <DiscordIcon />, link: '' },
-  { icon: <TwitterIcon />, link: '' },
-  { icon: <TelegramIcon />, link: '' },
-  { icon: <LinkedinIcon />, link: '' },
+  { icon: <TwitterIcon />, link: 'https://twitter.com/intent/follow?screen_name=human_protocol' },
+  { icon: <DiscordIcon />, link: 'https://discord.com/invite/5sHfvE8y8p' },
+  { icon: <GithubIconMenu />, link: 'https://github.com/humanprotocol' },
+  { icon: <LinkedinIcon />, link: 'https://www.linkedin.com/company/human-protocol/' },
+  { icon: <YoutubeIcon />, link: 'https://www.youtube.com/@HUMANProtocol' },
 ]
 
 const Footer = () => {
-  const isTablet = useIsTablet()
+  const isScreenSize = useScreenSize()
+
+  const mobileFooter = !isScreenSize.lg && !isScreenSize.xl && !isScreenSize.xxl && !isScreenSize.xxxl
 
   return (
     <MainContainer>
-      {isTablet ? (
+      {mobileFooter ? (
         <>
           <LabelsContainer>
             <TermsContainer>

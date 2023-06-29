@@ -471,6 +471,28 @@ export const TelegramIcon = (props: SVGProps) => (
   </svg>
 )
 
+export const YoutubeIcon = (props: SVGProps) => (
+  <svg width="38" height="25" viewBox="0 0 43 30" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <g clipPath="url(#clip0_3974_42266)">
+      <mask id="mask0_3974_42266" maskUnits="userSpaceOnUse" x="0" y="0" width="43" height="30">
+        <path d="M43 0H0V30H43V0Z" fill="white" />
+      </mask>
+      <g mask="url(#mask0_3974_42266)">
+        <path
+          d="M42.1016 4.68463C41.6071 2.84064 40.1501 1.38846 38.2999 0.895596C34.9466 0 21.5 0 21.5 0C21.5 0 8.05343 0 4.70024 0.895596C2.8501 1.38846 1.39308 2.84064 0.898581 4.68463C0 8.02668 0 15.0001 0 15.0001C0 15.0001 0 21.9733 0.898581 25.3156C1.39308 27.1595 2.8501 28.6117 4.70024 29.1046C8.05362 30.0002 21.5 30.0002 21.5 30.0002C21.5 30.0002 34.9466 30.0002 38.2998 29.1046C40.1499 28.6117 41.6069 27.1595 42.1014 25.3156C43 21.9733 43 15.0001 43 15.0001C43 15.0001 43.0002 8.02686 42.1016 4.68463Z"
+          fill="#858EC6"
+        />
+        <path d="M17.2012 21.4274L28.3725 14.9991L17.2012 8.57031V21.4274Z" fill="white" />
+      </g>
+    </g>
+    <defs>
+      <clipPath id="clip0_3974_42266">
+        <rect width="43" height="30" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+
 export const LinkedinIcon = (props: SVGProps) => (
   <svg width="27" height="25" viewBox="0 0 27 25" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
     <path
