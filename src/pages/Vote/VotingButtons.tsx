@@ -28,6 +28,7 @@ const VotingButtonsContainer = styled('div')`
 const InnerButtonTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 24px;
 
@@ -65,6 +66,12 @@ const ButtonContainer = styled('div')`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
     gap: 36px;
     padding: 16px 8px;
+  }
+`
+
+const VotesNumberContainer = styled('div')`
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 90px;
   }
 `
 
@@ -124,9 +131,11 @@ export default function VotingButtons({
               </ThemedText.BodyPrimary>
             ) : undefined}
 
-            <ThemedText.BodyPrimary fontSize={isScreenSize.xs ? 20 : 16} fontWeight={500}>
-              {chooseValue(voteOption)}
-            </ThemedText.BodyPrimary>
+            <VotesNumberContainer>
+              <ThemedText.BodyPrimary fontSize={isScreenSize.xs ? 20 : 16} fontWeight={500}>
+                {chooseValue(voteOption)}
+              </ThemedText.BodyPrimary>
+            </VotesNumberContainer>
           </InnerButtonTextContainer>
         </ButtonContainer>
       ))}
