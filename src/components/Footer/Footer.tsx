@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { DiscordIcon, GithubIconMenu, LinkedinIcon, TelegramIcon, TwitterIcon } from 'nft/components/icons'
-import { useIsMobile, useIsTablet } from 'nft/hooks'
+import { useIsTablet } from 'nft/hooks'
 import styled from 'styled-components/macro'
 
 const MainContainer = styled.footer`
@@ -76,10 +76,7 @@ const SOCIAL_MEDIA = [
 ]
 
 const Footer = () => {
-  const isMobile = useIsMobile()
-  console.log('isMobile:', isMobile)
   const isTablet = useIsTablet()
-  console.log('isTablet:', isTablet)
 
   return (
     <MainContainer>

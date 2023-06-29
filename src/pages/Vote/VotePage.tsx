@@ -12,6 +12,7 @@ import useBlockNumber from 'lib/hooks/useBlockNumber'
 import ms from 'ms.macro'
 import { Box } from 'nft/components/Box'
 import { WarningCircleIcon } from 'nft/components/icons'
+import VotingButtons from 'pages/Vote/VotingButtons'
 import { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
@@ -58,6 +59,7 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ProposalStatus } from './styled'
 
 const PageWrapper = styled(AutoColumn)`
+  display: flex;
   padding-top: 68px;
   width: 820px;
 
@@ -70,17 +72,30 @@ const PageWrapper = styled(AutoColumn)`
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    padding-top: 20px;
+    padding: 20px 0 0;
   }
 `
 
 const ProposalInfo = styled(AutoColumn)`
-  background: ${({ theme }) => theme.backgroundSurface};
-  border-radius: 12px;
-  padding: 1.5rem;
   position: relative;
+  justify-content: center;
   max-width: 820px;
   width: 100%;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.backgroundSurface};
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 16px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 12px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    padding: 12px;
+  }
 `
 
 const ArrowWrapper = styled(StyledInternalLink)`
@@ -147,7 +162,6 @@ const MarkDownWrapper = styled.div`
 const WrapSmall = styled(RowBetween)`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     align-items: flex-start;
-    flex-direction: column;
   `};
 `
 
@@ -164,23 +178,6 @@ const DetailText = styled.div`
 const ProposerAddressLink = styled(ExternalLink)`
   word-break: break-all;
   color: ${({ theme }) => theme.textVioletSecondary};
-`
-
-const ButtonContainer = styled('div')`
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 16px 24px;
-  background: ${({ theme }) => theme.backgroundGray};
-  border-radius: 7px;
-`
-
-const InnerButtonTextContainer = styled('div')`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
 `
 
 export default function VotePage() {
@@ -364,88 +361,14 @@ export default function VotePage() {
               )}
             </StyledAutoColumn>
 
-            <RowFixed style={{ width: '100%', gap: '8px' }}>
-              <ButtonContainer>
-                <InnerButtonTextContainer>
-                  <ThemedText.BodyPrimary fontSize={14}>
-                    <Trans>Votes For</Trans>
-                  </ThemedText.BodyPrimary>
-                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
-                    {forVotes}
-                  </ThemedText.BodyPrimary>
-                </InnerButtonTextContainer>
-
-                <ButtonPrimary
-                  padding="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.For)
-                    toggleVoteModal()
-                  }}
-                  disabled={!showVotingButtons}
-                >
-                  <ThemedText.BodyPrimary
-                    fontSize={15}
-                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
-                  >
-                    <Trans>Vote For</Trans>
-                  </ThemedText.BodyPrimary>
-                </ButtonPrimary>
-              </ButtonContainer>
-
-              <ButtonContainer>
-                <InnerButtonTextContainer>
-                  <ThemedText.BodyPrimary fontSize={14}>
-                    <Trans>Votes Against</Trans>
-                  </ThemedText.BodyPrimary>
-                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
-                    {againstVotes}
-                  </ThemedText.BodyPrimary>
-                </InnerButtonTextContainer>
-
-                <ButtonPrimary
-                  padding="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.Against)
-                    toggleVoteModal()
-                  }}
-                  disabled={!showVotingButtons}
-                >
-                  <ThemedText.BodyPrimary
-                    fontSize={15}
-                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
-                  >
-                    <Trans>Vote Against</Trans>
-                  </ThemedText.BodyPrimary>
-                </ButtonPrimary>
-              </ButtonContainer>
-
-              <ButtonContainer>
-                <InnerButtonTextContainer>
-                  <ThemedText.BodyPrimary fontSize={14}>
-                    <Trans>Votes Abstain</Trans>
-                  </ThemedText.BodyPrimary>
-                  <ThemedText.BodyPrimary fontSize={20} fontWeight={500}>
-                    {abstainVotes}
-                  </ThemedText.BodyPrimary>
-                </InnerButtonTextContainer>
-
-                <ButtonPrimary
-                  padding="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.Abstain)
-                    toggleVoteModal()
-                  }}
-                  disabled={!showVotingButtons}
-                >
-                  <ThemedText.BodyPrimary
-                    fontSize={15}
-                    color={proposalData?.status === ProposalState.PENDING || !showVotingButtons ? 'black' : 'white'}
-                  >
-                    <Trans>Abstain</Trans>
-                  </ThemedText.BodyPrimary>
-                </ButtonPrimary>
-              </ButtonContainer>
-            </RowFixed>
+            <VotingButtons
+              forVotes={forVotes}
+              againstVotes={againstVotes}
+              abstainVotes={abstainVotes}
+              setVoteOption={setVoteOption}
+              showVotingButtons={showVotingButtons}
+              proposalStatus={proposalData?.status}
+            />
 
             {showQueueButton && (
               <RowFixed style={{ width: '100%', gap: '12px' }}>
