@@ -46,8 +46,12 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
   const hmtContractToken = useHmtContractToken()
   const uniContract = useUniContract()
   const theme = useTheme()
-  const userHmtBalanceAmount = hmtBalance && Number(hmtBalance.toExact())
   const addTransaction = useTransactionAdder()
+
+  const userHmtBalanceAmount =
+    hmtBalance && Number(hmtBalance.toExact()) < 1
+      ? Number(hmtBalance.toExact()).toFixed(18)
+      : hmtBalance && Number(hmtBalance.toExact())
 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
@@ -99,7 +103,7 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
       setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       return
     }
-    if (userHmtBalanceAmount && userHmtBalanceAmount < Number(currencyToExchange)) {
+    if (userHmtBalanceAmount && userHmtBalanceAmount < currencyToExchange) {
       setValidationInputError(ExchangeInputErrors.EXCEEDS_BALANCE)
       return
     }

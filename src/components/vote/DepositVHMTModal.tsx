@@ -41,7 +41,11 @@ interface DepositVHMTProps {
 export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance }: DepositVHMTProps) {
   const { account } = useWeb3React()
   const uniContract = useUniContract()
-  const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+  const userVHMTBalanceAmount =
+    uniBalance && Number(uniBalance.toExact()) < 1
+      ? Number(uniBalance.toExact()).toFixed(18)
+      : uniBalance && Number(uniBalance.toExact())
+
   const addTransaction = useTransactionAdder()
 
   const theme = useTheme()
@@ -49,24 +53,26 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   const [withdrawToHash, setWithdrawToHash] = useState<string | undefined>()
+  const [validationInputError, setValidationInputError] = useState<string>('')
   const [error, setError] = useState<string>('')
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setWithdrawToHash(undefined)
     setError('')
+    setValidationInputError('')
     setAttempting(false)
     onDismiss()
   }
 
   function onInputHmtExchange(value: string) {
     setCurrencyToExchange(value)
-    setError('')
+    setValidationInputError('')
   }
 
   function onInputMaxExchange(maxValue: string | undefined) {
     maxValue && setCurrencyToExchange(maxValue)
-    setError('')
+    setValidationInputError('')
   }
 
   const transactionAdder = useCallback(
@@ -83,17 +89,17 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
   async function onWithdrawToVHMTSubmit() {
     if (!uniContract) return
     if (currencyToExchange.length === 0 || currencyToExchange === '0') {
-      setError(ExchangeInputErrors.EMPTY_INPUT)
+      setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       setAttempting(false)
       return
     }
-    if (userVHMTBalanceAmount && userVHMTBalanceAmount < Number(currencyToExchange)) {
-      setError(ExchangeInputErrors.EXCEEDS_BALANCE)
+    if (userVHMTBalanceAmount && userVHMTBalanceAmount < currencyToExchange) {
+      setValidationInputError(ExchangeInputErrors.EXCEEDS_BALANCE)
       setAttempting(false)
       return
     }
 
-    const convertedCurrency = parseUnits(currencyToExchange, uniBalance?.currency.decimals).toString()
+    const convertedCurrency = parseUnits(currencyToExchange, Number(uniBalance?.currency.decimals)).toString()
 
     try {
       setAttempting(true)
@@ -106,11 +112,11 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
     }
   }
 
-  const isDepositError = attempting && Boolean(error)
+  const isDepositError = !attempting && Boolean(error)
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && !withdrawToHash && isOpen && (
+      {!attempting && !withdrawToHash && isOpen && !error && (
         <ContentWrapper gap="lg">
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
@@ -127,7 +133,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
               maxValue={uniBalance?.toExact()}
               onChange={onInputHmtExchange}
               onMaxChange={onInputMaxExchange}
-              error={error}
+              error={validationInputError}
               className="hmt-withdraw-input"
             />
             <ButtonPrimary disabled={!!error} onClick={onWithdrawToVHMTSubmit}>
@@ -138,7 +144,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !withdrawToHash && !error && (
+      {attempting && !withdrawToHash && !validationInputError && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
             <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
