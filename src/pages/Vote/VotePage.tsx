@@ -149,9 +149,10 @@ const ProgressWrapper = styled.div`
 
 const Progress = styled.div<{ percentageString?: string }>`
   height: 4px;
+  width: ${({ percentageString }) => percentageString ?? '0%'};
+  max-width: 100%;
   border-radius: 4px;
   background-color: ${({ theme }) => theme.textPrimary};
-  width: ${({ percentageString }) => percentageString ?? '0%'};
 `
 
 const MarkDownWrapper = styled.div`
