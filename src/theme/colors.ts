@@ -100,6 +100,7 @@ export const colors = {
   violetActive: '#24046D',
   violetLightSecondary: '#8409FF',
   graySecondary: '#858EC6',
+  grayTertiary: '#DFE3F3',
   grayBackground: '#F6F7FE',
 }
 
@@ -161,6 +162,7 @@ export const darkTheme: Theme = {
   accentFailure: colors.red300,
   accentCritical: colors.red300,
   accentGray: colors.graySecondary,
+  accentDarkGray: colors.grayTertiary,
 
   accentActionSoft: opacify(24, colors.blue400),
   accentActiveSoft: opacify(24, colors.blue400),
@@ -217,6 +219,7 @@ export const lightTheme = {
   accentFailure: colors.red400,
   accentCritical: colors.red400,
   accentGray: colors.graySecondary,
+  accentDarkGray: colors.grayTertiary,
 
   accentActionSoft: opacify(12, colors.pink400),
   accentActiveSoft: opacify(24, colors.blue400),

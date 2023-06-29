@@ -160,8 +160,10 @@ const StyledButtonsContainer = styled(AutoRow)`
 
 const StyledButtonPrimary = styled(ButtonPrimary)`
   width: 200px;
+  height: 40px;
   margin-left: auto;
   transition: 0.3s;
+  padding: 8px;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     font-size: 16px;
@@ -285,16 +287,12 @@ export default function Landing() {
             <WrapSmall>
               <StyledButtonsContainer gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
-                {showDepositHMTButton ? (
-                  <StyledButtonPrimary style={{ height: '40px' }} padding="8px" onClick={toggleDepositHMTModal}>
-                    <Trans>Deposit HMT</Trans>
-                  </StyledButtonPrimary>
-                ) : null}
-                {showDepositVHMTButton ? (
-                  <StyledButtonPrimary style={{ height: '40px' }} padding="8px" onClick={toggleDepositVHMTModal}>
-                    <Trans>Withdraw HMT</Trans>
-                  </StyledButtonPrimary>
-                ) : null}
+                <StyledButtonPrimary disabled={!showDepositHMTButton} onClick={toggleDepositHMTModal}>
+                  <Trans>Deposit HMT</Trans>
+                </StyledButtonPrimary>
+                <StyledButtonPrimary disabled={!showDepositVHMTButton} onClick={toggleDepositVHMTModal}>
+                  <Trans>Withdraw HMT</Trans>
+                </StyledButtonPrimary>
               </StyledButtonsContainer>
               {showUnlockVoting ? (
                 <UnlockVotingContainer>
@@ -312,9 +310,9 @@ export default function Landing() {
                 {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
                   <StyledRowBetween justify="between">
                     <RowFixed>
-                      <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
+                      <ThemedText.SubHeaderLarge mr="4px">
                         <Trans>Delegated to:</Trans>
-                      </ThemedText.DeprecatedBody>
+                      </ThemedText.SubHeaderLarge>
                       <AddressButton>
                         <StyledExternalLink
                           href={getExplorerLink(chainId, userDelegatee, ExplorerDataType.ADDRESS)}
@@ -327,11 +325,11 @@ export default function Landing() {
 
                     {availableVotes && JSBI.notEqual(JSBI.BigInt(0), availableVotes?.quotient) ? (
                       <RowFixed>
-                        <ThemedText.DeprecatedBody fontWeight={500} mr="6px">
+                        <ThemedText.SubHeaderLarge mr="6px">
                           <Trans>
                             <FormattedCurrencyAmount currencyAmount={availableVotes} /> Votes
                           </Trans>
-                        </ThemedText.DeprecatedBody>
+                        </ThemedText.SubHeaderLarge>
                       </RowFixed>
                     ) : uniBalance &&
                       userDelegatee &&

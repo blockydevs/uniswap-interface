@@ -47,7 +47,6 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   position: relative;
   z-index: 1;
   &:disabled {
-    opacity: 50%;
     cursor: auto;
     pointer-events: none;
   }
@@ -83,9 +82,9 @@ export const ButtonPrimary = styled(BaseButton)`
   }
   &:disabled {
     background-color: ${({ theme, altDisabledStyle, disabled }) =>
-      altDisabledStyle ? (disabled ? theme.accentAction : theme.backgroundInteractive) : theme.backgroundInteractive};
+      altDisabledStyle ? (disabled ? theme.accentAction : theme.backgroundInteractive) : theme.accentDarkGray};
     color: ${({ altDisabledStyle, disabled, theme }) =>
-      altDisabledStyle ? (disabled ? theme.white : theme.textSecondary) : theme.textSecondary};
+      altDisabledStyle ? (disabled ? theme.white : theme.textSecondary) : theme.accentGray};
     cursor: auto;
     box-shadow: none;
     border: 1px solid transparent;
