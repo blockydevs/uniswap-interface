@@ -64,7 +64,7 @@ const opacities = {
 }
 
 const fonts = {
-  code: 'courier, courier new, serif',
+  code: 'Inter, courier, courier new, serif',
 }
 
 const gapValues = {
@@ -74,6 +74,11 @@ const gapValues = {
   lg: '24px',
   xl: '32px',
 }
+
+const borderRadiusValues = {
+  normal: '8px',
+}
+
 export type Gap = keyof typeof gapValues
 
 function getSettings(darkMode: boolean) {
@@ -96,6 +101,7 @@ function getSettings(darkMode: boolean) {
     breakpoint: BREAKPOINTS,
     transition: transitions,
     opacity: opacities,
+    border: borderRadiusValues,
   }
 }
 
@@ -131,5 +137,27 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   :root {
     ${({ theme }) => rootCssString(theme.darkMode)}
+  }
+
+  /* SCROLLBAR GLOBAL STYLES */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #858EC6;
+
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F9F9F9; 
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #858EC6;
+    border-radius: 4px;
   }
 `

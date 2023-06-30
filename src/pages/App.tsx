@@ -1,6 +1,7 @@
 import { getDeviceId, sendAnalyticsEvent, Trace, user } from '@uniswap/analytics'
 import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
+import Footer from 'components/Footer/Footer'
 import Loader from 'components/Icons/LoadingSpinner'
 import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
@@ -30,16 +31,6 @@ import NotFound from './NotFound'
 
 const Vote = lazy(() => retry(() => import('./Vote')))
 
-const BodyWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100vh;
-  padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
-  align-items: center;
-  flex: 1;
-`
-
 const HeaderWrapper = styled.div`
   ${flexRowNoWrap};
   background-color: ${({ theme }) => theme.background};
@@ -48,6 +39,28 @@ const HeaderWrapper = styled.div`
   position: fixed;
   top: 0;
   z-index: ${Z_INDEX.dropdown};
+`
+
+const BodyWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
+  align-items: center;
+  flex: 1;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    align-items: unset;
+  }
+`
+
+const FooterWrapper = styled.div`
+  ${flexRowNoWrap};
+  width: 100%;
+  bottom: 0;
+  z-index: ${Z_INDEX.dropdown};
+  background-color: ${({ theme }) => theme.background};
 `
 
 function getCurrentPageFromLocation(locationPathname: string): InterfacePageName | undefined {
@@ -66,7 +79,7 @@ const LazyLoadSpinner = () => (
   <SpinnerSVG width="94" height="94" viewBox="0 0 94 94" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M92 47C92 22.1472 71.8528 2 47 2C22.1472 2 2 22.1472 2 47C2 71.8528 22.1472 92 47 92"
-      stroke="#2172E5"
+      stroke="#320A8D"
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -147,7 +160,6 @@ export default function App() {
       <Trace page={currentPage}>
         <StatsigProvider
           user={statsigUser}
-          // TODO: replace with proxy and cycle key
           sdkKey={STATSIG_DUMMY_KEY}
           waitForInitialization={false}
           options={{
@@ -160,7 +172,7 @@ export default function App() {
           </HeaderWrapper>
           <BodyWrapper>
             <Popups />
-            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania, na razie zakomentowany */}
+            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania? - na razie zakomentowany */}
             {/* <Polling /> */}
             <TopLevelModals />
             <Suspense fallback={<Loader />}>
@@ -185,6 +197,9 @@ export default function App() {
               )}
             </Suspense>
           </BodyWrapper>
+          <FooterWrapper>
+            <Footer />
+          </FooterWrapper>
         </StatsigProvider>
       </Trace>
     </ErrorBoundary>

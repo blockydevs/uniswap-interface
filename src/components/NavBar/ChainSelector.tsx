@@ -1,5 +1,7 @@
 import { t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
+import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { getChainInfo } from 'constants/chainInfo'
 import { SupportedChainId } from 'constants/chains'
@@ -9,10 +11,11 @@ import useSyncChainQuery from 'hooks/useSyncChainQuery'
 import { Box } from 'nft/components/Box'
 import { Portal } from 'nft/components/common/Portal'
 import { Column, Row } from 'nft/components/Flex'
+import { ArrowDown, ArrowUp } from 'nft/components/icons'
 import { useIsMobile } from 'nft/hooks'
 import { useCallback, useRef, useState } from 'react'
-import { AlertTriangle, ChevronDown, ChevronUp } from 'react-feather'
-import { useTheme } from 'styled-components/macro'
+import { AlertTriangle } from 'react-feather'
+import styled, { useTheme } from 'styled-components/macro'
 
 import * as styles from './ChainSelector.css'
 import ChainSelectorRow from './ChainSelectorRow'
@@ -24,6 +27,21 @@ interface ChainSelectorProps {
   leftAlign?: boolean
 }
 
+const ChainSelectorContainer = styled(Box)`
+  border-radius: ${({ theme }) => theme.border.normal};
+`
+
+const ChainSelectorMainWrapper = styled('div')`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px 16px;
+
+  > button:nth-child(1) {
+    margin: 16px auto;
+  }
+`
+
 export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   const { chainId } = useWeb3React()
 
@@ -34,7 +52,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
 
   const ref = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(ref, () => setIsOpen(false), [modalRef])
+  useOnClickOutside(ref, () => !isMobile && setIsOpen(false), [modalRef])
 
   const info = chainId ? getChainInfo(chainId) : undefined
 
@@ -53,17 +71,25 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
     [selectChain, setIsOpen]
   )
 
-  // useEffect(() => {
-  //   onSelectChain(SupportedChainId.SEPOLIA)
-  // }, [onSelectChain])
-
-  if (!chainId) {
-    return null
-  }
+  if (!chainId) return null
 
   const isSupported = !!info
 
-  const dropdown = (
+  const dropdown = isMobile ? (
+    <Modal isOpen={true} maxHeight={90} onDismiss={() => setIsOpen(false)}>
+      <ChainSelectorMainWrapper>
+        <GrayCloseButton onClick={() => setIsOpen(false)} />
+        {NETWORK_SELECTOR_CHAINS.map((chainId: SupportedChainId) => (
+          <ChainSelectorRow
+            onSelectChain={onSelectChain}
+            targetChain={chainId}
+            key={chainId}
+            isPending={chainId === pendingChainId}
+          />
+        ))}
+      </ChainSelectorMainWrapper>
+    </Modal>
+  ) : (
     <NavDropdown top="56" left={leftAlign ? '0' : 'auto'} right={leftAlign ? 'auto' : '0'} ref={modalRef}>
       <Column paddingX="8">
         {NETWORK_SELECTOR_CHAINS.map((chainId: SupportedChainId) => (
@@ -85,7 +111,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   }
 
   return (
-    <Box position="relative" ref={ref}>
+    <ChainSelectorContainer position="relative" ref={ref}>
       <MouseoverTooltip text={t`Your wallet's current network is unsupported.`} disabled={isSupported}>
         <Row
           as="button"
@@ -99,10 +125,10 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
           ) : (
             <img src={info.logoUrl} alt={info.label} className={styles.Image} data-testid="chain-selector-logo" />
           )}
-          {isOpen ? <ChevronUp {...chevronProps} /> : <ChevronDown {...chevronProps} />}
+          {isOpen ? <ArrowUp {...chevronProps} /> : <ArrowDown {...chevronProps} />}
         </Row>
       </MouseoverTooltip>
       {isOpen && (isMobile ? <Portal>{dropdown}</Portal> : <>{dropdown}</>)}
-    </Box>
+    </ChainSelectorContainer>
   )
 }

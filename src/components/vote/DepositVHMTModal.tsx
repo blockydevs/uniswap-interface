@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
 import { parseUnits } from 'ethers/lib/utils'
 import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
@@ -25,9 +26,18 @@ const ContentWrapper = styled(AutoColumn)`
   padding: 24px;
 `
 
+const ModalViewWrapper = styled('div')`
+  width: 100%;
+  padding-top: 16px;
+`
+
 const StyledClosed = styled(X)`
   :hover {
     cursor: pointer;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
   }
 `
 
@@ -41,7 +51,11 @@ interface DepositVHMTProps {
 export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance }: DepositVHMTProps) {
   const { account } = useWeb3React()
   const uniContract = useUniContract()
-  const userVHMTBalanceAmount = uniBalance && Number(uniBalance.toExact())
+  const userVHMTBalanceAmount =
+    uniBalance && Number(uniBalance.toExact()) < 1
+      ? Number(uniBalance.toExact()).toFixed(18)
+      : uniBalance && Number(uniBalance.toExact())
+
   const addTransaction = useTransactionAdder()
 
   const theme = useTheme()
@@ -49,24 +63,26 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
   const [attempting, setAttempting] = useState(false)
   const [currencyToExchange, setCurrencyToExchange] = useState<string>('')
   const [withdrawToHash, setWithdrawToHash] = useState<string | undefined>()
+  const [validationInputError, setValidationInputError] = useState<string>('')
   const [error, setError] = useState<string>('')
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setWithdrawToHash(undefined)
     setError('')
+    setValidationInputError('')
     setAttempting(false)
     onDismiss()
   }
 
   function onInputHmtExchange(value: string) {
     setCurrencyToExchange(value)
-    setError('')
+    setValidationInputError('')
   }
 
   function onInputMaxExchange(maxValue: string | undefined) {
     maxValue && setCurrencyToExchange(maxValue)
-    setError('')
+    setValidationInputError('')
   }
 
   const transactionAdder = useCallback(
@@ -83,17 +99,17 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
   async function onWithdrawToVHMTSubmit() {
     if (!uniContract) return
     if (currencyToExchange.length === 0 || currencyToExchange === '0') {
-      setError(ExchangeInputErrors.EMPTY_INPUT)
+      setValidationInputError(ExchangeInputErrors.EMPTY_INPUT)
       setAttempting(false)
       return
     }
-    if (userVHMTBalanceAmount && userVHMTBalanceAmount < Number(currencyToExchange)) {
-      setError(ExchangeInputErrors.EXCEEDS_BALANCE)
+    if (userVHMTBalanceAmount && userVHMTBalanceAmount < currencyToExchange) {
+      setValidationInputError(ExchangeInputErrors.EXCEEDS_BALANCE)
       setAttempting(false)
       return
     }
 
-    const convertedCurrency = parseUnits(currencyToExchange, uniBalance?.currency.decimals).toString()
+    const convertedCurrency = parseUnits(currencyToExchange, Number(uniBalance?.currency.decimals)).toString()
 
     try {
       setAttempting(true)
@@ -106,12 +122,13 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
     }
   }
 
-  const isDepositError = attempting && Boolean(error)
+  const isDepositError = !attempting && Boolean(error)
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      {!attempting && !withdrawToHash && isOpen && (
+      {!attempting && !withdrawToHash && isOpen && !error && (
         <ContentWrapper gap="lg">
+          <GrayCloseButton onClick={wrappedOnDismiss} />
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
@@ -127,7 +144,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
               maxValue={uniBalance?.toExact()}
               onChange={onInputHmtExchange}
               onMaxChange={onInputMaxExchange}
-              error={error}
+              error={validationInputError}
               className="hmt-withdraw-input"
             />
             <ButtonPrimary disabled={!!error} onClick={onWithdrawToVHMTSubmit}>
@@ -138,42 +155,48 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
           </AutoColumn>
         </ContentWrapper>
       )}
-      {attempting && !withdrawToHash && !error && (
+      {attempting && !withdrawToHash && !validationInputError && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedMain fontSize={36} textAlign="center">
-              Please confirm the transaction in your wallet
-            </ThemedText.DeprecatedMain>
+            <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
+              Confirm this transaction in your wallet
+            </ThemedText.HeadlineSmall>
           </AutoColumn>
         </LoadingView>
       )}
       {attempting && withdrawToHash && (
-        <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>Transaction Submitted</Trans>
-            </ThemedText.DeprecatedLargeHeader>
-          </AutoColumn>
-        </SubmittedView>
+        <ModalViewWrapper>
+          <GrayCloseButton onClick={wrappedOnDismiss} />
+          <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
+            <AutoColumn gap="md" justify="center">
+              <ThemedText.DeprecatedLargeHeader>
+                <Trans>Transaction Submitted</Trans>
+              </ThemedText.DeprecatedLargeHeader>
+            </AutoColumn>
+          </SubmittedView>
+        </ModalViewWrapper>
       )}
       {isDepositError && (
-        <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedError error={!!error}>
-              <Trans>Unable to execute transaction</Trans>
-            </ThemedText.DeprecatedError>
-            {error && (
-              <ContentWrapper gap="10px">
-                <ThemedText.DeprecatedLargeHeader textAlign="center">
-                  <Trans>Reason</Trans>:
-                </ThemedText.DeprecatedLargeHeader>
-                <ThemedText.DeprecatedMediumHeader>
-                  {swapErrorToUserReadableMessage(error)}
-                </ThemedText.DeprecatedMediumHeader>
-              </ContentWrapper>
-            )}
-          </AutoColumn>
-        </SubmittedWithErrorView>
+        <ModalViewWrapper>
+          <GrayCloseButton onClick={wrappedOnDismiss} />
+          <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
+            <AutoColumn gap="md" justify="center">
+              <ThemedText.DeprecatedError error={!!error}>
+                <Trans>Unable to execute transaction</Trans>
+              </ThemedText.DeprecatedError>
+              {error && (
+                <ContentWrapper gap="10px">
+                  <ThemedText.DeprecatedLargeHeader textAlign="center">
+                    <Trans>Reason</Trans>:
+                  </ThemedText.DeprecatedLargeHeader>
+                  <ThemedText.DeprecatedMediumHeader>
+                    {swapErrorToUserReadableMessage(error)}
+                  </ThemedText.DeprecatedMediumHeader>
+                </ContentWrapper>
+              )}
+            </AutoColumn>
+          </SubmittedWithErrorView>
+        </ModalViewWrapper>
       )}
     </Modal>
   )

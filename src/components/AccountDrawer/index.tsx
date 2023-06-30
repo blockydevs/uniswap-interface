@@ -1,11 +1,12 @@
 import { TraceEvent } from '@uniswap/analytics'
 import { BrowserEvent, InterfaceEventName } from '@uniswap/analytics-events'
 import { ScrollBarStyles } from 'components/Common'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
+import { CloseDrawerIcon } from 'nft/components/icons'
 import { useCallback, useEffect, useRef } from 'react'
-import { ChevronsRight } from 'react-feather'
 import styled from 'styled-components/macro'
 import { BREAKPOINTS, ClickableStyle } from 'theme'
 import { Z_INDEX } from 'theme/zIndex'
@@ -14,8 +15,7 @@ import DefaultMenu from './DefaultMenu'
 
 const DRAWER_WIDTH_XL = '390px'
 const DRAWER_WIDTH = '320px'
-const DRAWER_MARGIN = '8px'
-const DRAWER_OFFSET = '10px'
+const DRAWER_MARGIN = '0px'
 const DRAWER_TOP_MARGIN_MOBILE_WEB = '72px'
 
 const accountDrawerOpenAtom = atom(false)
@@ -78,17 +78,16 @@ const AccountDrawerScrollWrapper = styled.div`
 
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
-  border-radius: 12px;
 `
 
 const Container = styled.div`
+  height: 100%;
+  position: fixed;
+  right: 2.5px;
+  top: ${DRAWER_MARGIN};
   display: flex;
   flex-direction: row;
-  height: calc(100% - 2 * ${DRAWER_MARGIN});
   overflow: hidden;
-  position: fixed;
-  right: ${DRAWER_MARGIN};
-  top: ${DRAWER_MARGIN};
   z-index: ${Z_INDEX.fixed};
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
@@ -104,14 +103,17 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   margin-right: ${({ open }) => (open ? 0 : '-' + DRAWER_WIDTH)};
   height: 100%;
   overflow: hidden;
+  box-shadow: 0px 6px 30px 5px rgba(233, 235, 250, 0.52), 0px 16px 24px 2px rgba(233, 235, 250, 0.44),
+    0px 8px 10px -5px rgba(233, 235, 250, 0.3);
+  border-radius: 16px;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    z-index: ${Z_INDEX.modal};
-    position: absolute;
-    margin-right: 0;
-    top: ${({ open }) => (open ? `calc(-1 * (100% - ${DRAWER_TOP_MARGIN_MOBILE_WEB}))` : 0)};
-
     width: 100%;
+    position: absolute;
+    top: ${({ open }) => (open ? `calc(-1 * (100% - ${DRAWER_TOP_MARGIN_MOBILE_WEB}))` : 0)};
+    margin-right: 0;
+    z-index: ${Z_INDEX.modal};
+    border-radius: 16px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
     box-shadow: unset;
@@ -119,30 +121,27 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   }
 
   @media screen and (min-width: 1440px) {
-    margin-right: ${({ open }) => (open ? 0 : `-${DRAWER_WIDTH_XL}`)};
     width: ${DRAWER_WIDTH_XL};
+    margin-right: ${({ open }) => (open ? 0 : `-${DRAWER_WIDTH_XL}`)};
   }
 
-  border-radius: 12px;
   width: ${DRAWER_WIDTH};
+  border-radius: 0px;
   font-size: 16px;
   background-color: ${({ theme }) => theme.backgroundSurface};
-  border: ${({ theme }) => `1px solid ${theme.backgroundOutline}`};
-
   box-shadow: ${({ theme }) => theme.deepShadow};
   transition: margin-right ${({ theme }) => theme.transition.duration.medium};
-`
 
-const CloseIcon = styled(ChevronsRight).attrs({ size: 24 })`
-  stroke: ${({ theme }) => theme.textSecondary};
+  > button {
+    margin-top: 16px;
+  }
 `
 
 const CloseDrawer = styled.div`
   ${ClickableStyle}
   cursor: pointer;
-  height: 100%;
-  // When the drawer is not hovered, the icon should be 18px from the edge of the sidebar.
-  padding: 24px calc(18px + ${DRAWER_OFFSET}) 24px 14px;
+  height: 72px;
+  padding: 24px;
   border-radius: 20px 0 0 20px;
   transition: ${({ theme }) =>
     `${theme.transition.duration.medium} ${theme.transition.timing.ease} background-color, ${theme.transition.duration.medium} ${theme.transition.timing.ease} margin`};
@@ -158,28 +157,13 @@ const CloseDrawer = styled.div`
 
 function AccountDrawer() {
   const [walletDrawerOpen, toggleWalletDrawer] = useAccountDrawer()
+
   const scrollRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!walletDrawerOpen) {
       scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [walletDrawerOpen])
-
-  // close on escape keypress
-  useEffect(() => {
-    const escapeKeyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && walletDrawerOpen) {
-        event.preventDefault()
-        toggleWalletDrawer()
-      }
-    }
-
-    document.addEventListener('keydown', escapeKeyDownHandler)
-
-    return () => {
-      document.removeEventListener('keydown', escapeKeyDownHandler)
-    }
-  }, [walletDrawerOpen, toggleWalletDrawer])
 
   // close on escape keypress
   useEffect(() => {
@@ -206,12 +190,13 @@ function AccountDrawer() {
           properties={{ type: 'close' }}
         >
           <CloseDrawer onClick={toggleWalletDrawer}>
-            <CloseIcon />
+            <CloseDrawerIcon />
           </CloseDrawer>
         </TraceEvent>
       )}
       <Scrim onClick={toggleWalletDrawer} open={walletDrawerOpen} />
       <AccountDrawerWrapper open={walletDrawerOpen}>
+        <GrayCloseButton onClick={toggleWalletDrawer} />
         {/* id used for child InfiniteScrolls to reference when it has reached the bottom of the component */}
         <AccountDrawerScrollWrapper ref={scrollRef} id="wallet-dropdown-scroll-wrapper">
           <DefaultMenu />

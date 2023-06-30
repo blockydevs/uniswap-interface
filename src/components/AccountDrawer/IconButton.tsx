@@ -5,7 +5,7 @@ export const IconHoverText = styled.span`
   color: ${({ theme }) => theme.textPrimary};
   position: absolute;
   top: 28px;
-  border-radius: 8px;
+  border-radius: 4px;
   transform: translateX(-50%);
   opacity: 0;
   font-size: 12px;
@@ -14,13 +14,13 @@ export const IconHoverText = styled.span`
 `
 
 const IconStyles = css`
-  background-color: ${({ theme }) => theme.backgroundInteractive};
-  border-radius: 12px;
   display: inline-block;
-  cursor: pointer;
   position: relative;
   height: 32px;
   width: 32px;
+  border-radius: 12px;
+  background-color: transparent;
+  cursor: pointer;
   color: ${({ theme }) => theme.textPrimary};
   :hover {
     background-color: ${({ theme }) => theme.hoverState};
@@ -55,8 +55,8 @@ const IconWrapper = styled.span`
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 `
 interface BaseProps {
   Icon: Icon

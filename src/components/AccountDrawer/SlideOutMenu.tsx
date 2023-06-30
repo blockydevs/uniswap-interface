@@ -14,22 +14,15 @@ const Menu = styled.div`
   }
 `
 
-const Title = styled.span`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`
-
 const StyledArrow = styled(ArrowLeft)`
   ${ClickableStyle}
 `
 
 const Header = styled.div`
   color: ${({ theme }) => theme.textPrimary};
-
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   position: relative;
   width: 100%;
   margin-bottom: 20px;
@@ -48,11 +41,8 @@ export const SlideOutMenu = ({
   <Menu>
     <Header>
       <StyledArrow data-testid="wallet-back" onClick={onClose} size={24} />
-      <Title>
-        <ThemedText.SubHeader>{title}</ThemedText.SubHeader>
-      </Title>
+      <ThemedText.BodyPrimary>{title}</ThemedText.BodyPrimary>
     </Header>
-
     {children}
   </Menu>
 )

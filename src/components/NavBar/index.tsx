@@ -6,7 +6,7 @@ import { HumanProtocolIcon } from 'nft/components/icons'
 import { useProfilePageState } from 'nft/hooks'
 import { ProfilePageStateType } from 'nft/types'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
 import { Bag } from './Bag'
 import Blur from './Blur'
@@ -14,15 +14,20 @@ import { ChainSelector } from './ChainSelector'
 import * as styles from './style.css'
 
 const Nav = styled.nav`
-  padding: 20px 12px;
+  padding: 12px 60px;
   width: 100%;
   height: ${({ theme }) => theme.navHeight}px;
   z-index: 2;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 12px 8px 12px 16px;
+  }
 `
 
 const Navbar = ({ blur }: { blur: boolean }) => {
   const navigate = useNavigate()
   const isNftPage = useIsNftPage()
+  const { darkMode } = useTheme()
   const sellPageState = useProfilePageState((state) => state.state)
 
   return (
@@ -32,7 +37,7 @@ const Navbar = ({ blur }: { blur: boolean }) => {
         <Box display="flex" height="full" flexWrap="nowrap">
           <Box className={styles.leftSideContainer}>
             <Box className={styles.logoContainer}>
-              <HumanProtocolIcon fill="white" onClick={() => navigate('/')} />
+              <HumanProtocolIcon fill={darkMode ? 'white' : '#6309FF'} onClick={() => navigate('/')} />
             </Box>
             {!isNftPage && (
               <Box display={{ sm: 'flex', lg: 'none' }}>

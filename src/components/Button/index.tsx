@@ -34,7 +34,7 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   width: ${({ width }) => width ?? '100%'};
   font-weight: 500;
   text-align: center;
-  border-radius: ${({ $borderRadius }) => $borderRadius ?? '20px'};
+  border-radius: ${({ $borderRadius }) => $borderRadius ?? '4px'};
   outline: none;
   border: 1px solid transparent;
   color: ${({ theme }) => theme.textPrimary};
@@ -47,7 +47,6 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   position: relative;
   z-index: 1;
   &:disabled {
-    opacity: 50%;
     cursor: auto;
     pointer-events: none;
   }
@@ -67,26 +66,25 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
 
 export const ButtonPrimary = styled(BaseButton)`
   background-color: ${({ theme }) => theme.accentAction};
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
   padding: 16px;
   color: ${({ theme }) => theme.accentTextLightPrimary};
-  &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.accentAction)};
-    background-color: ${({ theme }) => darken(0.05, theme.accentAction)};
-  }
+  box-shadow: 0px 1px 5px 0px rgba(233, 235, 250, 0.2), 0px 2px 2px 0px rgba(233, 235, 250, 0.5),
+    0px 3px 1px -2px #e9ebfa;
+
   &:hover {
     background-color: ${({ theme }) => darken(0.05, theme.accentAction)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.accentAction)};
-    background-color: ${({ theme }) => darken(0.1, theme.accentAction)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.accentActive)};
+    background-color: ${({ theme }) => darken(0.1, theme.accentActive)};
   }
   &:disabled {
     background-color: ${({ theme, altDisabledStyle, disabled }) =>
-      altDisabledStyle ? (disabled ? theme.accentAction : theme.backgroundInteractive) : theme.backgroundInteractive};
+      altDisabledStyle ? (disabled ? theme.accentAction : theme.backgroundInteractive) : theme.accentDarkGray};
     color: ${({ altDisabledStyle, disabled, theme }) =>
-      altDisabledStyle ? (disabled ? theme.white : theme.textSecondary) : theme.textSecondary};
+      altDisabledStyle ? (disabled ? theme.white : theme.textSecondary) : theme.accentGray};
     cursor: auto;
     box-shadow: none;
     border: 1px solid transparent;
@@ -99,7 +97,7 @@ export const SmallButtonPrimary = styled(ButtonPrimary)`
   font-size: 16px;
   padding: ${({ padding }) => padding ?? '8px 12px'};
 
-  border-radius: 12px;
+  border-radius: 4px;
 `
 
 const BaseButtonLight = styled(BaseButton)`
@@ -163,7 +161,7 @@ export const ButtonSecondary = styled(BaseButton)`
   color: ${({ theme }) => theme.accentAction};
   background-color: transparent;
   font-size: 16px;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: ${({ padding }) => (padding ? padding : '10px')};
 
   &:focus {
@@ -358,13 +356,13 @@ export function ButtonRadioChecked({ active = false, children, ...rest }: { acti
 
   if (!active) {
     return (
-      <ButtonOutlined $borderRadius="12px" padding="12px 8px" {...rest}>
+      <ButtonOutlined $borderRadius="4px" padding="12px 8px" {...rest}>
         <RowBetween>{children}</RowBetween>
       </ButtonOutlined>
     )
   } else {
     return (
-      <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="12px">
+      <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="4px">
         <RowBetween>
           {children}
           <CheckboxWrapper>
@@ -474,7 +472,7 @@ function pickThemeButtonTextColor({ theme, emphasis }: { theme: DefaultTheme; em
 const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   align-items: center;
   background-color: ${pickThemeButtonBackgroundColor};
-  border-radius: 16px;
+  border-radius: 4px;
   border: 0;
   color: ${pickThemeButtonTextColor};
   cursor: pointer;

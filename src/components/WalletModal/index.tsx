@@ -5,8 +5,8 @@ import { AutoRow } from 'components/Row'
 import { getConnections, networkConnection } from 'connection'
 import { ActivationStatus, useActivationState } from 'connection/activate'
 import { isSupportedChain } from 'constants/chains'
+import { SettingsIcon } from 'nft/components/icons'
 import { useEffect } from 'react'
-import { Settings } from 'react-feather'
 import styled from 'styled-components/macro'
 import { ThemedText } from 'theme'
 import { flexColumnNoWrap } from 'theme/styles'
@@ -54,7 +54,7 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
     <Wrapper data-testid="wallet-modal">
       <AutoRow justify="space-between" width="100%" marginBottom="16px">
         <ThemedText.SubHeader>Connect a wallet</ThemedText.SubHeader>
-        <IconButton Icon={Settings} onClick={openSettings} data-testid="wallet-settings" />
+        <IconButton Icon={SettingsIcon} onClick={openSettings} data-testid="wallet-settings" />
       </AutoRow>
       {activationState.status === ActivationStatus.ERROR ? (
         <ConnectionErrorView />

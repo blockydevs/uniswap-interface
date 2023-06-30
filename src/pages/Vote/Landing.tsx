@@ -15,6 +15,7 @@ import DepositVHMTModal from 'components/vote/DepositVHMTModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
+import { useIsMobile } from 'nft/hooks'
 import { darken } from 'polished'
 import { Link } from 'react-router-dom'
 import { Button } from 'rebass/styled-components'
@@ -33,6 +34,7 @@ import { ExternalLink, ThemedText } from 'theme'
 import { shortenAddress } from 'utils'
 import { shortenString } from 'utils'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
+import { shortenTitle } from 'utils/shortenTitle'
 
 import { ZERO_ADDRESS } from '../../constants/misc'
 import { UNI } from '../../constants/tokens'
@@ -40,6 +42,11 @@ import { ProposalStatus } from './styled'
 
 const PageWrapper = styled(AutoColumn)`
   padding-top: 68px;
+  width: 820px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    width: unset;
+  }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding: 48px 8px 0px;
@@ -50,37 +57,54 @@ const PageWrapper = styled(AutoColumn)`
   }
 `
 
-const TopSection = styled(AutoColumn)`
-  max-width: 640px;
+const ProposalsContainer = styled(AutoColumn)`
+  max-width: 820px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    padding: unset;
+  }
 `
 
 const Proposal = styled(Button)`
-  padding: 0.75rem 1rem;
   width: 100%;
-  margin-top: 1rem;
-  border-radius: 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   text-align: left;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
   outline: none;
   cursor: pointer;
-  color: ${({ theme }) => theme.textPrimary};
   text-decoration: none;
-  background-color: ${({ theme }) => theme.deprecated_bg1};
+  font-size: 14px;
+  background-color: ${({ theme }) => theme.white};
+
   &:focus {
     background-color: ${({ theme }) => darken(0.05, theme.deprecated_bg1)};
   }
   &:hover {
     background-color: ${({ theme }) => theme.backgroundInteractive};
   }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `
 
 const ProposalNumber = styled.span`
   flex: 0 0 40px;
   margin-right: 20px;
-  opacity: ${({ theme }) => theme.opacity.hover};
+  color: ${({ theme }) => theme.textPrimary};
+  font-weight: 600;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     margin-right: 10px;
@@ -88,15 +112,22 @@ const ProposalNumber = styled.span`
 `
 
 const ProposalTitle = styled.span`
-  font-weight: 600;
   flex: 1;
-  max-width: 420px;
+  padding: 0 24px 0 10px;
   white-space: initial;
   word-wrap: break-word;
-  padding-right: 10px;
+  font-weight: 400;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding-right: 0;
+    padding-top: 12px;
+    padding-left: 0;
+  }
 `
 
 const WrapSmall = styled(RowBetween)`
+  display: flex;
+  flex-direction: column;
   margin-bottom: 1rem;
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     flex-wrap: wrap;
@@ -105,7 +136,7 @@ const WrapSmall = styled(RowBetween)`
 
 const AddressButton = styled.div`
   padding: 2px 4px;
-  border-radius: 8px;
+  border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -119,10 +150,79 @@ const StyledExternalLink = styled(ExternalLink)`
 const StyledButtonsContainer = styled(AutoRow)`
   flex-wrap: nowrap;
   white-space: nowrap;
+  margin: 0;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+`
+
+const StyledButtonPrimary = styled(ButtonPrimary)`
+  width: 200px;
+  height: 42px;
+  margin-left: auto;
+  padding: 8px;
+  transition: 0.3s;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    font-size: 14px;
+    width: 50%;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    width: 85%;
+  }
+`
+
+const StyledRowBetween = styled(RowBetween)`
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    display: flex;
+    flex-direction: column;
+    align-items: unset;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+`
+
+const UnlockVotingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 28px 12px 0 0;
+  padding: 15px 16px;
+  background: ${({ theme }) => theme.white};
+
+  > button {
+    width: 147px;
+    height: 42px;
+    margin-left: auto;
+    background: ${({ theme }) => theme.textSecondary};
+
+    @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+      width: 90%;
+      margin: 0 auto;
+
+      > button {
+        width: 204px !important;
+        /* BLOCKYTODO - nie działa szerokość buttona unlock voting na mobilkach? */
+      }
+    }
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    flex-direction: column;
+    gap: 10px;
+  }
 `
 
 export default function Landing() {
   const { account, chainId } = useWeb3React()
+  const isMobile = useIsMobile()
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -188,108 +288,101 @@ export default function Landing() {
             title={showDepositVHMTButton && <Trans>Withdraw HMT</Trans>}
             uniBalance={uniBalance}
           />
-          <TopSection gap="2px">
+          <ProposalsContainer gap="2px">
             <WrapSmall>
               <StyledButtonsContainer gap="6px" justify="flex-end">
                 {loadingProposals || loadingAvailableVotes ? <Loader /> : null}
-                {showDepositHMTButton ? (
-                  <ButtonPrimary
-                    style={{ width: 'fit-content', height: '40px' }}
-                    padding="8px"
-                    $borderRadius="8px"
-                    onClick={toggleDepositHMTModal}
-                  >
-                    <Trans>Deposit HMT</Trans>
-                  </ButtonPrimary>
-                ) : null}
-                {showDepositVHMTButton ? (
-                  <ButtonPrimary
-                    style={{ width: 'fit-content', height: '40px' }}
-                    padding="8px"
-                    $borderRadius="8px"
-                    onClick={toggleDepositVHMTModal}
-                  >
-                    <Trans>Withdraw HMT</Trans>
-                  </ButtonPrimary>
-                ) : null}
-
-                {showUnlockVoting ? (
-                  <ButtonPrimary
-                    style={{ width: 'fit-content', height: '40px' }}
-                    padding="8px"
-                    $borderRadius="8px"
-                    onClick={toggleDelegateModal}
-                  >
-                    <Trans>Unlock Voting</Trans>
-                  </ButtonPrimary>
-                ) : availableVotes && JSBI.notEqual(JSBI.BigInt(0), availableVotes?.quotient) ? (
-                  <ThemedText.DeprecatedBody fontWeight={500} mr="6px">
-                    <Trans>
-                      <FormattedCurrencyAmount currencyAmount={availableVotes} /> Votes
-                    </Trans>
-                  </ThemedText.DeprecatedBody>
-                ) : uniBalance &&
-                  userDelegatee &&
-                  userDelegatee[0] !== ZERO_ADDRESS &&
-                  JSBI.notEqual(JSBI.BigInt(0), uniBalance?.quotient) ? (
-                  <ThemedText.DeprecatedBody fontWeight={500} mr="6px">
-                    <Trans>
-                      <FormattedCurrencyAmount currencyAmount={uniBalance} /> Votes
-                    </Trans>
-                  </ThemedText.DeprecatedBody>
-                ) : (
-                  ''
-                )}
-                {/* BLOCKYTODO: uncomment this button when we decide to add this functionality on our frontend  */}
-                {/* <ButtonPrimary
-                  as={Link}
-                  to="/create-proposal"
-                  style={{ width: 'fit-content', borderRadius: '8px', height: '40px' }}
-                  padding="8px"
-                >
-                  <Trans>Create Proposal</Trans>
-                </ButtonPrimary> */}
+                <StyledButtonPrimary disabled={!showDepositHMTButton} onClick={toggleDepositHMTModal}>
+                  <Trans>Deposit HMT</Trans>
+                </StyledButtonPrimary>
+                <StyledButtonPrimary disabled={!showDepositVHMTButton} onClick={toggleDepositVHMTModal}>
+                  <Trans>Withdraw HMT</Trans>
+                </StyledButtonPrimary>
               </StyledButtonsContainer>
+              {showUnlockVoting ? (
+                <UnlockVotingContainer>
+                  <ThemedText.BodySecondary fontWeight={500} mr="4px">
+                    <Trans>You have to delegate to unlock voting</Trans>
+                  </ThemedText.BodySecondary>
+                  <StyledButtonPrimary onClick={toggleDelegateModal}>
+                    <Trans>Unlock Voting</Trans>
+                  </StyledButtonPrimary>
+                </UnlockVotingContainer>
+              ) : null}
             </WrapSmall>
-            <ThemedText.DeprecatedMediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>
-              <Trans>Proposals</Trans>
-            </ThemedText.DeprecatedMediumHeader>
-            <div />
             {!showUnlockVoting && (
               <RowBetween>
                 {userDelegatee && userDelegatee[0] !== ZERO_ADDRESS && chainId ? (
-                  <RowFixed>
-                    <ThemedText.DeprecatedBody fontWeight={500} mr="4px">
-                      <Trans>Delegated to:</Trans>
-                    </ThemedText.DeprecatedBody>
-                    <AddressButton>
-                      <StyledExternalLink
-                        href={getExplorerLink(chainId, userDelegatee, ExplorerDataType.ADDRESS)}
-                        style={{ margin: '0 4px' }}
-                      >
-                        {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>
-                      </StyledExternalLink>
-                    </AddressButton>
-                  </RowFixed>
+                  <StyledRowBetween justify="between">
+                    <RowFixed>
+                      <ThemedText.SubHeaderLarge mr="4px">
+                        <Trans>Delegated to:</Trans>
+                      </ThemedText.SubHeaderLarge>
+                      <AddressButton>
+                        <StyledExternalLink
+                          href={getExplorerLink(chainId, userDelegatee, ExplorerDataType.ADDRESS)}
+                          style={{ margin: '0 4px' }}
+                        >
+                          {shortenAddress(userDelegatee[0])} <Trans>(self)</Trans>
+                        </StyledExternalLink>
+                      </AddressButton>
+                    </RowFixed>
+
+                    {availableVotes && JSBI.notEqual(JSBI.BigInt(0), availableVotes?.quotient) ? (
+                      <RowFixed>
+                        <ThemedText.SubHeaderLarge mr="6px">
+                          <Trans>
+                            <FormattedCurrencyAmount currencyAmount={availableVotes} /> Votes
+                          </Trans>
+                        </ThemedText.SubHeaderLarge>
+                      </RowFixed>
+                    ) : uniBalance &&
+                      userDelegatee &&
+                      userDelegatee[0] !== ZERO_ADDRESS &&
+                      JSBI.notEqual(JSBI.BigInt(0), uniBalance?.quotient) ? (
+                      <RowFixed>
+                        <ThemedText.DeprecatedBody fontWeight={500} mr="6px">
+                          <Trans>
+                            <FormattedCurrencyAmount currencyAmount={uniBalance} /> Votes
+                          </Trans>
+                        </ThemedText.DeprecatedBody>
+                      </RowFixed>
+                    ) : (
+                      ''
+                    )}
+                  </StyledRowBetween>
                 ) : (
                   ''
                 )}
               </RowBetween>
             )}
+            <ThemedText.HeadlineLarge style={{ margin: '28px 0 12px 0', flexShrink: 0 }}>
+              <Trans>Proposals</Trans>
+            </ThemedText.HeadlineLarge>
+            <div />
+
             {allProposals?.length === 0 && <ProposalEmptyState />}
             {allProposals
               ?.slice(0)
               ?.reverse()
               ?.map((p: ProposalData) => {
-                return (
+                return isMobile ? (
+                  <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
+                    <RowBetween>
+                      <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
+                      <ProposalStatus status={p.status} />
+                    </RowBetween>
+                    <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
+                  </Proposal>
+                ) : (
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
-                    <ProposalTitle>{p.title}</ProposalTitle>
+                    <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
                     <ProposalStatus status={p.status} />
                   </Proposal>
                 )
               })}
-          </TopSection>
+          </ProposalsContainer>
         </PageWrapper>
       </Trace>
       <SwitchLocaleLink />

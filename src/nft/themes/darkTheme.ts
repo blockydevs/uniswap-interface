@@ -7,6 +7,7 @@ export const darkTheme: Theme = {
     accentAction: vars.color.blue400,
     accentActionSoft: 'rgba(76, 130, 251, 0.24)',
     accentSuccess: vars.color.green200,
+    accentGray: vars.color.graySecondary,
 
     explicitWhite: '#FFFFFF',
     green: vars.color.green200,

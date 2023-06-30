@@ -10,23 +10,55 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { AutoColumn, ColumnCenter } from '../Column'
 import { RowBetween } from '../Row'
 
+const StyledRowBetween = styled(RowBetween)`
+  > div:nth-child(1) {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    font-size: 28px;
+
+    @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+      font-size: 24px;
+    }
+  }
+`
+
 const ConfirmOrLoadingWrapper = styled.div`
   width: 100%;
   padding: 24px;
   margin-bottom: 24px;
 `
 
+const CloseIconWrapper = styled('div')`
+  display: block;
+  margin-left: 20px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
+  }
+`
+
 const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 60px 0;
+  padding: 0 0 40px 0;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 20px 0;
+  }
 `
 
 export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
   return (
     <ConfirmOrLoadingWrapper>
-      <RowBetween>
-        <div />
-        <CloseIcon onClick={onDismiss} />
-      </RowBetween>
+      <StyledRowBetween>
+        <ThemedText.HeadlineLarge>
+          <Trans>Submitting Vote</Trans>
+        </ThemedText.HeadlineLarge>
+
+        <CloseIconWrapper>
+          <CloseIcon onClick={onDismiss} />
+        </CloseIconWrapper>
+      </StyledRowBetween>
+
       <ConfirmedIcon>
         <CustomLightSpinner src={Circle} alt="loader" size="90px" />
       </ConfirmedIcon>

@@ -32,7 +32,7 @@ export const mobileNavDropdown = style([
     borderTopRightRadius: '12',
     borderTopLeftRadius: '12',
     top: 'unset',
-    bottom: '56',
+    bottom: '0',
     left: '0',
     right: '0',
     width: 'full',

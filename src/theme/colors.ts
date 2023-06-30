@@ -56,7 +56,6 @@ export const colors = {
   yellow800: '#231902',
   yellow900: '#180F02',
   yellowVibrant: '#FAF40A',
-  // TODO: add gold 50-900
   gold200: '#EEB317',
   gold400: '#B17900',
   goldVibrant: '#FEB239',
@@ -82,13 +81,11 @@ export const colors = {
   blue800: '#0B193F',
   blue900: '#040E34',
   blueVibrant: '#587BFF',
-  // TODO: add magenta 50-900
   magenta300: '#FD82FF',
   magentaVibrant: '#FC72FF',
   purple300: '#8440F2',
   purple900: '#1C0337',
   purpleVibrant: '#6100FF',
-  // TODO: add all other vibrant variations
   networkEthereum: '#627EEA',
   networkOptimism: '#FF0420',
   networkOptimismSoft: 'rgba(255, 4, 32, 0.16)',
@@ -97,9 +94,18 @@ export const colors = {
   networkBsc: '#F0B90B',
   networkPolygonSoft: 'rgba(164, 87, 255, 0.16)',
   networkEthereumSoft: 'rgba(98, 126, 234, 0.16)',
+
+  violetLight: '#6309FF',
+  violetMain: '#320A8D',
+  violetActive: '#24046D',
+  violetLightSecondary: '#8409FF',
+  graySecondary: '#858EC6',
+  grayTertiary: '#DFE3F3',
+  grayBackground: '#F6F7FE',
+  grayLight: '#E0E0E0',
 }
 
-type Theme = typeof darkTheme
+type Theme = typeof lightTheme
 
 const commonTheme = {
   white: colors.white,
@@ -130,7 +136,7 @@ const commonTheme = {
   hoverDefault: opacify(8, colors.gray300),
 }
 
-export const darkTheme = {
+export const darkTheme: Theme = {
   ...commonTheme,
 
   userThemeColor: colors.magentaVibrant,
@@ -148,6 +154,7 @@ export const darkTheme = {
   textPrimary: colors.white,
   textSecondary: colors.gray300,
   textTertiary: colors.gray500,
+  textVioletSecondary: colors.violetLightSecondary,
 
   accentAction: colors.blue400,
   accentActive: colors.blue400,
@@ -155,6 +162,8 @@ export const darkTheme = {
   accentWarning: colors.gold200,
   accentFailure: colors.red300,
   accentCritical: colors.red300,
+  accentGray: colors.graySecondary,
+  accentDarkGray: colors.grayTertiary,
 
   accentActionSoft: opacify(24, colors.blue400),
   accentActiveSoft: opacify(24, colors.blue400),
@@ -180,14 +189,17 @@ export const darkTheme = {
 
   searchBackground: `rgba(255,255,255,0.07)`,
   searchOutline: `rgba(255,255,255,0.07)`,
+
+  backgroundGray: colors.grayBackground,
+  backgroundLightGray: colors.grayLight,
 }
 
-export const lightTheme: Theme = {
+export const lightTheme = {
   ...commonTheme,
 
   userThemeColor: colors.magentaVibrant,
 
-  background: '#faf9fa', //INTENTIONALLY OFF THEME TO GIVE WHITE BG A SOFTER VISUAL
+  background: colors.white,
   backgroundBackdrop: colors.white,
   backgroundSurface: colors.white,
   backgroundModule: colors.gray50,
@@ -197,16 +209,19 @@ export const lightTheme: Theme = {
   backgroundScrim: opacify(60, colors.gray900),
   backgroundScrolledSurface: opacify(72, colors.white),
 
-  textPrimary: colors.gray900,
-  textSecondary: colors.gray400,
+  textPrimary: colors.violetMain,
+  textSecondary: colors.violetLight,
   textTertiary: colors.gray300,
+  textVioletSecondary: colors.violetLightSecondary,
 
-  accentAction: colors.pink400,
-  accentActive: colors.blue400,
+  accentAction: colors.violetMain,
+  accentActive: colors.violetActive,
   accentSuccess: colors.green300,
   accentWarning: colors.gold400,
   accentFailure: colors.red400,
   accentCritical: colors.red400,
+  accentGray: colors.graySecondary,
+  accentDarkGray: colors.grayTertiary,
 
   accentActionSoft: opacify(12, colors.pink400),
   accentActiveSoft: opacify(24, colors.blue400),
@@ -234,4 +249,7 @@ export const lightTheme: Theme = {
 
   searchBackground: opacify(4, colors.white),
   searchOutline: opacify(1, colors.black),
+
+  backgroundGray: colors.grayBackground,
+  backgroundLightGray: colors.grayLight,
 }

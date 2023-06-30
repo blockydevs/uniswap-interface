@@ -17,7 +17,7 @@ type TextProps = Omit<TextPropsOriginal, 'css'>
 export const ThemedText = {
   // todo: there should be just one `Body` with default color, no need to make all variations
   BodyPrimary(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={16} color="textPrimary" {...props} />
+    return <TextWrapper fontWeight={600} fontSize={16} color="textPrimary" {...props} />
   },
   BodySecondary(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={16} color="textSecondary" {...props} />
@@ -35,7 +35,7 @@ export const ThemedText = {
     return <TextWrapper fontWeight={500} fontSize={28} color="textPrimary" {...props} />
   },
   HeadlineLarge(props: TextProps) {
-    return <TextWrapper fontWeight={600} fontSize={36} lineHeight="44px" color="textPrimary" {...props} />
+    return <TextWrapper fontWeight={600} fontSize={34} lineHeight="44px" color="textPrimary" {...props} />
   },
   LargeHeader(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={36} color="textPrimary" {...props} />

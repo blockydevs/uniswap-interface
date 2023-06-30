@@ -1,8 +1,7 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { Trace } from '@uniswap/analytics'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { CurrencyAmount, Fraction, Token } from '@uniswap/sdk-core'
+import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExecuteModal from 'components/vote/ExecuteModal'
 import QueueModal from 'components/vote/QueueModal'
@@ -11,11 +10,15 @@ import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import ms from 'ms.macro'
+import { Box } from 'nft/components/Box'
+import { WarningCircleIcon } from 'nft/components/icons'
+import VotingButtons from 'pages/Vote/VotingButtons'
 import { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components/macro'
+import { getDateFromBlock } from 'utils/getDateFromBlock'
 
 import { ButtonPrimary } from '../../components/Button'
 import { GrayCard } from '../../components/Card'
@@ -56,25 +59,43 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ProposalStatus } from './styled'
 
 const PageWrapper = styled(AutoColumn)`
+  display: flex;
   padding-top: 68px;
-  width: 100%;
+  width: 820px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    width: unset;
+  }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding: 48px 8px 0px;
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    padding-top: 20px;
+    padding: 20px 0 0;
   }
 `
 
 const ProposalInfo = styled(AutoColumn)`
-  background: ${({ theme }) => theme.backgroundSurface};
-  border-radius: 12px;
-  padding: 1.5rem;
   position: relative;
-  max-width: 640px;
+  justify-content: center;
+  max-width: 820px;
   width: 100%;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.backgroundSurface};
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 16px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 12px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+    padding: 12px;
+  }
 `
 
 const ArrowWrapper = styled(StyledInternalLink)`
@@ -83,6 +104,8 @@ const ArrowWrapper = styled(StyledInternalLink)`
   gap: 8px;
   height: 24px;
   color: ${({ theme }) => theme.textPrimary};
+  font-size: 15px;
+  font-weight: 600;
 
   a {
     color: ${({ theme }) => theme.textPrimary};
@@ -92,6 +115,16 @@ const ArrowWrapper = styled(StyledInternalLink)`
     text-decoration: none;
   }
 `
+
+const StyledAutoColumn = styled(AutoColumn)`
+  width: 100%;
+  margin-top: 24px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    margin-top: 24px;
+  }
+`
+
 const CardWrapper = styled.div`
   gap: 12px;
   width: 100%;
@@ -114,13 +147,12 @@ const ProgressWrapper = styled.div`
   position: relative;
 `
 
-const Progress = styled.div<{ status: 'for' | 'against' | 'abstain'; percentageString?: string }>`
+const Progress = styled.div<{ percentageString?: string }>`
   height: 4px;
-  border-radius: 4px;
-  background-color: ${({ theme, status }) => status === 'for' && theme.accentSuccess};
-  background-color: ${({ theme, status }) => status === 'against' && theme.accentFailure};
-  background-color: ${({ theme, status }) => status === 'abstain' && theme.accentWarning};
   width: ${({ percentageString }) => percentageString ?? '0%'};
+  max-width: 100%;
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.textPrimary};
 `
 
 const MarkDownWrapper = styled.div`
@@ -131,44 +163,31 @@ const MarkDownWrapper = styled.div`
 const WrapSmall = styled(RowBetween)`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     align-items: flex-start;
-    flex-direction: column;
   `};
 `
 
 const DetailText = styled.div`
+  color: ${({ theme }) => theme.textPrimary};
   word-break: break-all;
+
+  span:nth-child(0),
+  a {
+    color: ${({ theme }) => theme.textVioletSecondary};
+  }
 `
 
 const ProposerAddressLink = styled(ExternalLink)`
   word-break: break-all;
+  color: ${({ theme }) => theme.textVioletSecondary};
 `
-
-function getDateFromBlock(
-  targetBlock: number | undefined,
-  currentBlock: number | undefined,
-  averageBlockTimeInSeconds: number | undefined,
-  currentTimestamp: BigNumber | undefined
-): Date | undefined {
-  if (targetBlock && currentBlock && averageBlockTimeInSeconds && currentTimestamp) {
-    const date = new Date()
-    date.setTime(
-      currentTimestamp
-        .add(BigNumber.from(averageBlockTimeInSeconds).mul(BigNumber.from(targetBlock - currentBlock)))
-        .toNumber() * ms`1 second`
-    )
-    return date
-  }
-  return undefined
-}
 
 export default function VotePage() {
   // see https://github.com/remix-run/react-router/issues/8200#issuecomment-962520661
   const { governorIndex, id } = useParams() as { governorIndex: string; id: string }
   const parsedGovernorIndex = Number.parseInt(governorIndex)
-
   const { chainId, account } = useWeb3React()
-
   const quorumAmount = useQuorum()
+  const quorumNumber = Number(quorumAmount?.toExact())
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
@@ -224,16 +243,11 @@ export default function VotePage() {
   // get total votes and format percentages for UI
   const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
 
-  const forPercentage = totalVotes
-    ? proposalData?.forCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
-    : undefined
-  const abstainPercentage = totalVotes
-    ? proposalData?.abstainCount?.asFraction?.divide(totalVotes.asFraction)?.multiply(100)
-    : undefined
-  const againstPercentage =
-    forPercentage && abstainPercentage
-      ? new Fraction(100).subtract(forPercentage).subtract(abstainPercentage)
-      : undefined
+  const forVotes = Number(proposalData?.forCount.toExact())
+  const againstVotes = Number(proposalData?.againstCount.toExact())
+  const abstainVotes = Number(proposalData?.abstainCount.toExact())
+
+  const quorumPercentage = ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
@@ -288,6 +302,7 @@ export default function VotePage() {
             proposalId={proposalData?.id}
             voteOption={voteOption}
             availableVotes={availableVotes}
+            id={id}
           />
           <DelegateModal
             isOpen={showDelegateModal}
@@ -300,15 +315,15 @@ export default function VotePage() {
             <RowBetween style={{ width: '100%' }}>
               <ArrowWrapper to="/">
                 <Trans>
-                  <ArrowLeft size={20} /> All Proposals
+                  <ArrowLeft size={20} /> Proposals
                 </Trans>
               </ArrowWrapper>
               {proposalData && <ProposalStatus status={proposalData.status} />}
             </RowBetween>
-            <AutoColumn gap="10px" style={{ width: '100%' }}>
-              <ThemedText.DeprecatedLargeHeader style={{ marginBottom: '.5rem' }}>
+            <StyledAutoColumn gap="10px">
+              <ThemedText.SubHeaderLarge style={{ marginBottom: '.5rem' }}>
                 {proposalData?.title}
-              </ThemedText.DeprecatedLargeHeader>
+              </ThemedText.SubHeaderLarge>
               <RowBetween>
                 <ThemedText.DeprecatedMain>
                   {startDate && startDate > now ? (
@@ -326,65 +341,40 @@ export default function VotePage() {
                     ))}
                 </ThemedText.DeprecatedMain>
               </RowBetween>
-              {proposalData && proposalData.status === ProposalState.ACTIVE && !showVotingButtons && (
+              {proposalData && proposalData.status === ProposalState.ACTIVE && showVotingButtons === false && (
                 <GrayCard>
-                  <ThemedText.DeprecatedBlack>
-                    <Trans>
-                      Only vHMT votes that were self delegated before block {proposalData.startBlock} are eligible for
-                      voting.
-                    </Trans>{' '}
-                    {showLinkForUnlock && (
-                      <span>
-                        <Trans>
-                          <StyledInternalLink to="/vote">Unlock voting</StyledInternalLink> to prepare for the next
-                          proposal.
-                        </Trans>
-                      </span>
-                    )}
-                  </ThemedText.DeprecatedBlack>
+                  <Box>
+                    <WarningCircleIcon />
+                  </Box>
+                  <Trans>
+                    Only vHMT votes that were self delegated before block {proposalData.startBlock} are eligible for
+                    voting.
+                  </Trans>{' '}
+                  {showLinkForUnlock && (
+                    <span>
+                      <Trans>
+                        <StyledInternalLink to="/vote">Unlock voting</StyledInternalLink> to prepare for the next
+                        proposal.
+                      </Trans>
+                    </span>
+                  )}
                 </GrayCard>
               )}
-            </AutoColumn>
-            {showVotingButtons && (
-              <RowFixed style={{ width: '100%', gap: '12px' }}>
-                <ButtonPrimary
-                  padding="8px"
-                  $borderRadius="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.For)
-                    toggleVoteModal()
-                  }}
-                >
-                  <Trans>Vote For</Trans>
-                </ButtonPrimary>
+            </StyledAutoColumn>
 
-                <ButtonPrimary
-                  padding="8px"
-                  $borderRadius="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.Against)
-                    toggleVoteModal()
-                  }}
-                >
-                  <Trans>Vote Against</Trans>
-                </ButtonPrimary>
-                <ButtonPrimary
-                  padding="8px"
-                  $borderRadius="8px"
-                  onClick={() => {
-                    setVoteOption(VoteOption.Abstain)
-                    toggleVoteModal()
-                  }}
-                >
-                  <Trans>Abstain</Trans>
-                </ButtonPrimary>
-              </RowFixed>
-            )}
+            <VotingButtons
+              forVotes={forVotes}
+              againstVotes={againstVotes}
+              abstainVotes={abstainVotes}
+              setVoteOption={setVoteOption}
+              showVotingButtons={showVotingButtons}
+              proposalStatus={proposalData?.status}
+            />
+
             {showQueueButton && (
               <RowFixed style={{ width: '100%', gap: '12px' }}>
                 <ButtonPrimary
                   padding="8px"
-                  $borderRadius="8px"
                   onClick={() => {
                     toggleQueueModal()
                   }}
@@ -405,7 +395,6 @@ export default function VotePage() {
                 <RowFixed style={{ width: '100%', gap: '12px' }}>
                   <ButtonPrimary
                     padding="8px"
-                    $borderRadius="8px"
                     onClick={() => {
                       toggleExecuteModal()
                     }}
@@ -422,86 +411,33 @@ export default function VotePage() {
                 <CardSection>
                   <AutoColumn gap="md">
                     <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>For</Trans>
-                      </ThemedText.DeprecatedBlack>
+                      <ThemedText.BodyPrimary>
+                        <Trans>Quorum</Trans>
+                      </ThemedText.BodyPrimary>
                       {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData && proposalData.forCount.toFixed(0, { groupSeparator: ',' })}
+                        <ThemedText.BodyPrimary>
+                          {totalVotes && totalVotes.toFixed(0, { groupSeparator: ',' })}
                           {quorumAmount && (
-                            <span style={{ fontWeight: 400 }}>
+                            <span>
                               {` / ${quorumAmount.toExact({
                                 groupSeparator: ',',
                               })}`}
                             </span>
                           )}
-                        </ThemedText.DeprecatedBlack>
+                        </ThemedText.BodyPrimary>
                       )}
                     </WrapSmall>
                   </AutoColumn>
                   <ProgressWrapper>
-                    <Progress
-                      status="for"
-                      percentageString={
-                        proposalData?.forCount.greaterThan(0) ? `${forPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
-                  </ProgressWrapper>
-                </CardSection>
-              </StyledDataCard>
-              <StyledDataCard>
-                <CardSection>
-                  <AutoColumn gap="md">
-                    <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>Against</Trans>
-                      </ThemedText.DeprecatedBlack>
-                      {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.againstCount.toFixed(0, { groupSeparator: ',' })}
-                        </ThemedText.DeprecatedBlack>
-                      )}
-                    </WrapSmall>
-                  </AutoColumn>
-                  <ProgressWrapper>
-                    <Progress
-                      status="against"
-                      percentageString={
-                        proposalData?.againstCount?.greaterThan(0) ? `${againstPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
-                  </ProgressWrapper>
-                </CardSection>
-              </StyledDataCard>
-              <StyledDataCard>
-                <CardSection>
-                  <AutoColumn gap="md">
-                    <WrapSmall>
-                      <ThemedText.DeprecatedBlack fontWeight={600}>
-                        <Trans>Abstain</Trans>
-                      </ThemedText.DeprecatedBlack>
-                      {proposalData && (
-                        <ThemedText.DeprecatedBlack fontWeight={600}>
-                          {proposalData.abstainCount.toFixed(0, { groupSeparator: ',' })}
-                        </ThemedText.DeprecatedBlack>
-                      )}
-                    </WrapSmall>
-                  </AutoColumn>
-                  <ProgressWrapper>
-                    <Progress
-                      status="abstain"
-                      percentageString={
-                        proposalData?.abstainCount?.greaterThan(0) ? `${abstainPercentage?.toFixed(0) ?? 0}%` : '0%'
-                      }
-                    />
+                    <Progress percentageString={`${quorumPercentage ?? 0}%`} />
                   </ProgressWrapper>
                 </CardSection>
               </StyledDataCard>
             </CardWrapper>
-            <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+            <AutoColumn gap="16px">
+              <ThemedText.SubHeaderLarge>
                 <Trans>Details</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               {proposalData?.details?.map((d, i) => {
                 return (
                   <DetailText key={i}>
@@ -520,9 +456,9 @@ export default function VotePage() {
               })}
             </AutoColumn>
             <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+              <ThemedText.SubHeaderLarge>
                 <Trans>Description</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               <MarkDownWrapper>
                 <ReactMarkdown
                   source={proposalData?.description}
@@ -533,9 +469,9 @@ export default function VotePage() {
               </MarkDownWrapper>
             </AutoColumn>
             <AutoColumn gap="md">
-              <ThemedText.DeprecatedMediumHeader fontWeight={600}>
+              <ThemedText.SubHeaderLarge>
                 <Trans>Proposer</Trans>
-              </ThemedText.DeprecatedMediumHeader>
+              </ThemedText.SubHeaderLarge>
               <ProposerAddressLink
                 href={
                   proposalData?.proposer && chainId

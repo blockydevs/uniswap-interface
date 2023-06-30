@@ -7,15 +7,16 @@ const handleColorType = (status: ProposalState, theme: DefaultTheme) => {
   switch (status) {
     case ProposalState.PENDING:
     case ProposalState.ACTIVE:
-      return theme.accentAction
+      return theme.accentSuccess
     case ProposalState.SUCCEEDED:
     case ProposalState.EXECUTED:
       return theme.accentSuccess
     case ProposalState.DEFEATED:
-      return theme.accentFailure
-    case ProposalState.QUEUED:
+      return theme.accentCritical
     case ProposalState.CANCELED:
     case ProposalState.EXPIRED:
+      return theme.accentFailure
+    case ProposalState.QUEUED:
     default:
       return theme.textTertiary
   }
@@ -44,24 +45,31 @@ function StatusText({ status }: { status: ProposalState }) {
   }
 }
 
-const StyledProposalContainer = styled.span<{ status: ProposalState }>`
-  font-size: 0.825rem;
-  font-weight: 600;
+const StyledProposalStatusContainer = styled.div<{ status: ProposalState }>`
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  text-align: center;
   padding: 0.5rem;
+  gap: 14px;
+  font-size: 1rem;
+  font-weight: 500;
   border-radius: 8px;
   color: ${({ status, theme }) => handleColorType(status, theme)};
-  border: 1px solid ${({ status, theme }) => handleColorType(status, theme)};
-  width: fit-content;
-  justify-self: flex-end;
-  text-transform: uppercase;
-  flex: 0 0 100px;
-  text-align: center;
+`
+
+const Dot = styled.div<{ status: ProposalState }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: ${({ status, theme }) => handleColorType(status, theme)};
 `
 
 export function ProposalStatus({ status }: { status: ProposalState }) {
   return (
-    <StyledProposalContainer status={status}>
+    <StyledProposalStatusContainer status={status}>
+      <Dot status={status} />
       <StatusText status={status} />
-    </StyledProposalContainer>
+    </StyledProposalStatusContainer>
   )
 }

@@ -94,7 +94,7 @@ export default function Modal({
   onDismiss,
   minHeight = false,
   maxHeight = 90,
-  maxWidth = 420,
+  maxWidth = 577,
   height,
   initialFocusRef,
   children,
