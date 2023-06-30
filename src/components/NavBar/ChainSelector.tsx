@@ -1,5 +1,7 @@
 import { t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
+import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { getChainInfo } from 'constants/chainInfo'
 import { SupportedChainId } from 'constants/chains'
@@ -29,6 +31,17 @@ const ChainSelectorContainer = styled(Box)`
   border-radius: ${({ theme }) => theme.border.normal};
 `
 
+const ChainSelectorMainWrapper = styled('div')`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px 16px;
+
+  > button:nth-child(1) {
+    margin: 16px auto;
+  }
+`
+
 export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
   const { chainId } = useWeb3React()
 
@@ -39,7 +52,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
 
   const ref = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(ref, () => setIsOpen(false), [modalRef])
+  useOnClickOutside(ref, () => !isMobile && setIsOpen(false), [modalRef])
 
   const info = chainId ? getChainInfo(chainId) : undefined
 
@@ -62,7 +75,21 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
 
   const isSupported = !!info
 
-  const dropdown = (
+  const dropdown = isMobile ? (
+    <Modal isOpen={true} maxHeight={90} onDismiss={() => setIsOpen(false)}>
+      <ChainSelectorMainWrapper>
+        <GrayCloseButton onClick={() => setIsOpen(false)} />
+        {NETWORK_SELECTOR_CHAINS.map((chainId: SupportedChainId) => (
+          <ChainSelectorRow
+            onSelectChain={onSelectChain}
+            targetChain={chainId}
+            key={chainId}
+            isPending={chainId === pendingChainId}
+          />
+        ))}
+      </ChainSelectorMainWrapper>
+    </Modal>
+  ) : (
     <NavDropdown top="56" left={leftAlign ? '0' : 'auto'} right={leftAlign ? 'auto' : '0'} ref={modalRef}>
       <Column paddingX="8">
         {NETWORK_SELECTOR_CHAINS.map((chainId: SupportedChainId) => (
