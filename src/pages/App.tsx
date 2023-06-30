@@ -42,11 +42,13 @@ const HeaderWrapper = styled.div`
 `
 
 const BodyWrapper = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 40px;
   width: 100%;
   min-height: 100vh;
-  padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
+  padding: ${({ theme }) => theme.navHeight}px 0px 0 0px;
   align-items: center;
   flex: 1;
 
@@ -58,7 +60,7 @@ const BodyWrapper = styled.div`
 const FooterWrapper = styled.div`
   ${flexRowNoWrap};
   width: 100%;
-  bottom: 0;
+  margin-top: auto;
   z-index: ${Z_INDEX.dropdown};
   background-color: ${({ theme }) => theme.background};
 `
@@ -196,10 +198,10 @@ export default function App() {
                 <Loader />
               )}
             </Suspense>
+            <FooterWrapper>
+              <Footer />
+            </FooterWrapper>
           </BodyWrapper>
-          <FooterWrapper>
-            <Footer />
-          </FooterWrapper>
         </StatsigProvider>
       </Trace>
     </ErrorBoundary>
