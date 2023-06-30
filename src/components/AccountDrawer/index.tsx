@@ -1,6 +1,7 @@
 import { TraceEvent } from '@uniswap/analytics'
 import { BrowserEvent, InterfaceEventName } from '@uniswap/analytics-events'
 import { ScrollBarStyles } from 'components/Common'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
@@ -104,14 +105,15 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   overflow: hidden;
   box-shadow: 0px 6px 30px 5px rgba(233, 235, 250, 0.52), 0px 16px 24px 2px rgba(233, 235, 250, 0.44),
     0px 8px 10px -5px rgba(233, 235, 250, 0.3);
+  border-radius: 16px;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    z-index: ${Z_INDEX.modal};
-    position: absolute;
-    margin-right: 0;
-    top: ${({ open }) => (open ? `calc(-1 * (100% - ${DRAWER_TOP_MARGIN_MOBILE_WEB}))` : 0)};
-
     width: 100%;
+    position: absolute;
+    top: ${({ open }) => (open ? `calc(-1 * (100% - ${DRAWER_TOP_MARGIN_MOBILE_WEB}))` : 0)};
+    margin-right: 0;
+    z-index: ${Z_INDEX.modal};
+    border-radius: 16px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
     box-shadow: unset;
@@ -119,16 +121,20 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   }
 
   @media screen and (min-width: 1440px) {
-    margin-right: ${({ open }) => (open ? 0 : `-${DRAWER_WIDTH_XL}`)};
     width: ${DRAWER_WIDTH_XL};
+    margin-right: ${({ open }) => (open ? 0 : `-${DRAWER_WIDTH_XL}`)};
   }
 
-  border-radius: 0px;
   width: ${DRAWER_WIDTH};
+  border-radius: 0px;
   font-size: 16px;
   background-color: ${({ theme }) => theme.backgroundSurface};
   box-shadow: ${({ theme }) => theme.deepShadow};
   transition: margin-right ${({ theme }) => theme.transition.duration.medium};
+
+  > button {
+    margin-top: 16px;
+  }
 `
 
 const CloseDrawer = styled.div`
@@ -190,6 +196,7 @@ function AccountDrawer() {
       )}
       <Scrim onClick={toggleWalletDrawer} open={walletDrawerOpen} />
       <AccountDrawerWrapper open={walletDrawerOpen}>
+        <GrayCloseButton onClick={toggleWalletDrawer} />
         {/* id used for child InfiniteScrolls to reference when it has reached the bottom of the component */}
         <AccountDrawerScrollWrapper ref={scrollRef} id="wallet-dropdown-scroll-wrapper">
           <DefaultMenu />
