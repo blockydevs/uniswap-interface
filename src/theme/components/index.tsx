@@ -33,6 +33,10 @@ import { anonymizeLink } from '../../utils/anonymizeLink'
 export const CloseIcon = styled(X)<{ onClick: () => void }>`
   color: ${({ theme }) => theme.textPrimary};
   cursor: pointer;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
+  }
 `
 
 // for wrapper react feather icons

@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExchangeHmtInput from 'components/ExchangeHmtInput/ExchangeHmtInput'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
 import { parseUnits } from 'ethers/lib/utils'
 import { ReactNode, useCallback, useState } from 'react'
 import { X } from 'react-feather'
@@ -25,9 +26,18 @@ const ContentWrapper = styled(AutoColumn)`
   padding: 24px;
 `
 
+const ModalViewWrapper = styled('div')`
+  width: 100%;
+  padding-top: 16px;
+`
+
 const StyledClosed = styled(X)`
   :hover {
     cursor: pointer;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
   }
 `
 
@@ -118,6 +128,7 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !withdrawToHash && isOpen && !error && (
         <ContentWrapper gap="lg">
+          <GrayCloseButton onClick={wrappedOnDismiss} />
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>{title}</ThemedText.DeprecatedMediumHeader>
@@ -154,32 +165,38 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
         </LoadingView>
       )}
       {attempting && withdrawToHash && (
-        <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedLargeHeader>
-              <Trans>Transaction Submitted</Trans>
-            </ThemedText.DeprecatedLargeHeader>
-          </AutoColumn>
-        </SubmittedView>
+        <ModalViewWrapper>
+          <GrayCloseButton onClick={wrappedOnDismiss} />
+          <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
+            <AutoColumn gap="md" justify="center">
+              <ThemedText.DeprecatedLargeHeader>
+                <Trans>Transaction Submitted</Trans>
+              </ThemedText.DeprecatedLargeHeader>
+            </AutoColumn>
+          </SubmittedView>
+        </ModalViewWrapper>
       )}
       {isDepositError && (
-        <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.DeprecatedError error={!!error}>
-              <Trans>Unable to execute transaction</Trans>
-            </ThemedText.DeprecatedError>
-            {error && (
-              <ContentWrapper gap="10px">
-                <ThemedText.DeprecatedLargeHeader textAlign="center">
-                  <Trans>Reason</Trans>:
-                </ThemedText.DeprecatedLargeHeader>
-                <ThemedText.DeprecatedMediumHeader>
-                  {swapErrorToUserReadableMessage(error)}
-                </ThemedText.DeprecatedMediumHeader>
-              </ContentWrapper>
-            )}
-          </AutoColumn>
-        </SubmittedWithErrorView>
+        <ModalViewWrapper>
+          <GrayCloseButton onClick={wrappedOnDismiss} />
+          <SubmittedWithErrorView onDismiss={wrappedOnDismiss}>
+            <AutoColumn gap="md" justify="center">
+              <ThemedText.DeprecatedError error={!!error}>
+                <Trans>Unable to execute transaction</Trans>
+              </ThemedText.DeprecatedError>
+              {error && (
+                <ContentWrapper gap="10px">
+                  <ThemedText.DeprecatedLargeHeader textAlign="center">
+                    <Trans>Reason</Trans>:
+                  </ThemedText.DeprecatedLargeHeader>
+                  <ThemedText.DeprecatedMediumHeader>
+                    {swapErrorToUserReadableMessage(error)}
+                  </ThemedText.DeprecatedMediumHeader>
+                </ContentWrapper>
+              )}
+            </AutoColumn>
+          </SubmittedWithErrorView>
+        </ModalViewWrapper>
       )}
     </Modal>
   )

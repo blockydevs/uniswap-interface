@@ -15,6 +15,11 @@ const StyledRowBetween = styled(RowBetween)`
     display: flex;
     justify-content: center;
     width: 100%;
+    font-size: 28px;
+
+    @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+      font-size: 24px;
+    }
   }
 `
 
@@ -34,7 +39,11 @@ const CloseIconWrapper = styled('div')`
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 60px 0;
+  padding: 0 0 40px 0;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 20px 0;
+  }
 `
 
 export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
