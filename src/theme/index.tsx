@@ -147,7 +147,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
+    background: #F9F9F9; 
     margin-left: 4px;
     margin-right: 4px;
 }
