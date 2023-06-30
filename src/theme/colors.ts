@@ -102,6 +102,7 @@ export const colors = {
   graySecondary: '#858EC6',
   grayTertiary: '#DFE3F3',
   grayBackground: '#F6F7FE',
+  grayLight: '#E0E0E0',
 }
 
 type Theme = typeof lightTheme
@@ -190,6 +191,7 @@ export const darkTheme: Theme = {
   searchOutline: `rgba(255,255,255,0.07)`,
 
   backgroundGray: colors.grayBackground,
+  backgroundLightGray: colors.grayLight,
 }
 
 export const lightTheme = {
@@ -249,4 +251,5 @@ export const lightTheme = {
   searchOutline: opacify(1, colors.black),
 
   backgroundGray: colors.grayBackground,
+  backgroundLightGray: colors.grayLight,
 }

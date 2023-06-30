@@ -24,6 +24,15 @@ const ConfirmOrLoadingWrapper = styled.div`
   margin-bottom: 24px;
 `
 
+const CloseIconWrapper = styled('div')`
+  display: block;
+  margin-left: 20px;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
+  }
+`
+
 const ConfirmedIcon = styled(ColumnCenter)`
   padding: 60px 0;
 `
@@ -36,9 +45,9 @@ export function LoadingView({ children, onDismiss }: { children: any; onDismiss:
           <Trans>Submitting Vote</Trans>
         </ThemedText.HeadlineLarge>
 
-        <div>
+        <CloseIconWrapper>
           <CloseIcon onClick={onDismiss} />
-        </div>
+        </CloseIconWrapper>
       </StyledRowBetween>
 
       <ConfirmedIcon>

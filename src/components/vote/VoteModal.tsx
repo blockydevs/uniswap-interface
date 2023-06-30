@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
+import GrayCloseButton from 'components/GrayCloseButton/GrayCloseButton'
 import { LoadingView } from 'components/ModalViews'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
@@ -28,6 +29,14 @@ const TopLabelContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
+
+  > div {
+    font-size: 28px;
+
+    @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
+      font-size: 22px;
+    }
+  }
 `
 
 const StyledClosed = styled(X)`
@@ -35,6 +44,10 @@ const StyledClosed = styled(X)`
   right: 0;
   :hover {
     cursor: pointer;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
   }
 `
 
@@ -95,9 +108,10 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, a
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !hash && (
         <ContentWrapper gap="lg">
+          <GrayCloseButton onClick={wrappedOnDismiss} />
           <AutoColumn gap="xl" justify="center">
             <TopLabelContainer>
-              <ThemedText.HeadlineSmall fontSize={28}>
+              <ThemedText.HeadlineSmall>
                 {voteOption === VoteOption.Against ? (
                   <Trans>Vote against proposal</Trans>
                 ) : voteOption === VoteOption.For ? (
@@ -129,13 +143,16 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption, a
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <LoadingView onDismiss={wrappedOnDismiss}>
-          <AutoColumn gap="md" justify="center">
-            <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
-              Confirm this transaction in your wallet
-            </ThemedText.HeadlineSmall>
-          </AutoColumn>
-        </LoadingView>
+        <ContentWrapper>
+          <GrayCloseButton onClick={onDismiss} />
+          <LoadingView onDismiss={wrappedOnDismiss}>
+            <AutoColumn gap="md" justify="center">
+              <ThemedText.HeadlineSmall fontWeight={500} textAlign="center">
+                Confirm this transaction in your wallet
+              </ThemedText.HeadlineSmall>
+            </AutoColumn>
+          </LoadingView>
+        </ContentWrapper>
       )}
       {hash && (
         <ConfirmOrLoadingWrapper>

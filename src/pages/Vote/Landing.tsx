@@ -160,10 +160,10 @@ const StyledButtonsContainer = styled(AutoRow)`
 
 const StyledButtonPrimary = styled(ButtonPrimary)`
   width: 200px;
-  height: 40px;
+  height: 42px;
   margin-left: auto;
-  transition: 0.3s;
   padding: 8px;
+  transition: 0.3s;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     font-size: 16px;
@@ -206,6 +206,11 @@ const UnlockVotingContainer = styled.div`
     @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
       width: 90%;
       margin: 0 auto;
+
+      > button {
+        width: 204px !important;
+        /* BLOCKYTODO - nie działa szerokość buttona unlock voting na mobilkach? */
+      }
     }
   }
 
@@ -299,7 +304,7 @@ export default function Landing() {
                   <ThemedText.BodySecondary fontWeight={500} mr="4px">
                     <Trans>You have to delegate to unlock voting</Trans>
                   </ThemedText.BodySecondary>
-                  <StyledButtonPrimary style={{ height: '40px' }} padding="8px" onClick={toggleDelegateModal}>
+                  <StyledButtonPrimary onClick={toggleDelegateModal}>
                     <Trans>Unlock Voting</Trans>
                   </StyledButtonPrimary>
                 </UnlockVotingContainer>
