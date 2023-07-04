@@ -3,6 +3,14 @@ import { useScreenSize } from 'hooks/useScreenSize'
 import { DiscordIcon, GithubIconMenu, LinkedinIcon, TwitterIcon, YoutubeIcon } from 'nft/components/icons'
 import styled from 'styled-components/macro'
 
+const SOCIAL_MEDIA = [
+  { icon: <TwitterIcon />, link: 'http://hmt.ai/twitter' },
+  { icon: <DiscordIcon />, link: 'http://hmt.ai/discord' },
+  { icon: <GithubIconMenu />, link: 'http://hmt.ai/github' },
+  { icon: <LinkedinIcon />, link: 'http://hmt.ai/linkedin' },
+  { icon: <YoutubeIcon />, link: 'https://www.youtube.com/@HUMANProtocol' },
+]
+
 const MainContainer = styled.footer`
   position: relative;
   display: flex;
@@ -70,14 +78,6 @@ const SocialMediaContainer = styled.div`
     margin-left: unset;
   }
 `
-
-const SOCIAL_MEDIA = [
-  { icon: <TwitterIcon />, link: 'https://twitter.com/intent/follow?screen_name=human_protocol' },
-  { icon: <DiscordIcon />, link: 'https://discord.com/invite/5sHfvE8y8p' },
-  { icon: <GithubIconMenu />, link: 'https://github.com/humanprotocol' },
-  { icon: <LinkedinIcon />, link: 'https://www.linkedin.com/company/human-protocol/' },
-  { icon: <YoutubeIcon />, link: 'https://www.youtube.com/@HUMANProtocol' },
-]
 
 const Footer = () => {
   const isScreenSize = useScreenSize()
