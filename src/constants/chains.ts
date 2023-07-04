@@ -67,6 +67,7 @@ export const SUPPORTED_GAS_ESTIMATE_CHAIN_IDS = [
   SupportedChainId.ARBITRUM_ONE,
   SupportedChainId.BNB,
   SupportedChainId.SEPOLIA,
+  SupportedChainId.POLYGON_MUMBAI,
 ] as const
 
 /**
@@ -86,6 +87,7 @@ export const TESTNET_CHAIN_IDS = [
   SupportedChainId.ARBITRUM_GOERLI,
   SupportedChainId.OPTIMISM_GOERLI,
   SupportedChainId.SEPOLIA,
+  SupportedChainId.POLYGON_MUMBAI,
 ] as const
 
 export type SupportedTestnetChainId = typeof TESTNET_CHAIN_IDS[number]

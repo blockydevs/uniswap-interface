@@ -20,6 +20,10 @@ export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
 
 export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0x04599DdEa22a1890e494458ac1f5106fFe01AC95')
 
+export const POLYGON_MUMBAI_UNI_ADDRESS: AddressMap = constructSameAddressMap(
+  '0x6A1216B16e2970939924efd5f945f1C02F4492e1'
+)
+
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
 
 export const V2_FACTORY_ADDRESSES: AddressMap = constructSameAddressMap(V2_FACTORY_ADDRESS)

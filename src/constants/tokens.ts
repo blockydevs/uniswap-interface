@@ -1,7 +1,7 @@
 import { Currency, Ether, NativeCurrency, Token, WETH9 } from '@uniswap/sdk-core'
 import invariant from 'tiny-invariant'
 
-import { UNI_ADDRESS } from './addresses'
+import { POLYGON_MUMBAI_UNI_ADDRESS, UNI_ADDRESS } from './addresses'
 import { SupportedChainId } from './chains'
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
@@ -358,6 +358,13 @@ export const UNI: { [chainId: number]: Token } = {
   [SupportedChainId.MAINNET]: new Token(SupportedChainId.MAINNET, UNI_ADDRESS[1], 18, 'UNI', 'Uniswap'),
   [SupportedChainId.GOERLI]: new Token(SupportedChainId.GOERLI, UNI_ADDRESS[5], 18, 'UNI', 'Uniswap'),
   [SupportedChainId.SEPOLIA]: new Token(SupportedChainId.SEPOLIA, UNI_ADDRESS[5], 18, 'UNI', 'Uniswap'),
+  [SupportedChainId.POLYGON_MUMBAI]: new Token(
+    SupportedChainId.POLYGON_MUMBAI,
+    POLYGON_MUMBAI_UNI_ADDRESS[5],
+    18,
+    'UNI',
+    'Uniswap'
+  ),
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } = {
