@@ -2,7 +2,7 @@ import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 import { isAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import type { TransactionResponse } from '@ethersproject/providers'
+import { JsonRpcProvider, TransactionResponse } from '@ethersproject/providers'
 import { toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/strings'
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
@@ -15,7 +15,7 @@ import UniJSON from 'abis/VHMToken.json'
 import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
-import { useContract } from 'hooks/useContract'
+import { useContract, useContractWithCustomProvider } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -35,15 +35,30 @@ import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
-// SEPOLIA
-function useGovernanceBravoContract(): Contract | null {
-  return useContract(GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA, GOVERNOR_BRAVO_ABI_SEPOLIA, true)
+const JSON_RPC_LINK = 'https://eth-sepolia.g.alchemy.com/v2/wfXNo_GK-Fm00CrmS2ORmMrXuLDySHGw'
+
+export function useSepoliaProvider(): JsonRpcProvider | undefined {
+  const [sepoliaProvider, setSepoliaProvider] = useState<JsonRpcProvider | undefined>(undefined)
+
+  useEffect(() => {
+    const provider = new JsonRpcProvider(JSON_RPC_LINK)
+    provider && setSepoliaProvider(provider)
+  }, [])
+
+  return sepoliaProvider
 }
 
-// ETHEREUM
-// function useGovernanceBravoContract(): Contract | null {
-//   return useContract(GOVERNANCE_BRAVO_ADDRESSES, GOVERNOR_BRAVO_ABI, true)
-// }
+function useGovernanceBravoContract(): Contract | null {
+  const sepoliaProvider = useSepoliaProvider()
+
+  const contractOutside = useContractWithCustomProvider(
+    GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA,
+    GOVERNOR_BRAVO_ABI_SEPOLIA,
+    true,
+    sepoliaProvider
+  )
+  return contractOutside
+}
 
 const useLatestGovernanceContract = useGovernanceBravoContract
 
@@ -152,6 +167,7 @@ function useFormattedProposalCreatedLogs(
   const filter = useMemo(() => {
     const filter = contract?.filters?.ProposalCreated()
     if (!filter) return undefined
+
     return {
       ...filter,
       fromBlock,
@@ -270,7 +286,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
     }
 
     if (gov2ProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
-  }, [gov2?.functions, gov2ProposalIndexes, proposalStatuses])
+  }, [gov2, gov2ProposalIndexes, proposalStatuses])
 
   //get proposal votes
   useEffect(() => {
@@ -287,7 +303,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
     if (gov2ProposalIndexes.length > proposalVotes.length) getProposalVotes()
   }, [gov2?.functions, gov2ProposalIndexes, proposalVotes])
 
-  const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+  const uniToken = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   // early return until events are fetched
   return useMemo(() => {
@@ -295,7 +311,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
-    if (!uni || (gov2 && !formattedLogsV2)) {
+    if (!uniToken || (gov2 && !formattedLogsV2)) {
       return { data: [], loading: true }
     }
 
@@ -323,9 +339,9 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           description: description ?? t`No description.`,
           proposer: proposal.proposer,
           status: proposalStatuses[i] ?? ProposalState.UNDETERMINED,
-          forCount: CurrencyAmount.fromRawAmount(uni, forVotes),
-          againstCount: CurrencyAmount.fromRawAmount(uni, againstVotes),
-          abstainCount: CurrencyAmount.fromRawAmount(uni, abstainVotes),
+          forCount: CurrencyAmount.fromRawAmount(uniToken, forVotes),
+          againstCount: CurrencyAmount.fromRawAmount(uniToken, againstVotes),
+          abstainCount: CurrencyAmount.fromRawAmount(uniToken, abstainVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
           eta: BigNumber.from(12),
@@ -336,7 +352,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
       loading: false,
     }
-  }, [formattedLogsV2, gov2, uni, proposalStatuses, proposalVotes])
+  }, [formattedLogsV2, gov2, uniToken, proposalStatuses, proposalVotes])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {

@@ -1,16 +1,18 @@
 import type { Filter } from '@ethersproject/providers'
-import { useWeb3React } from '@web3-react/core'
+import { SupportedChainId } from 'constants/chains'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useEffect, useMemo } from 'react'
+import { useSepoliaProvider } from 'state/governance/hooks'
 
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { fetchedLogs, fetchedLogsError, fetchingLogs } from './slice'
 import { isHistoricalLog, keyToFilter } from './utils'
 
 export default function Updater(): null {
+  const chainId = SupportedChainId.SEPOLIA
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
-  const { chainId, provider } = useWeb3React()
+  const sepoliaProvider = useSepoliaProvider()
 
   const blockNumber = useBlockNumber()
 
@@ -34,16 +36,18 @@ export default function Updater(): null {
   }, [blockNumber, chainId, state])
 
   useEffect(() => {
-    if (!provider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
+    if (!sepoliaProvider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
 
     dispatch(fetchingLogs({ chainId, filters: filtersNeedFetch, blockNumber }))
     filtersNeedFetch.forEach((filter) => {
       // provide defaults if {from,to}Block are missing
       let fromBlock = filter.fromBlock ?? 0
       let toBlock = filter.toBlock ?? blockNumber
+
       if (typeof fromBlock === 'string') fromBlock = Number.parseInt(fromBlock)
       if (typeof toBlock === 'string') toBlock = Number.parseInt(toBlock)
-      provider
+
+      sepoliaProvider
         .getLogs({
           ...filter,
           fromBlock,
@@ -69,7 +73,7 @@ export default function Updater(): null {
           )
         })
     })
-  }, [blockNumber, chainId, dispatch, filtersNeedFetch, provider])
+  }, [blockNumber, chainId, dispatch, filtersNeedFetch, sepoliaProvider])
 
   return null
 }
