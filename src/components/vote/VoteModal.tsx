@@ -41,7 +41,7 @@ const TopLabelContainer = styled.div`
 
 const StyledClosed = styled(X)`
   position: absolute;
-  right: 0;
+  right: 5%;
   :hover {
     cursor: pointer;
   }
@@ -52,6 +52,7 @@ const StyledClosed = styled(X)`
 `
 
 const ConfirmOrLoadingWrapper = styled.div`
+  position: relative;
   width: 100%;
   padding: 24px;
 `
