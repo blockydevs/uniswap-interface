@@ -17,6 +17,7 @@ export default function Updater(): null {
 
   const closeModal = useCloseModal()
   const previousAccountValue = useRef(account)
+
   useEffect(() => {
     if (account && account !== previousAccountValue.current) {
       previousAccountValue.current = account

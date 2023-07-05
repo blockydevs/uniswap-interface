@@ -7,7 +7,6 @@ import { ApolloProvider } from '@apollo/client'
 import { FeatureFlagsProvider } from 'featureFlags'
 import { apolloClient } from 'graphql/data/apollo'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
-import { MulticallUpdater } from 'lib/state/multicall'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -39,7 +38,6 @@ function Updaters() {
       <SystemThemeUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
-      <MulticallUpdater />
       <LogsUpdater />
     </>
   )
