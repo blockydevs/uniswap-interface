@@ -243,11 +243,12 @@ export default function VotePage() {
   // get total votes and format percentages for UI
   const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
 
-  const forVotes = Number(proposalData?.forCount.toExact())
-  const againstVotes = Number(proposalData?.againstCount.toExact())
-  const abstainVotes = Number(proposalData?.abstainCount.toExact())
+  const forVotes = Number(proposalData?.forCount.toExact()) || 0
+  const againstVotes = Number(proposalData?.againstCount.toExact()) || 0
+  const abstainVotes = Number(proposalData?.abstainCount.toExact()) || 0
 
-  const quorumPercentage = ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
+  const quorumPercentage =
+    forVotes && againstVotes && abstainVotes && ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
 
   // only count available votes as of the proposal start block
   const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
