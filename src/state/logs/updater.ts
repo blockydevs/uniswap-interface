@@ -1,18 +1,19 @@
 import type { Filter } from '@ethersproject/providers'
 import { SupportedChainId } from 'constants/chains'
+import { RPC_PROVIDERS } from 'constants/providers'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useEffect, useMemo } from 'react'
-import { useSepoliaProvider } from 'state/governance/hooks'
 
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { fetchedLogs, fetchedLogsError, fetchingLogs } from './slice'
 import { isHistoricalLog, keyToFilter } from './utils'
 
+const chainId = SupportedChainId.SEPOLIA
+const sepoliaProvider = RPC_PROVIDERS[SupportedChainId.SEPOLIA]
+
 export default function Updater(): null {
-  const chainId = SupportedChainId.SEPOLIA
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
-  const sepoliaProvider = useSepoliaProvider()
 
   const blockNumber = useBlockNumber()
 
@@ -33,7 +34,7 @@ export default function Updater(): null {
         return true
       })
       .map((key) => keyToFilter(key))
-  }, [blockNumber, chainId, state])
+  }, [blockNumber, state])
 
   useEffect(() => {
     if (!sepoliaProvider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
@@ -73,7 +74,7 @@ export default function Updater(): null {
           )
         })
     })
-  }, [blockNumber, chainId, dispatch, filtersNeedFetch, sepoliaProvider])
+  }, [blockNumber, dispatch, filtersNeedFetch])
 
   return null
 }

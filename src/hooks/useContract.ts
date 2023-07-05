@@ -72,7 +72,6 @@ export function useContract<T extends Contract = Contract>(
 export function useContractWithCustomProvider<T extends Contract = Contract>(
   addressOrAddressMap: string | { [chainId: number]: string } | undefined,
   ABI: any,
-  withSignerIfPossible = true,
   provider: JsonRpcProvider | undefined
 ): T | null {
   const chainId = SupportedChainId.SEPOLIA
@@ -85,12 +84,12 @@ export function useContractWithCustomProvider<T extends Contract = Contract>(
     else address = addressOrAddressMap[chainId]
     if (!address) return null
     try {
-      return getContract(address, ABI, provider, withSignerIfPossible && account ? account : undefined)
+      return getContract(address, ABI, provider, account ? account : undefined)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [addressOrAddressMap, ABI, chainId, withSignerIfPossible, account, provider]) as T
+  }, [addressOrAddressMap, ABI, chainId, account, provider]) as T
 }
 
 export function useV2MigratorContract() {

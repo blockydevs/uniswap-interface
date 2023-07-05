@@ -2,7 +2,7 @@ import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 import { isAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider, TransactionResponse } from '@ethersproject/providers'
+import { TransactionResponse } from '@ethersproject/providers'
 import { toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/strings'
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
@@ -13,8 +13,10 @@ import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
 import HmtUniJSON from 'abis/HMToken.json'
 import UniJSON from 'abis/VHMToken.json'
 import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
+import { SupportedChainId } from 'constants/chains'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
+import { RPC_PROVIDERS } from 'constants/providers'
 import { useContract, useContractWithCustomProvider } from 'hooks/useContract'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -35,28 +37,15 @@ import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
-const JSON_RPC_LINK = 'https://eth-sepolia.g.alchemy.com/v2/wfXNo_GK-Fm00CrmS2ORmMrXuLDySHGw'
-
-export function useSepoliaProvider(): JsonRpcProvider | undefined {
-  const [sepoliaProvider, setSepoliaProvider] = useState<JsonRpcProvider | undefined>(undefined)
-
-  useEffect(() => {
-    const provider = new JsonRpcProvider(JSON_RPC_LINK)
-    provider && setSepoliaProvider(provider)
-  }, [])
-
-  return sepoliaProvider
-}
-
 function useGovernanceBravoContract(): Contract | null {
-  const sepoliaProvider = useSepoliaProvider()
+  console.log('useGovernanceBravoContract')
 
   const contractOutside = useContractWithCustomProvider(
     GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA,
     GOVERNOR_BRAVO_ABI_SEPOLIA,
-    true,
-    sepoliaProvider
+    RPC_PROVIDERS[SupportedChainId.SEPOLIA]
   )
+
   return contractOutside
 }
 

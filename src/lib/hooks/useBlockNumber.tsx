@@ -1,7 +1,6 @@
-import { SupportedChainId } from 'constants/chains'
+import { useWeb3React } from '@web3-react/core'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useSepoliaProvider } from 'state/governance/hooks'
 
 const MISSING_PROVIDER = Symbol()
 const BlockNumberContext = createContext<
@@ -31,8 +30,7 @@ export function useFastForwardBlockNumber(): (block: number) => void {
 }
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
-  const activeChainId = SupportedChainId.SEPOLIA
-  const provider = useSepoliaProvider()
+  const { chainId: activeChainId, provider } = useWeb3React()
 
   const [{ chainId, block }, setChainBlock] = useState<{ chainId?: number; block?: number }>({ chainId: activeChainId })
 
