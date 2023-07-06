@@ -101,16 +101,18 @@ export function useTokenBalancesWithLoadingIndicator(
   useEffect(() => {
     const fetchBalance = async () => {
       setIsLoading(true)
-      try {
-        const resultVHMT = await uniContract?.functions.balanceOf(account)
-        const resultHMT = await hmtUniContract?.functions.balanceOf(account)
+      if (uniContract && hmtUniContract) {
+        try {
+          const resultVHMT = await uniContract.functions.balanceOf(account)
+          const resultHMT = await hmtUniContract.functions.balanceOf(account)
 
-        if (resultVHMT) setVhmtBalance(resultVHMT)
-        if (resultHMT) setHmtBalance(resultHMT)
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setIsLoading(false)
+          if (resultVHMT) setVhmtBalance(resultVHMT)
+          if (resultHMT) setHmtBalance(resultHMT)
+        } catch (error) {
+          console.log(error)
+        } finally {
+          setIsLoading(false)
+        }
       }
     }
 

@@ -38,8 +38,6 @@ import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
 function useGovernanceBravoContract(): Contract | null {
-  console.log('useGovernanceBravoContract')
-
   const contractOutside = useContractWithCustomProvider(
     GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA,
     GOVERNOR_BRAVO_ABI_SEPOLIA,
@@ -59,13 +57,18 @@ export function useUniContract() {
 
 export function useHMTUniContract() {
   const uniContract = useUniContract()
+
   const [underlyingAddress, setUnderlyingAddress] = useState<string>('')
 
   useEffect(() => {
     const fetchUnderlyingAddress = async () => {
       if (uniContract) {
-        const address = await uniContract.functions.underlying()
-        setUnderlyingAddress(address[0])
+        try {
+          const address = await uniContract.functions.underlying()
+          setUnderlyingAddress(address[0])
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
 
