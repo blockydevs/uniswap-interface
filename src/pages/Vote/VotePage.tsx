@@ -260,11 +260,17 @@ export default function VotePage() {
     proposalData &&
     proposalData.status === ProposalState.ACTIVE
 
-  // we only show the button if there's an account connected and the proposal state is correct
-  const showQueueButton = account && proposalData?.status === ProposalState.SUCCEEDED
+  const collectionStarted = false
+  const collectionFinished = false
 
-  // we only show the button if there's an account connected and the proposal state is correct
-  const showExecuteButton = account && proposalData?.status === ProposalState.QUEUED
+  const showRequestCollectionsButton = Boolean(
+    account && proposalData?.status === ProposalState.SUCCEEDED && !collectionStarted && !collectionFinished
+  )
+  const collectionPhase = Boolean(
+    account && proposalData?.status === ProposalState.SUCCEEDED && collectionStarted && !collectionFinished
+  )
+  const showQueueButton = Boolean(account && proposalData?.status === ProposalState.SUCCEEDED && collectionFinished)
+  const showExecuteButton = Boolean(account && proposalData?.status === ProposalState.QUEUED && collectionFinished)
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
@@ -371,6 +377,18 @@ export default function VotePage() {
               showVotingButtons={showVotingButtons}
               proposalStatus={proposalData?.status}
             />
+
+            {showRequestCollectionsButton && (
+              <RowFixed style={{ width: '100%', gap: '12px' }}>
+                <ButtonPrimary
+                  padding="8px"
+                  onClick={() => console.log('REQUEST COLLECTION')}
+                  disabled={collectionPhase}
+                >
+                  <Trans>Request Collection</Trans>
+                </ButtonPrimary>
+              </RowFixed>
+            )}
 
             {showQueueButton && (
               <RowFixed style={{ width: '100%', gap: '12px' }}>
