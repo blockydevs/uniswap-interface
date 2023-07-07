@@ -20,12 +20,13 @@ export const GOVERNANCE_HUB_ADDRESS: AddressMap = {
 export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap('0x5bbe6c259588b3A53af76e1Ce77E1d96451136bE')
 
 export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = {
-  [SupportedChainId.POLYGON]: '0x3727C082F98637cCcA36996CdaBfFD9270404891',
+  [SupportedChainId.POLYGON_MUMBAI]: '0x3727C082F98637cCcA36996CdaBfFD9270404891',
 }
+
 export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = constructSameAddressMap(
   '0x1C8C82F9e9C2b2d1Cab1C4E9B49012657aE30550'
-)
-0x1c8c82f9e9c2b2d1cab1c4e9b49012657ae30550
+) //BLOCKYTODO: w przyszłości prawdopodobnie będziemy potrzebowali tablicy adresów
+
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
 
 export const V2_FACTORY_ADDRESSES: AddressMap = constructSameAddressMap(V2_FACTORY_ADDRESS)

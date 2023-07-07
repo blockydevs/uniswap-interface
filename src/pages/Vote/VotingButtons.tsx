@@ -76,9 +76,9 @@ const VotesNumberContainer = styled('div')`
 `
 
 interface VotingButtonsProps {
-  forVotes: number
-  againstVotes: number
-  abstainVotes: number
+  forVotes: number | undefined
+  againstVotes: number | undefined
+  abstainVotes: number | undefined
   setVoteOption: React.Dispatch<React.SetStateAction<VoteOption | undefined>>
   showVotingButtons: boolean | undefined
   proposalStatus: ProposalState | undefined

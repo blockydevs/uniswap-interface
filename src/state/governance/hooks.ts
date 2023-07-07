@@ -10,9 +10,10 @@ import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
 import { BigintIsh, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import GOVERNOR_HUB_ABI from 'abis/governance-hub.json'
+import GOVERNOR_SPOKE_ABI from 'abis/governance-spoke.json'
 import HmtUniJSON from 'abis/HMToken.json'
 import UniJSON from 'abis/VHMToken.json'
-import { GOVERNANCE_HUB_ADDRESS } from 'constants/addresses'
+import { GOVERNANCE_HUB_ADDRESS, GOVERNANCE_SPOKE_ADRESSES } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
@@ -38,13 +39,16 @@ import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
 function useGovernanceHubContract(): Contract | null {
-  const contractOutside = useContractWithCustomProvider(
+  // BLOCKYTODO: argument chainId który pozwoli odczytać prawidłowy spoke?
+  return useContractWithCustomProvider(
     GOVERNANCE_HUB_ADDRESS,
     GOVERNOR_HUB_ABI,
     RPC_PROVIDERS[SupportedChainId.SEPOLIA]
   )
+}
 
-  return contractOutside
+function useGovernanceSpokeContract(): Contract | null {
+  return useContract(GOVERNANCE_SPOKE_ADRESSES, GOVERNOR_SPOKE_ABI)
 }
 
 export function useUniContract() {
@@ -88,9 +92,12 @@ export interface ProposalData {
   description: string
   proposer: string
   status: ProposalState
-  forCount: CurrencyAmount<Token>
-  againstCount: CurrencyAmount<Token>
-  abstainCount: CurrencyAmount<Token>
+  hubForCount: CurrencyAmount<Token>
+  hubAgainstCount: CurrencyAmount<Token>
+  hubAbstainCount: CurrencyAmount<Token>
+  spokeForCount: CurrencyAmount<Token>
+  spokeAgainstCount: CurrencyAmount<Token>
+  spokeAbstainCount: CurrencyAmount<Token>
   startBlock: number
   endBlock: number
   eta: BigNumber
@@ -253,22 +260,24 @@ function useFormattedProposalCreatedLogs(
 // get data for all past and active proposals
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const [proposalStatuses, setProposalStatuses] = useState<number[]>([])
-  const [proposalVotes, setProposalVotes] = useState<ProposalVote[]>([])
+  const [proposalHubVotes, setProposalHubVotes] = useState<ProposalVote[]>([])
+  const [proposalSpokeVotes, setProposalSpokeVotes] = useState<ProposalVote[]>([])
 
   const { chainId } = useWeb3React()
-  const gov2 = useGovernanceHubContract()
-  // BLOCKYTODO: głosy pobierane są z governance a powinny być pobierane z aktualnego chaina
+  const govHubContract = useGovernanceHubContract()
+  const govSpokeContract = useGovernanceSpokeContract()
+  const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
 
   // get metadata from past events
-  const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2)
+  const formattedLogsV2 = useFormattedProposalCreatedLogs(govHubContract)
 
-  const gov2ProposalIndexes = (formattedLogsV2 || []).map((item) => item.id)
+  const govHubProposalIndexes = (formattedLogsV2 || []).map((item) => item.id)
 
   // get all proposal statuses
   useEffect(() => {
     async function getProposalStatuses() {
-      const proposalStatesV2Promises = gov2ProposalIndexes.map(async (id) => {
-        const [status] = await gov2?.functions.state(id.toString(), {})
+      const proposalStatesV2Promises = govHubProposalIndexes.map(async (id) => {
+        const [status] = await govHubContract?.functions.state(id.toString(), {})
         return status
       })
 
@@ -276,23 +285,38 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
       setProposalStatuses(proposalStatesV2)
     }
 
-    if (gov2ProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
-  }, [gov2, gov2ProposalIndexes, proposalStatuses])
+    if (govHubProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
+  }, [govHubContract, govHubProposalIndexes, proposalStatuses])
 
-  //get proposal votes
+  //get proposal HUB votes
   useEffect(() => {
     async function getProposalVotes() {
-      const proposalVotesV2Promises = gov2ProposalIndexes.map(async (id) => {
-        const votes = await gov2?.functions.proposalVotes(id.toString(), {})
+      const proposalVotesV2Promises = govHubProposalIndexes.map(async (id) => {
+        const votes = await govHubContract?.functions.proposalVotes(id.toString(), {})
         return votes
       })
 
       const proposalVotesV2 = await Promise.all(proposalVotesV2Promises)
-      setProposalVotes(proposalVotesV2)
+      setProposalHubVotes(proposalVotesV2)
     }
 
-    if (gov2ProposalIndexes.length > proposalVotes.length) getProposalVotes()
-  }, [gov2?.functions, gov2ProposalIndexes, proposalVotes])
+    if (govHubProposalIndexes.length > proposalHubVotes.length) getProposalVotes()
+  }, [govHubContract?.functions, govHubProposalIndexes, proposalHubVotes, chainId, isHubChainActive])
+
+  //get proposal SPOKE votes
+  useEffect(() => {
+    async function getProposalSpokeVotes() {
+      const proposalVotesV2Promises = govHubProposalIndexes.map(async (id) => {
+        const votes = await govSpokeContract?.functions.proposalVotes(id.toString(), {})
+        return votes
+      })
+
+      const proposalSpokeVotes = await Promise.all(proposalVotesV2Promises)
+      setProposalSpokeVotes(proposalSpokeVotes)
+    }
+
+    if (govHubProposalIndexes.length > proposalSpokeVotes.length && !isHubChainActive) getProposalSpokeVotes()
+  }, [govSpokeContract?.functions, govHubProposalIndexes, proposalSpokeVotes, chainId, isHubChainActive])
 
   const uniToken = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
@@ -302,7 +326,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
     const formattedLogs = [...(formattedLogsV2 ?? [])]
 
-    if (!uniToken || (gov2 && !formattedLogsV2)) {
+    if (!uniToken || (govHubContract && !formattedLogsV2)) {
       return { data: [], loading: true }
     }
 
@@ -320,9 +344,13 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           title = POLYGON_PROPOSAL_TITLE
         }
 
-        const forVotes = proposalVotes[i]?.forVotes || 0
-        const againstVotes = proposalVotes[i]?.againstVotes || 0
-        const abstainVotes = proposalVotes[i]?.abstainVotes || 0
+        const forVotes = proposalHubVotes[i]?.forVotes || 0
+        const againstVotes = proposalHubVotes[i]?.againstVotes || 0
+        const abstainVotes = proposalHubVotes[i]?.abstainVotes || 0
+
+        const spokeForVotes = proposalSpokeVotes[i]?.forVotes || 0
+        const spokeAgainstVotes = proposalSpokeVotes[i]?.againstVotes || 0
+        const spokeAbstainVotes = proposalSpokeVotes[i]?.abstainVotes || 0
 
         return {
           id: proposal.id.toString(),
@@ -330,9 +358,12 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           description: description ?? t`No description.`,
           proposer: proposal.proposer,
           status: proposalStatuses[i] ?? ProposalState.UNDETERMINED,
-          forCount: CurrencyAmount.fromRawAmount(uniToken, forVotes),
-          againstCount: CurrencyAmount.fromRawAmount(uniToken, againstVotes),
-          abstainCount: CurrencyAmount.fromRawAmount(uniToken, abstainVotes),
+          hubForCount: CurrencyAmount.fromRawAmount(uniToken, forVotes),
+          hubAgainstCount: CurrencyAmount.fromRawAmount(uniToken, againstVotes),
+          hubAbstainCount: CurrencyAmount.fromRawAmount(uniToken, abstainVotes),
+          spokeForCount: CurrencyAmount.fromRawAmount(uniToken, spokeForVotes),
+          spokeAgainstCount: CurrencyAmount.fromRawAmount(uniToken, spokeAbstainVotes),
+          spokeAbstainCount: CurrencyAmount.fromRawAmount(uniToken, spokeAgainstVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
           eta: BigNumber.from(12),
@@ -343,7 +374,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
 
       loading: false,
     }
-  }, [formattedLogsV2, gov2, uniToken, proposalStatuses, proposalVotes])
+  }, [formattedLogsV2, govHubContract, uniToken, proposalStatuses, proposalHubVotes, proposalSpokeVotes])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {

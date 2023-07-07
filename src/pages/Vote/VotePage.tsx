@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
+import { useAppSelector } from 'state/hooks'
 import styled from 'styled-components/macro'
 import { getDateFromBlock } from 'utils/getDateFromBlock'
 
@@ -186,6 +187,8 @@ export default function VotePage() {
   const { governorIndex, id } = useParams() as { governorIndex: string; id: string }
   const parsedGovernorIndex = Number.parseInt(governorIndex)
   const { chainId, account } = useWeb3React()
+  const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+
   const quorumAmount = useQuorum()
   const quorumNumber = Number(quorumAmount?.toExact())
 
@@ -241,11 +244,19 @@ export default function VotePage() {
   const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
 
   // get total votes and format percentages for UI
-  const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
+  const totalVotes = proposalData?.hubForCount?.add(proposalData.hubAgainstCount).add(proposalData.hubAbstainCount)
 
-  const forVotes = Number(proposalData?.forCount.toExact()) || 0
-  const againstVotes = Number(proposalData?.againstCount.toExact()) || 0
-  const abstainVotes = Number(proposalData?.abstainCount.toExact()) || 0
+  const forVotes = isHubChainActive
+    ? Number(proposalData?.hubForCount.toExact())
+    : Number(proposalData?.spokeForCount.toExact())
+  const againstVotes =
+    proposalData && isHubChainActive
+      ? Number(proposalData?.hubAgainstCount.toExact())
+      : Number(proposalData?.spokeAgainstCount.toExact())
+  const abstainVotes =
+    proposalData && isHubChainActive
+      ? Number(proposalData?.hubAbstainCount.toExact())
+      : Number(proposalData?.spokeAbstainCount.toExact())
 
   const quorumPercentage =
     forVotes && againstVotes && abstainVotes && ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
@@ -299,6 +310,7 @@ export default function VotePage() {
     return <img {...rest} style={{ width: '100%', height: '100$', objectFit: 'cover' }} alt="" />
   }
 
+  if (!proposalData) return null
   return (
     <Trace page={InterfacePageName.VOTE_PAGE} shouldLogImpression>
       <>
