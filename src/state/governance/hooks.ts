@@ -9,10 +9,10 @@ import { t } from '@lingui/macro'
 import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
 import { BigintIsh, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import GOVERNOR_BRAVO_ABI_SEPOLIA from 'abis/governor-bravo-sepolia.json'
+import GOVERNOR_HUB_ABI from 'abis/governance-hub.json'
 import HmtUniJSON from 'abis/HMToken.json'
 import UniJSON from 'abis/VHMToken.json'
-import { GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA } from 'constants/addresses'
+import { GOVERNANCE_HUB_ADDRESS } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
@@ -37,17 +37,15 @@ import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
 
-function useGovernanceBravoContract(): Contract | null {
+function useGovernanceHubContract(): Contract | null {
   const contractOutside = useContractWithCustomProvider(
-    GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA,
-    GOVERNOR_BRAVO_ABI_SEPOLIA,
+    GOVERNANCE_HUB_ADDRESS,
+    GOVERNOR_HUB_ABI,
     RPC_PROVIDERS[SupportedChainId.SEPOLIA]
   )
 
   return contractOutside
 }
-
-const useLatestGovernanceContract = useGovernanceBravoContract
 
 export function useUniContract() {
   const { chainId } = useWeb3React()
@@ -258,7 +256,8 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
   const [proposalVotes, setProposalVotes] = useState<ProposalVote[]>([])
 
   const { chainId } = useWeb3React()
-  const gov2 = useGovernanceBravoContract()
+  const gov2 = useGovernanceHubContract()
+  // BLOCKYTODO: głosy pobierane są z governance a powinny być pobierane z aktualnego chaina
 
   // get metadata from past events
   const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2)
@@ -357,7 +356,7 @@ export function useQuorum(): CurrencyAmount<Token> | undefined {
   const [quorum, setQuorum] = useState<number | undefined>(undefined)
   const { chainId } = useWeb3React()
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
-  const gov2 = useGovernanceBravoContract()
+  const gov2 = useGovernanceHubContract()
   const { id } = useParams()
 
   useEffect(() => {
@@ -389,15 +388,15 @@ export function useUserDelegatee(): { userDelegatee: string; isLoading: boolean 
   useEffect(() => {
     setIsLoading(true)
     async function getDelegatee() {
-      try {
-        if (uniContract) {
+      if (uniContract) {
+        try {
           const getDelegateeResponse = account && (await uniContract?.functions.delegates(account.toString()))
           setUserDelegatee(getDelegateeResponse)
+        } catch (error) {
+          console.log(error)
+        } finally {
+          setIsLoading(false)
         }
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -444,7 +443,7 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
 export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount<Token> | undefined {
   const [userVotesAsOfBlockAmount, setUserVotesAsOfBlockAmount] = useState()
   const { account, chainId } = useWeb3React()
-  const gov2 = useGovernanceBravoContract()
+  const gov2 = useGovernanceHubContract()
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   useEffect(() => {
@@ -493,7 +492,7 @@ export function useVoteCallback(): (
   voteOption: VoteOption
 ) => undefined | Promise<string> {
   const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const addTransaction = useTransactionAdder()
 
   return useCallback(
@@ -521,7 +520,7 @@ export function useVoteCallback(): (
 
 export function useQueueCallback(): (proposalId: string | undefined) => undefined | Promise<string> {
   const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const addTransaction = useTransactionAdder()
 
   return useCallback(
@@ -547,7 +546,7 @@ export function useQueueCallback(): (proposalId: string | undefined) => undefine
 
 export function useExecuteCallback(): (proposalId: string | undefined) => undefined | Promise<string> {
   const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const addTransaction = useTransactionAdder()
 
   return useCallback(
@@ -575,7 +574,7 @@ export function useCreateProposalCallback(): (
   createProposalData: CreateProposalData | undefined
 ) => undefined | Promise<string> {
   const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const addTransaction = useTransactionAdder()
 
   return useCallback(
@@ -606,7 +605,7 @@ export function useCreateProposalCallback(): (
 }
 
 export function useLatestProposalId(address: string | undefined): string | undefined {
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const res = useSingleCallResult(latestGovernanceContract, 'latestProposalIds', [address])
   return res?.result?.[0]?.toString()
 }
@@ -614,7 +613,7 @@ export function useLatestProposalId(address: string | undefined): string | undef
 export function useProposalThreshold(): CurrencyAmount<Token> | undefined {
   const { chainId } = useWeb3React()
 
-  const latestGovernanceContract = useLatestGovernanceContract()
+  const latestGovernanceContract = useGovernanceHubContract()
   const res = useSingleCallResult(latestGovernanceContract, 'proposalThreshold')
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 

@@ -14,16 +14,18 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
   }, {})
 }
 
-export const GOVERNANCE_BRAVO_ADDRESSES_SEPOLIA: AddressMap = {
-  [SupportedChainId.SEPOLIA]: '0x789698df9dC8A0Ab7347c84c9342e3689e5ffB7C',
+export const GOVERNANCE_HUB_ADDRESS: AddressMap = {
+  [SupportedChainId.SEPOLIA]: '0xB4CdC9bf1e54e25e66DA0D9dc5E82DCB0e4FC4D8',
 }
+export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap('0x5bbe6c259588b3A53af76e1Ce77E1d96451136bE')
 
-export const UNI_ADDRESS: AddressMap = constructSameAddressMap('0x04599DdEa22a1890e494458ac1f5106fFe01AC95')
-
-export const POLYGON_MUMBAI_UNI_ADDRESS: AddressMap = constructSameAddressMap(
-  '0x6A1216B16e2970939924efd5f945f1C02F4492e1'
+export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = {
+  [SupportedChainId.POLYGON]: '0x3727C082F98637cCcA36996CdaBfFD9270404891',
+}
+export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = constructSameAddressMap(
+  '0x1C8C82F9e9C2b2d1Cab1C4E9B49012657aE30550'
 )
-
+0x1c8c82f9e9c2b2d1cab1c4e9b49012657ae30550
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
 
 export const V2_FACTORY_ADDRESSES: AddressMap = constructSameAddressMap(V2_FACTORY_ADDRESS)
