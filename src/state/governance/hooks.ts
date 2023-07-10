@@ -267,6 +267,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
   const govHubContract = useGovernanceHubContract()
   const govSpokeContract = useGovernanceSpokeContract()
   const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+  const transactions = useAppSelector((state) => state.transactions)
 
   // get metadata from past events
   const formattedLogsV2 = useFormattedProposalCreatedLogs(govHubContract)
@@ -286,27 +287,33 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
     }
 
     if (govHubProposalIndexes.length > proposalStatuses.length) getProposalStatuses()
-  }, [govHubContract, govHubProposalIndexes, proposalStatuses])
+  }, [govHubContract, govHubProposalIndexes, proposalStatuses, transactions])
 
   //get proposal HUB votes
   useEffect(() => {
     async function getProposalVotes() {
-      const proposalVotesV2Promises = govHubProposalIndexes.map(async (id) => {
-        const votes = await govHubContract?.functions.proposalVotes(id.toString(), {})
-        return votes
-      })
-
-      const proposalVotesV2 = await Promise.all(proposalVotesV2Promises)
-      setProposalHubVotes(proposalVotesV2)
+      try {
+        const proposalVotesV2Promises = govHubProposalIndexes.map(async (id: BigNumber) => {
+          const votes = await govHubContract?.functions.proposalVotes(id.toString(), {})
+          return votes
+        })
+        const proposalVotesV2 = await Promise.all(proposalVotesV2Promises)
+        setProposalHubVotes(proposalVotesV2)
+      } catch (error) {
+        console.log(error)
+      }
     }
 
-    if (govHubProposalIndexes.length > proposalHubVotes.length) getProposalVotes()
-  }, [govHubContract?.functions, govHubProposalIndexes, proposalHubVotes, chainId, isHubChainActive])
+    if (govHubProposalIndexes.length > proposalHubVotes.length) {
+      // BLOCKYTODO: wait()?
+      getProposalVotes()
+    }
+  }, [govHubContract?.functions, govHubProposalIndexes, proposalHubVotes, chainId, isHubChainActive, transactions])
 
   //get proposal SPOKE votes
   useEffect(() => {
     async function getProposalSpokeVotes() {
-      const proposalVotesV2Promises = govHubProposalIndexes.map(async (id) => {
+      const proposalVotesV2Promises = govHubProposalIndexes.map(async (id: BigNumber) => {
         const votes = await govSpokeContract?.functions.proposalVotes(id.toString(), {})
         return votes
       })
@@ -316,7 +323,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
     }
 
     if (govHubProposalIndexes.length > proposalSpokeVotes.length && !isHubChainActive) getProposalSpokeVotes()
-  }, [govSpokeContract?.functions, govHubProposalIndexes, proposalSpokeVotes, chainId, isHubChainActive])
+  }, [govSpokeContract?.functions, govHubProposalIndexes, proposalSpokeVotes, chainId, isHubChainActive, transactions])
 
   const uniToken = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
@@ -362,8 +369,8 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           hubAgainstCount: CurrencyAmount.fromRawAmount(uniToken, againstVotes),
           hubAbstainCount: CurrencyAmount.fromRawAmount(uniToken, abstainVotes),
           spokeForCount: CurrencyAmount.fromRawAmount(uniToken, spokeForVotes),
-          spokeAgainstCount: CurrencyAmount.fromRawAmount(uniToken, spokeAbstainVotes),
-          spokeAbstainCount: CurrencyAmount.fromRawAmount(uniToken, spokeAgainstVotes),
+          spokeAgainstCount: CurrencyAmount.fromRawAmount(uniToken, spokeAgainstVotes),
+          spokeAbstainCount: CurrencyAmount.fromRawAmount(uniToken, spokeAbstainVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
           eta: BigNumber.from(12),
@@ -442,6 +449,7 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
   const [availableVotes, setAvailableVotes] = useState<CurrencyAmount<Token> | undefined>()
   const [isLoading, setIsLoading] = useState(true)
   const { account, chainId } = useWeb3React()
+
   const uniContract = useUniContract()
   const transactions = useAppSelector((state) => state.transactions)
 
@@ -450,17 +458,17 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
   useEffect(() => {
     setIsLoading(true)
     async function getUserVotesFromUni() {
-      try {
-        if (uniContract) {
+      if (uniContract) {
+        try {
           const getVotesResponse = account && (await uniContract?.functions.getVotes(account.toString()))
           const getVotesParsed =
             uni && getVotesResponse ? CurrencyAmount.fromRawAmount(uni, getVotesResponse) : undefined
           setAvailableVotes(getVotesParsed)
+        } catch (error) {
+          console.log(error)
+        } finally {
+          setIsLoading(false)
         }
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -471,23 +479,36 @@ export function useUserVotes(): { availableVotes: CurrencyAmount<Token> | undefi
 }
 
 // fetch available votes as of block (usually proposal start block)
-export function useUserVotesAsOfBlock(block: number | undefined): CurrencyAmount<Token> | undefined {
+export function useUserVotesAsOfBlock(block: number | undefined, id: string): CurrencyAmount<Token> | undefined {
   const [userVotesAsOfBlockAmount, setUserVotesAsOfBlockAmount] = useState()
+
   const { account, chainId } = useWeb3React()
-  const gov2 = useGovernanceHubContract()
+  const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+
+  const governanceHubContract = useGovernanceHubContract()
+  const governanceSpokeContract = useGovernanceSpokeContract()
+  const spokeVoteTokenContract = useUniContract()
+
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
 
   useEffect(() => {
     async function getUserVotesAsOfBlock() {
-      if (block) {
+      if (isHubChainActive && block) {
         const getVotesAsOfBlockResponse =
-          account && (await gov2?.functions.getVotes(account.toString(), block.toString()))
+          account && (await governanceHubContract?.functions.getVotes(account.toString(), block.toString()))
+        setUserVotesAsOfBlockAmount(getVotesAsOfBlockResponse)
+      } else if (!isHubChainActive && governanceSpokeContract) {
+        const { localVoteStart } = await governanceSpokeContract.functions.proposals(id)
+
+        const getVotesAsOfBlockResponse =
+          account &&
+          (await spokeVoteTokenContract?.functions.getPastVotes(account.toString(), localVoteStart.toString()))
         setUserVotesAsOfBlockAmount(getVotesAsOfBlockResponse)
       }
     }
 
     getUserVotesAsOfBlock()
-  }, [gov2?.functions, block, account])
+  }, [block, isHubChainActive, account, governanceSpokeContract, spokeVoteTokenContract, governanceHubContract, id])
 
   return userVotesAsOfBlockAmount && uni ? CurrencyAmount.fromRawAmount(uni, userVotesAsOfBlockAmount) : undefined
 }
@@ -523,21 +544,27 @@ export function useVoteCallback(): (
   voteOption: VoteOption
 ) => undefined | Promise<string> {
   const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useGovernanceHubContract()
+  const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+
+  const contract = useContract(
+    isHubChainActive ? GOVERNANCE_HUB_ADDRESS : GOVERNANCE_SPOKE_ADRESSES,
+    isHubChainActive ? GOVERNOR_HUB_ABI : GOVERNOR_SPOKE_ABI
+  )
+
   const addTransaction = useTransactionAdder()
 
   return useCallback(
     (proposalId: string | undefined, voteOption: VoteOption) => {
-      if (!account || !latestGovernanceContract || !proposalId || !chainId) return
+      if (!account || !contract || !proposalId || !chainId) return
       const args = [proposalId, voteOption === VoteOption.Against ? 0 : voteOption === VoteOption.For ? 1 : 2]
-      return latestGovernanceContract.estimateGas.castVote(...args, {}).then((estimatedGasLimit) => {
-        return latestGovernanceContract
+      return contract.estimateGas.castVote(...args, {}).then((estimatedGasLimit) => {
+        return contract
           .castVote(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
               type: TransactionType.VOTE,
               decision: voteOption,
-              governorAddress: latestGovernanceContract.address,
+              governorAddress: contract.address,
               proposalId: parseInt(proposalId),
               reason: '',
             })
@@ -545,7 +572,7 @@ export function useVoteCallback(): (
           })
       })
     },
-    [account, addTransaction, latestGovernanceContract, chainId]
+    [account, addTransaction, contract, chainId]
   )
 }
 

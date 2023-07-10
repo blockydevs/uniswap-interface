@@ -15,16 +15,16 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
 }
 
 export const GOVERNANCE_HUB_ADDRESS: AddressMap = {
-  [SupportedChainId.SEPOLIA]: '0xB4CdC9bf1e54e25e66DA0D9dc5E82DCB0e4FC4D8',
+  [SupportedChainId.SEPOLIA]: '0xbAB53f8A8491A84A21c90f9A3a803D4DB06C928f',
 }
-export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap('0x5bbe6c259588b3A53af76e1Ce77E1d96451136bE')
+export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap('0x1DE20C977ebD46c091e704e511D3975EecE8fA7C')
 
 export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = {
-  [SupportedChainId.POLYGON_MUMBAI]: '0x3727C082F98637cCcA36996CdaBfFD9270404891',
+  [SupportedChainId.POLYGON_MUMBAI]: '0x6dE20E6362C2b411F6c7EEad25ED40Dcf4b81d0E',
 }
 
 export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = constructSameAddressMap(
-  '0x1C8C82F9e9C2b2d1Cab1C4E9B49012657aE30550'
+  '0xef10673bEBc61a582d2DEd98388B099f88BeCA65'
 ) //BLOCKYTODO: w przyszłości prawdopodobnie będziemy potrzebowali tablicy adresów
 
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
