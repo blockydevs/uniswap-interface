@@ -5,6 +5,7 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExecuteModal from 'components/vote/ExecuteModal'
 import QueueModal from 'components/vote/QueueModal'
+import RequestCollectionsModal from 'components/vote/RequestCollectionsModal'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
@@ -41,6 +42,7 @@ import {
   useToggleDelegateModal,
   useToggleExecuteModal,
   useToggleQueueModal,
+  useToggleRequestCollectionsModal,
   useToggleVoteModal,
 } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
@@ -48,6 +50,7 @@ import { useTokenBalance } from '../../state/connection/hooks'
 import {
   ProposalData,
   ProposalState,
+  useCollectionStatus,
   useProposalData,
   useQuorum,
   useUserDelegatee,
@@ -206,6 +209,10 @@ export default function VotePage() {
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
 
+  // Request collections modal
+  const showRequestCollectionsModal = useModalIsOpen(ApplicationModal.REQUEST_COLLECTIONS)
+  const toggleRequestCollectionsModal = useToggleRequestCollectionsModal()
+
   // toggle for showing queue modal
   const showQueueModal = useModalIsOpen(ApplicationModal.QUEUE)
   const toggleQueueModal = useToggleQueueModal()
@@ -274,17 +281,29 @@ export default function VotePage() {
     proposalData &&
     proposalData.status === ProposalState.ACTIVE
 
-  const collectionStarted = false
-  const collectionFinished = false
+  const {
+    collectionStartedResponse,
+    collectionFinishedResponse,
+    loading: collectionStatusLoading,
+  } = useCollectionStatus(id)
 
   const showRequestCollectionsButton = Boolean(
-    account && proposalData?.status === ProposalState.SUCCEEDED && !collectionStarted && !collectionFinished
+    account && proposalData?.status === ProposalState.SUCCEEDED && !collectionFinishedResponse
   )
   const collectionPhase = Boolean(
-    account && proposalData?.status === ProposalState.SUCCEEDED && collectionStarted && !collectionFinished
+    account &&
+      proposalData?.status === ProposalState.SUCCEEDED &&
+      collectionStartedResponse &&
+      !collectionFinishedResponse
   )
-  const showQueueButton = Boolean(account && proposalData?.status === ProposalState.SUCCEEDED && collectionFinished)
-  const showExecuteButton = Boolean(account && proposalData?.status === ProposalState.QUEUED && collectionFinished)
+
+  const showQueueButton = Boolean(
+    isHubChainActive && account && proposalData?.status === ProposalState.SUCCEEDED && !!collectionFinishedResponse
+  )
+
+  const showExecuteButton = Boolean(
+    isHubChainActive && account && proposalData?.status === ProposalState.QUEUED && !!collectionFinishedResponse
+  )
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
@@ -330,6 +349,11 @@ export default function VotePage() {
             isOpen={showDelegateModal}
             onDismiss={toggleDelegateModal}
             title={<Trans>Unlock Votes</Trans>}
+          />
+          <RequestCollectionsModal
+            isOpen={showRequestCollectionsModal}
+            onDismiss={toggleRequestCollectionsModal}
+            proposalId={id}
           />
           <QueueModal isOpen={showQueueModal} onDismiss={toggleQueueModal} proposalId={proposalData?.id} />
           <ExecuteModal isOpen={showExecuteModal} onDismiss={toggleExecuteModal} proposalId={proposalData?.id} />
@@ -393,16 +417,13 @@ export default function VotePage() {
               proposalStatus={proposalData?.status}
             />
 
-            {showRequestCollectionsButton && (
-              <RowFixed style={{ width: '100%', gap: '12px' }}>
-                <ButtonPrimary
-                  padding="8px"
-                  onClick={() => console.log('REQUEST COLLECTION')}
-                  disabled={collectionPhase}
-                >
-                  <Trans>Request Collection</Trans>
-                </ButtonPrimary>
-              </RowFixed>
+            {showRequestCollectionsButton && !collectionStatusLoading && (
+              <ButtonPrimary
+                onClick={() => toggleRequestCollectionsModal()}
+                disabled={collectionPhase || collectionStatusLoading}
+              >
+                <Trans>{collectionPhase ? 'Collection phase' : 'Request Collection'}</Trans>
+              </ButtonPrimary>
             )}
 
             {showQueueButton && (

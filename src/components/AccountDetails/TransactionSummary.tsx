@@ -308,6 +308,10 @@ function ExchangeCurrency() {
   return <Trans>Exchange currency</Trans>
 }
 
+function RequestCollectionsSummary() {
+  return <Trans>Request Collection</Trans>
+}
+
 export function TransactionSummary({ info }: { info: TransactionInfo }) {
   switch (info.type) {
     case TransactionType.ADD_LIQUIDITY_V3_POOL:
@@ -363,5 +367,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
 
     case TransactionType.EXCHANGE_CURRENCY:
       return <ExchangeCurrency />
+
+    case TransactionType.REQUEST_COLLECTIONS:
+      return <RequestCollectionsSummary />
   }
 }

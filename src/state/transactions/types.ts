@@ -45,6 +45,7 @@ export enum TransactionType {
   DEPLOY,
   CANCEL,
   EXCHANGE_CURRENCY,
+  REQUEST_COLLECTIONS,
 }
 
 interface BaseTransactionInfo {
@@ -184,6 +185,12 @@ interface ExchangeCurrency extends BaseTransactionInfo {
   currencyAmount: string
 }
 
+interface RequestCollectionsInfo extends BaseTransactionInfo {
+  type: TransactionType.REQUEST_COLLECTIONS
+  governorAddress: string
+  proposalId: number
+}
+
 export type TransactionInfo =
   | ApproveTransactionInfo
   | ExactOutputSwapTransactionInfo
@@ -204,6 +211,7 @@ export type TransactionInfo =
   | RemoveLiquidityV3TransactionInfo
   | SubmitProposalTransactionInfo
   | ExchangeCurrency
+  | RequestCollectionsInfo
 
 export interface TransactionDetails {
   hash: string

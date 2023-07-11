@@ -305,7 +305,7 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
     }
 
     if (govHubProposalIndexes.length > proposalHubVotes.length) {
-      // BLOCKYTODO: wait()?
+      // BLOCKYTODO: sprawdzic bez govHubProposalIndexes i proposalHubVotes
       getProposalVotes()
     }
   }, [govHubContract?.functions, govHubProposalIndexes, proposalHubVotes, chainId, isHubChainActive, transactions])
@@ -574,6 +574,67 @@ export function useVoteCallback(): (
     },
     [account, addTransaction, contract, chainId]
   )
+}
+
+export function useRequestCollections(): (proposalId: string | undefined) => undefined | Promise<string> {
+  const { account, chainId } = useWeb3React()
+  const contract = useContract(GOVERNANCE_HUB_ADDRESS, GOVERNOR_HUB_ABI)
+  const addTransaction = useTransactionAdder()
+
+  return useCallback(
+    (proposalId: string | undefined) => {
+      if (!account || !contract || !proposalId || !chainId) return
+      const args = [proposalId]
+      return contract.estimateGas.requestCollections(...args, {}).then((estimatedGasLimit) => {
+        return contract
+          .requestCollections(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
+          .then((response: TransactionResponse) => {
+            addTransaction(response, {
+              type: TransactionType.REQUEST_COLLECTIONS,
+              governorAddress: contract.address,
+              proposalId: parseInt(proposalId),
+            })
+            return response.hash
+          })
+      })
+    },
+    [account, addTransaction, contract, chainId]
+  )
+}
+
+export function useCollectionStatus(proposalId: string): {
+  collectionStartedResponse: boolean | undefined
+  collectionFinishedResponse: boolean | undefined
+  loading: boolean
+} {
+  const [collectionStartedResponse, setCollectionStartedResponse] = useState<boolean | undefined>()
+  const [collectionFinishedResponse, setCollectionFinishedResponse] = useState<boolean | undefined>()
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const contract = useContract(GOVERNANCE_HUB_ADDRESS, GOVERNOR_HUB_ABI)
+  const transactions = useAppSelector((state) => state.transactions)
+
+  useEffect(() => {
+    if (contract && proposalId) {
+      setLoading(true)
+      contract.collectionStarted(proposalId).then((response: boolean) => {
+        setCollectionStartedResponse(response)
+        setLoading(false)
+      })
+    }
+  }, [contract, proposalId, transactions])
+
+  useEffect(() => {
+    if (!!collectionStartedResponse && contract && proposalId) {
+      setLoading(true)
+      contract.collectionFinished(proposalId).then((response: boolean) => {
+        setCollectionFinishedResponse(response)
+        setLoading(false)
+      })
+    }
+  }, [contract, proposalId, transactions, collectionStartedResponse])
+
+  return { collectionStartedResponse, collectionFinishedResponse, loading }
 }
 
 export function useQueueCallback(): (proposalId: string | undefined) => undefined | Promise<string> {

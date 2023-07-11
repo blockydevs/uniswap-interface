@@ -126,6 +126,10 @@ export function useToggleQueueModal(): () => void {
   return useToggleModal(ApplicationModal.QUEUE)
 }
 
+export function useToggleRequestCollectionsModal(): () => void {
+  return useToggleModal(ApplicationModal.REQUEST_COLLECTIONS)
+}
+
 export function useToggleExecuteModal(): () => void {
   return useToggleModal(ApplicationModal.EXECUTE)
 }
