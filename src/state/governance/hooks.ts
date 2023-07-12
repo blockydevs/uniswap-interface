@@ -2,11 +2,11 @@ import { defaultAbiCoder, Interface } from '@ethersproject/abi'
 import { isAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
+import { keccak256 } from '@ethersproject/keccak256'
 import { TransactionResponse } from '@ethersproject/providers'
-import { toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/strings'
+import { toUtf8Bytes, toUtf8String, Utf8ErrorFuncs, Utf8ErrorReason } from '@ethersproject/strings'
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
-import GovernorAlphaJSON from '@uniswap/governance/build/GovernorAlpha.json'
 import { BigintIsh, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import GOVERNOR_HUB_ABI from 'abis/governance-hub.json'
@@ -86,6 +86,13 @@ interface ProposalDetail {
   callData: string
 }
 
+export interface proposalExecutionData {
+  targets: string[]
+  values: string[]
+  calldatas: string[]
+  descriptionHash: string
+}
+
 export interface ProposalData {
   id: string
   title: string
@@ -100,9 +107,10 @@ export interface ProposalData {
   spokeAbstainCount: CurrencyAmount<Token>
   startBlock: number
   endBlock: number
-  eta: BigNumber
+  // eta: BigNumber
   details: ProposalDetail[]
   governorIndex: number // index in the governance address array for which this proposal pertains
+  proposalExecutionData: proposalExecutionData
 }
 
 export interface CreateProposalData {
@@ -131,7 +139,7 @@ export enum ProposalState {
   EXECUTED,
 }
 
-const GovernanceInterface = new Interface(GovernorAlphaJSON.abi)
+const GovernanceInterface = new Interface(GOVERNOR_HUB_ABI)
 
 interface FormattedProposalLog {
   id: BigNumber
@@ -140,6 +148,10 @@ interface FormattedProposalLog {
   proposer: string
   startBlock: number
   endBlock: number
+  targets: string[]
+  values: string[]
+  calldatas: string[]
+  descriptionHash: string
 }
 
 const FOUR_BYTES_DIR: { [sig: string]: string } = {
@@ -221,7 +233,7 @@ function useFormattedProposalCreatedLogs(
         ) {
           description = description.replace(/ {2}/g, '\n').replace(/\d\. /g, '\n$&')
         }
-        const id = parsed.id
+        const id = parsed.proposalId
         const proposer = parsed.proposer
         return {
           id,
@@ -251,7 +263,13 @@ function useFormattedProposalCreatedLogs(
           proposer,
           startBlock,
           //HACK: endBlock wpisany na razie na sztywno
-          endBlock: 0,
+          endBlock: parsed.endBlock,
+
+          targets: parsed.targets,
+          values: parsed[3],
+          //BLOCKYTODO: values wstawione na sztywno ponieważ występuje problem z abi. Link: https://github.com/ethers-io/ethers.js/issues/3744
+          calldatas: parsed.calldatas,
+          descriptionHash: keccak256(toUtf8Bytes(parsed.description)),
         }
       })
   }, [useLogsResult])
@@ -373,9 +391,15 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           spokeAbstainCount: CurrencyAmount.fromRawAmount(uniToken, spokeAbstainVotes),
           startBlock,
           endBlock: parseInt(proposal.endBlock?.toString()),
-          eta: BigNumber.from(12),
+          // eta: BigNumber.from(12),
           details: formattedLogs[i]?.details,
           governorIndex: 2, //TODO: check governorIndex usage
+          proposalExecutionData: {
+            targets: proposal.targets,
+            values: proposal.values,
+            calldatas: proposal.calldatas,
+            descriptionHash: proposal.descriptionHash,
+          },
         }
       }),
 
@@ -637,55 +661,64 @@ export function useCollectionStatus(proposalId: string): {
   return { collectionStartedResponse, collectionFinishedResponse, loading }
 }
 
-export function useQueueCallback(): (proposalId: string | undefined) => undefined | Promise<string> {
-  const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useGovernanceHubContract()
+export function useQueueCallback(): (
+  proposalId: string | undefined,
+  proposalExecutionData: proposalExecutionData | undefined
+) => undefined | Promise<string> {
+  const contract = useContract(GOVERNANCE_HUB_ADDRESS, GOVERNOR_HUB_ABI)
   const addTransaction = useTransactionAdder()
 
   return useCallback(
-    (proposalId: string | undefined) => {
-      if (!account || !latestGovernanceContract || !proposalId || !chainId) return
-      const args = [proposalId]
-      return latestGovernanceContract.estimateGas.queue(...args, {}).then((estimatedGasLimit) => {
-        return latestGovernanceContract
+    (proposalId: string | undefined, proposalExecutionData: proposalExecutionData | undefined) => {
+      const { targets, values, calldatas, descriptionHash } = proposalExecutionData || {}
+
+      if (!contract || !proposalId) return
+      const args = [targets, values, calldatas, descriptionHash]
+
+      return contract.estimateGas.queue(...args, {}).then((estimatedGasLimit) => {
+        return contract
           .queue(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
               type: TransactionType.QUEUE,
-              governorAddress: latestGovernanceContract.address,
+              governorAddress: contract.address,
               proposalId: parseInt(proposalId),
             })
             return response.hash
           })
       })
     },
-    [account, addTransaction, latestGovernanceContract, chainId]
+    [addTransaction, contract]
   )
 }
 
-export function useExecuteCallback(): (proposalId: string | undefined) => undefined | Promise<string> {
-  const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useGovernanceHubContract()
+export function useExecuteCallback(): (
+  proposalId: string | undefined,
+  proposalExecutionData: proposalExecutionData | undefined
+) => undefined | Promise<string> {
+  const contract = useContract(GOVERNANCE_HUB_ADDRESS, GOVERNOR_HUB_ABI)
   const addTransaction = useTransactionAdder()
 
   return useCallback(
-    (proposalId: string | undefined) => {
-      if (!account || !latestGovernanceContract || !proposalId || !chainId) return
-      const args = [proposalId]
-      return latestGovernanceContract.estimateGas.execute(...args, {}).then((estimatedGasLimit) => {
-        return latestGovernanceContract
+    (proposalId: string | undefined, proposalExecutionData: proposalExecutionData | undefined) => {
+      const { targets, values, calldatas, descriptionHash } = proposalExecutionData || {}
+
+      if (!contract || !proposalId) return
+      const args = [targets, values, calldatas, descriptionHash]
+      return contract.estimateGas.execute(...args, {}).then((estimatedGasLimit) => {
+        return contract
           .execute(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
               type: TransactionType.EXECUTE,
-              governorAddress: latestGovernanceContract.address,
+              governorAddress: contract.address,
               proposalId: parseInt(proposalId),
             })
             return response.hash
           })
       })
     },
-    [account, addTransaction, latestGovernanceContract, chainId]
+    [addTransaction, contract]
   )
 }
 

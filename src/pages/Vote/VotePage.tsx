@@ -10,7 +10,6 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
-import ms from 'ms.macro'
 import { Box } from 'nft/components/Box'
 import { WarningCircleIcon } from 'nft/components/icons'
 import VotingButtons from 'pages/Vote/VotingButtons'
@@ -197,6 +196,7 @@ export default function VotePage() {
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
+  const { proposalExecutionData } = proposalData || {}
 
   // update vote option based on button interactions
   const [voteOption, setVoteOption] = useState<VoteOption | undefined>(undefined)
@@ -248,7 +248,7 @@ export default function VotePage() {
     timeZoneName: 'short',
   }
   // convert the eta to milliseconds before it's a date
-  const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
+  // const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
 
   // get total votes and format percentages for UI
   const totalVotes = proposalData?.hubForCount?.add(proposalData.hubAgainstCount).add(proposalData.hubAbstainCount)
@@ -297,13 +297,14 @@ export default function VotePage() {
       !collectionFinishedResponse
   )
 
-  const showQueueButton = Boolean(
-    isHubChainActive && account && proposalData?.status === ProposalState.SUCCEEDED && !!collectionFinishedResponse
-  )
+  const showQueueButton =
+    Boolean(isHubChainActive && account && proposalData?.status === ProposalState.SUCCEEDED) &&
+    !!collectionStartedResponse &&
+    !!collectionFinishedResponse
 
-  const showExecuteButton = Boolean(
-    isHubChainActive && account && proposalData?.status === ProposalState.QUEUED && !!collectionFinishedResponse
-  )
+  const showExecuteButton =
+    Boolean(isHubChainActive && account && proposalData?.status === ProposalState.QUEUED) &&
+    !!collectionFinishedResponse
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
@@ -355,8 +356,18 @@ export default function VotePage() {
             onDismiss={toggleRequestCollectionsModal}
             proposalId={id}
           />
-          <QueueModal isOpen={showQueueModal} onDismiss={toggleQueueModal} proposalId={proposalData?.id} />
-          <ExecuteModal isOpen={showExecuteModal} onDismiss={toggleExecuteModal} proposalId={proposalData?.id} />
+          <QueueModal
+            isOpen={showQueueModal}
+            onDismiss={toggleQueueModal}
+            proposalId={proposalData?.id}
+            proposalExecutionData={proposalExecutionData}
+          />
+          <ExecuteModal
+            isOpen={showExecuteModal}
+            onDismiss={toggleExecuteModal}
+            proposalId={proposalData?.id}
+            proposalExecutionData={proposalExecutionData}
+          />
           <ProposalInfo gap="lg" justify="start">
             <RowBetween style={{ width: '100%' }}>
               <ArrowWrapper to="/">
@@ -440,13 +451,13 @@ export default function VotePage() {
             )}
             {showExecuteButton && (
               <>
-                {eta && (
+                {/* {eta && (
                   <RowBetween>
                     <ThemedText.DeprecatedBlack>
                       <Trans>This proposal may be executed after {eta.toLocaleString(locale, dateFormat)}.</Trans>
                     </ThemedText.DeprecatedBlack>
                   </RowBetween>
-                )}
+                )} */}
                 <RowFixed style={{ width: '100%', gap: '12px' }}>
                   <ButtonPrimary
                     padding="8px"
@@ -454,7 +465,7 @@ export default function VotePage() {
                       toggleExecuteModal()
                     }}
                     // can't execute until the eta has arrived
-                    disabled={!currentTimestamp || !proposalData?.eta || currentTimestamp.lt(proposalData.eta)}
+                    // disabled={!currentTimestamp || !proposalData?.eta || currentTimestamp.lt(proposalData.eta)}
                   >
                     <Trans>Execute</Trans>
                   </ButtonPrimary>

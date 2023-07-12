@@ -103,6 +103,7 @@ export const colors = {
   grayTertiary: '#DFE3F3',
   grayBackground: '#F6F7FE',
   grayLight: '#E0E0E0',
+  orange: '#ED6C02',
 }
 
 type Theme = typeof lightTheme
@@ -164,6 +165,7 @@ export const darkTheme: Theme = {
   accentCritical: colors.red300,
   accentGray: colors.graySecondary,
   accentDarkGray: colors.grayTertiary,
+  accentOrange: colors.orange,
 
   accentActionSoft: opacify(24, colors.blue400),
   accentActiveSoft: opacify(24, colors.blue400),
@@ -222,6 +224,7 @@ export const lightTheme = {
   accentCritical: colors.red400,
   accentGray: colors.graySecondary,
   accentDarkGray: colors.grayTertiary,
+  accentOrange: colors.orange,
 
   accentActionSoft: opacify(12, colors.pink400),
   accentActiveSoft: opacify(24, colors.blue400),

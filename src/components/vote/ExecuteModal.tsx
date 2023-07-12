@@ -3,9 +3,10 @@ import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
+import { shortenString } from 'utils'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useExecuteCallback } from '../../state/governance/hooks'
+import { proposalExecutionData, useExecuteCallback } from '../../state/governance/hooks'
 import { CustomLightSpinner, ThemedText } from '../../theme'
 import { ExternalLink } from '../../theme'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -38,9 +39,10 @@ interface ExecuteModalProps {
   isOpen: boolean
   onDismiss: () => void
   proposalId: string | undefined // id for the proposal to execute
+  proposalExecutionData: proposalExecutionData | undefined
 }
 
-export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteModalProps) {
+export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalExecutionData }: ExecuteModalProps) {
   const { chainId } = useWeb3React()
   const executeCallback = useExecuteCallback()
 
@@ -65,7 +67,7 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
     if (!executeCallback) return
 
     // try delegation and store hash
-    const hash = await executeCallback(proposalId)?.catch((error) => {
+    const hash = await executeCallback(proposalId, proposalExecutionData)?.catch((error) => {
       setAttempting(false)
       console.log(error)
     })
@@ -82,7 +84,7 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>
-                <Trans>Execute Proposal {proposalId}</Trans>
+                {proposalId && <Trans>Execute Proposal {shortenString(proposalId)}</Trans>}
               </ThemedText.DeprecatedMediumHeader>
               <StyledClosed onClick={wrappedOnDismiss} />
             </RowBetween>
