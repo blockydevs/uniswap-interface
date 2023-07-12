@@ -15,16 +15,18 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
 }
 
 export const GOVERNANCE_HUB_ADDRESS: AddressMap = {
-  [SupportedChainId.SEPOLIA]: '0xd4526Eeb5C8dca40286eFB68dF91dC02Df615Ae4',
+  [SupportedChainId.SEPOLIA]: process.env.REACT_APP_GOVERNANCE_HUB_ADDRESS as string,
 }
-export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap('0x26FBbC47D41616DC0061Ee538F4b50d85f0F1F84')
+export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap(
+  process.env.REACT_APP_HUB_VOTE_TOKEN_ADDRESS as string
+)
 
 export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = {
-  [SupportedChainId.POLYGON_MUMBAI]: '0xC306b0E662F19ca12e64221C84b1da68bc767ABd',
+  [SupportedChainId.POLYGON_MUMBAI]: process.env.REACT_APP_GOVERNANCE_SPOKE_ADRESSES as string,
 }
 
 export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = constructSameAddressMap(
-  '0xb8C720f4fa8BC6A5774315Ca2fF4e298D3bCCc3a'
+  process.env.REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES as string
 ) //BLOCKYTODO: w przyszłości prawdopodobnie będziemy potrzebowali tablicy adresów
 
 export const UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS = '0x8B799381ac40b838BBA4131ffB26197C432AFe78'
