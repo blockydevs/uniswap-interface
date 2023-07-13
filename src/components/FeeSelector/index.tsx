@@ -10,7 +10,6 @@ import { RowBetween } from 'components/Row'
 import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
 import { PoolState, usePools } from 'hooks/usePools'
 import usePrevious from 'hooks/usePrevious'
-import { DynamicSection } from 'pages/AddLiquidity/styled'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box } from 'rebass'
 import styled, { keyframes } from 'styled-components/macro'
@@ -143,64 +142,62 @@ export default function FeeSelector({
 
   return (
     <AutoColumn gap="16px">
-      <DynamicSection gap="md" disabled={disabled}>
-        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)}>
-          <RowBetween>
-            <AutoColumn id="add-liquidity-selected-fee">
-              {!feeAmount ? (
-                <>
-                  <ThemedText.DeprecatedLabel>
-                    <Trans>Fee tier</Trans>
-                  </ThemedText.DeprecatedLabel>
-                  <ThemedText.DeprecatedMain fontWeight={400} fontSize="12px" textAlign="left">
-                    <Trans>The % you will earn in fees.</Trans>
-                  </ThemedText.DeprecatedMain>
-                </>
-              ) : (
-                <>
-                  <ThemedText.DeprecatedLabel className="selected-fee-label">
-                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
-                  </ThemedText.DeprecatedLabel>
-                  <Box style={{ width: 'fit-content', marginTop: '8px' }} className="selected-fee-percentage">
-                    {distributions && (
-                      <FeeTierPercentageBadge
-                        distributions={distributions}
-                        feeAmount={feeAmount}
-                        poolState={poolsByFeeTier[feeAmount]}
-                      />
-                    )}
-                  </Box>
-                </>
-              )}
-            </AutoColumn>
+      <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)}>
+        <RowBetween>
+          <AutoColumn id="add-liquidity-selected-fee">
+            {!feeAmount ? (
+              <>
+                <ThemedText.DeprecatedLabel>
+                  <Trans>Fee tier</Trans>
+                </ThemedText.DeprecatedLabel>
+                <ThemedText.DeprecatedMain fontWeight={400} fontSize="12px" textAlign="left">
+                  <Trans>The % you will earn in fees.</Trans>
+                </ThemedText.DeprecatedMain>
+              </>
+            ) : (
+              <>
+                <ThemedText.DeprecatedLabel className="selected-fee-label">
+                  <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
+                </ThemedText.DeprecatedLabel>
+                <Box style={{ width: 'fit-content', marginTop: '8px' }} className="selected-fee-percentage">
+                  {distributions && (
+                    <FeeTierPercentageBadge
+                      distributions={distributions}
+                      feeAmount={feeAmount}
+                      poolState={poolsByFeeTier[feeAmount]}
+                    />
+                  )}
+                </Box>
+              </>
+            )}
+          </AutoColumn>
 
-            <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
-              {showOptions ? <Trans>Hide</Trans> : <Trans>Edit</Trans>}
-            </ButtonGray>
-          </RowBetween>
-        </FocusedOutlineCard>
+          <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
+            {showOptions ? <Trans>Hide</Trans> : <Trans>Edit</Trans>}
+          </ButtonGray>
+        </RowBetween>
+      </FocusedOutlineCard>
 
-        {chainId && showOptions && (
-          <Select>
-            {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map((_feeAmount, i) => {
-              const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]
-              if (supportedChains.includes(chainId)) {
-                return (
-                  <FeeOption
-                    feeAmount={_feeAmount}
-                    active={feeAmount === _feeAmount}
-                    onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
-                    distributions={distributions}
-                    poolState={poolsByFeeTier[_feeAmount]}
-                    key={i}
-                  />
-                )
-              }
-              return null
-            })}
-          </Select>
-        )}
-      </DynamicSection>
+      {chainId && showOptions && (
+        <Select>
+          {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map((_feeAmount, i) => {
+            const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]
+            if (supportedChains.includes(chainId)) {
+              return (
+                <FeeOption
+                  feeAmount={_feeAmount}
+                  active={feeAmount === _feeAmount}
+                  onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
+                  distributions={distributions}
+                  poolState={poolsByFeeTier[_feeAmount]}
+                  key={i}
+                />
+              )
+            }
+            return null
+          })}
+        </Select>
+      )}
     </AutoColumn>
   )
 }

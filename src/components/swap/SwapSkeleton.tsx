@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ArrowContainer } from 'pages/Swap'
 import { ArrowDown } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
 import { ThemedText } from 'theme'
@@ -95,9 +94,7 @@ export function SwapSkeleton() {
       </InputColumn>
       <OutputWrapper>
         <StyledArrowWrapper clickable={false}>
-          <ArrowContainer>
-            <ArrowDown size="16" color={theme.textTertiary} />
-          </ArrowContainer>
+          <ArrowDown size="16" color={theme.textTertiary} />
         </StyledArrowWrapper>
         <InputColumn>
           <FloatingInput />

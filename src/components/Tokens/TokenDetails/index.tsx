@@ -29,7 +29,6 @@ import { QueryToken } from 'graphql/data/Token'
 import { CHAIN_NAME_TO_CHAIN_ID, getTokenDetailsURL } from 'graphql/data/util'
 import { useOnGlobalChainSwitch } from 'hooks/useGlobalChainSwitch'
 import { UNKNOWN_TOKEN_SYMBOL, useTokenFromActiveNetwork } from 'lib/hooks/useCurrency'
-import { Swap } from 'pages/Swap'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -237,17 +236,7 @@ export default function TokenDetails({
         )}
 
         <RightPanel onClick={() => isBlockedToken && setOpenTokenSafetyModal(true)}>
-          <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}>
-            <Swap
-              chainId={pageChainId}
-              prefilledState={{
-                [Field.INPUT]: { currencyId: inputTokenAddress },
-                [Field.OUTPUT]: { currencyId: address === NATIVE_CHAIN_ID ? 'ETH' : address },
-              }}
-              onCurrencyChange={handleCurrencyChange}
-              disableTokenInputs={pageChainId !== connectedChainId}
-            />
-          </div>
+          <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}></div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
           {detailedToken && <BalanceSummary token={detailedToken} />}
         </RightPanel>
