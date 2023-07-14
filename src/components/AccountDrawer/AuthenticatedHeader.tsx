@@ -2,7 +2,7 @@ import { TraceEvent } from '@uniswap/analytics'
 import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
 import { useGetConnection } from 'connection'
-import { LogoutIcon, SettingsIcon } from 'nft/components/icons'
+import { LogoutIcon } from 'nft/components/icons'
 import { useCallback } from 'react'
 import { ArrowDownRight, ArrowUpRight, Copy, IconProps } from 'react-feather'
 import { useAppDispatch } from 'state/hooks'
@@ -82,7 +82,7 @@ export function PortfolioArrow({ change, ...rest }: { change: number } & IconPro
   )
 }
 
-export default function AuthenticatedHeader({ account, openSettings }: { account: string; openSettings: () => void }) {
+export default function AuthenticatedHeader({ account }: { account: string }) {
   const { connector, ENSName } = useWeb3React()
   const dispatch = useAppDispatch()
   const getConnection = useGetConnection()
@@ -116,7 +116,6 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           )}
         </StatusWrapper>
         <IconContainer>
-          <IconButton data-testid="wallet-settings" onClick={openSettings} Icon={SettingsIcon} />
           <TraceEvent
             events={[BrowserEvent.onClick]}
             name={SharedEventName.ELEMENT_CLICKED}

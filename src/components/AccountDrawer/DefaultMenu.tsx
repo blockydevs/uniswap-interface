@@ -23,17 +23,11 @@ function DefaultMenu() {
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT)
 
-  const openSettings = useCallback(() => setMenu(MenuState.SETTINGS), [])
   const closeSettings = useCallback(() => setMenu(MenuState.DEFAULT), [])
 
   return (
     <DefaultMenuWrap>
-      {menu === MenuState.DEFAULT &&
-        (isAuthenticated ? (
-          <AuthenticatedHeader account={account} openSettings={openSettings} />
-        ) : (
-          <WalletModal openSettings={openSettings} />
-        ))}
+      {menu === MenuState.DEFAULT && (isAuthenticated ? <AuthenticatedHeader account={account} /> : <WalletModal />)}
       {menu === MenuState.SETTINGS && <SettingsMenu onClose={closeSettings} />}
     </DefaultMenuWrap>
   )
