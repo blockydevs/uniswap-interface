@@ -9,7 +9,7 @@ import RequestCollectionsModal from 'components/vote/RequestCollectionsModal'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
-import useBlockNumber from 'lib/hooks/useBlockNumber'
+import useBlockNumber, { useHubBlockNumber } from 'lib/hooks/useBlockNumber'
 import { Box } from 'nft/components/Box'
 import { WarningCircleIcon } from 'nft/components/icons'
 import VotingButtons from 'pages/Vote/VotingButtons'
@@ -19,6 +19,7 @@ import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
 import { useAppSelector } from 'state/hooks'
 import styled from 'styled-components/macro'
+import { checkProposalState } from 'utils/checkProposalPendingState'
 import { getDateFromBlock } from 'utils/getDateFromBlock'
 
 import { ButtonPrimary } from '../../components/Button'
@@ -190,13 +191,14 @@ export default function VotePage() {
   const parsedGovernorIndex = Number.parseInt(governorIndex)
   const { chainId, account } = useWeb3React()
   const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+  const hubBlock = useHubBlockNumber()
 
   const quorumAmount = useQuorum()
   const quorumNumber = Number(quorumAmount?.toExact())
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
-  const { proposalExecutionData } = proposalData || {}
+  const { proposalExecutionData, status, endBlock } = proposalData || {}
 
   // update vote option based on button interactions
   const [voteOption, setVoteOption] = useState<VoteOption | undefined>(undefined)
@@ -288,11 +290,14 @@ export default function VotePage() {
   } = useCollectionStatus(id)
 
   const showRequestCollectionsButton = Boolean(
-    account && proposalData?.status === ProposalState.SUCCEEDED && !collectionFinishedResponse
-  )
-  const collectionPhase = Boolean(
     account &&
-      proposalData?.status === ProposalState.SUCCEEDED &&
+      checkProposalState(status, hubBlock, endBlock) === ProposalState.COLLECTION_PHASE &&
+      !collectionFinishedResponse
+  )
+
+  const collectionPhaseInProgress = Boolean(
+    account &&
+      checkProposalState(status, hubBlock, endBlock) === ProposalState.COLLECTION_PHASE &&
       collectionStartedResponse &&
       !collectionFinishedResponse
   )
@@ -375,7 +380,7 @@ export default function VotePage() {
                   <ArrowLeft size={20} /> Proposals
                 </Trans>
               </ArrowWrapper>
-              {proposalData && <ProposalStatus status={proposalData.status} />}
+              {proposalData && <ProposalStatus status={checkProposalState(status, hubBlock, endBlock)} />}
             </RowBetween>
             <StyledAutoColumn gap="10px">
               <ThemedText.SubHeaderLarge style={{ marginBottom: '.5rem' }}>
@@ -431,9 +436,9 @@ export default function VotePage() {
             {showRequestCollectionsButton && !collectionStatusLoading && (
               <ButtonPrimary
                 onClick={() => toggleRequestCollectionsModal()}
-                disabled={collectionPhase || collectionStatusLoading}
+                disabled={collectionPhaseInProgress || collectionStatusLoading}
               >
-                <Trans>{collectionPhase ? 'Collection phase' : 'Request Collection'}</Trans>
+                <Trans>{collectionPhaseInProgress ? 'Collection phase in progress' : 'Request Collection'}</Trans>
               </ButtonPrimary>
             )}
 

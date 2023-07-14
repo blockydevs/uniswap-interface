@@ -128,6 +128,7 @@ export enum ProposalState {
   QUEUED,
   EXPIRED,
   EXECUTED,
+  COLLECTION_PHASE,
 }
 
 const GovernanceInterface = new Interface(GOVERNOR_HUB_ABI)

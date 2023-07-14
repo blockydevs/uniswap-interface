@@ -14,6 +14,7 @@ import DepositHMTModal from 'components/vote/DepositHMTModal'
 import DepositVHMTModal from 'components/vote/DepositVHMTModal'
 import ProposalEmptyState from 'components/vote/ProposalEmptyState'
 import JSBI from 'jsbi'
+import { useHubBlockNumber } from 'lib/hooks/useBlockNumber'
 import { useHmtContractToken } from 'lib/hooks/useCurrencyBalance'
 import { useIsMobile } from 'nft/hooks'
 import { darken } from 'polished'
@@ -33,6 +34,7 @@ import styled from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
 import { shortenAddress } from 'utils'
 import { shortenString } from 'utils'
+import { checkProposalState } from 'utils/checkProposalPendingState'
 import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
 import { shortenTitle } from 'utils/shortenTitle'
 
@@ -223,6 +225,7 @@ const UnlockVotingContainer = styled.div`
 export default function Landing() {
   const { account, chainId } = useWeb3React()
   const isMobile = useIsMobile()
+  const hubBlock = useHubBlockNumber()
 
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
@@ -370,7 +373,7 @@ export default function Landing() {
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <RowBetween>
                       <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
-                      <ProposalStatus status={p.status} />
+                      <ProposalStatus status={checkProposalState(p.status, hubBlock, p.endBlock)} />
                     </RowBetween>
                     <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
                   </Proposal>
@@ -378,7 +381,7 @@ export default function Landing() {
                   <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
                     <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
-                    <ProposalStatus status={p.status} />
+                    <ProposalStatus status={checkProposalState(p.status, hubBlock, p.endBlock)} />
                   </Proposal>
                 )
               })}
