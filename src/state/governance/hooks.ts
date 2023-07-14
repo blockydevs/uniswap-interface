@@ -19,7 +19,6 @@ import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_tit
 import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { RPC_PROVIDERS } from 'constants/providers'
 import { useContract, useContractWithCustomProvider } from 'hooks/useContract'
-import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppSelector } from 'state/hooks'
@@ -111,14 +110,6 @@ export interface ProposalData {
   details: ProposalDetail[]
   governorIndex: number // index in the governance address array for which this proposal pertains
   proposalExecutionData: proposalExecutionData
-}
-
-export interface CreateProposalData {
-  targets: string[]
-  values: string[]
-  signatures: string[]
-  calldatas: string[]
-  description: string
 }
 
 interface ProposalVote {
@@ -720,58 +711,4 @@ export function useExecuteCallback(): (
     },
     [addTransaction, contract]
   )
-}
-
-export function useCreateProposalCallback(): (
-  createProposalData: CreateProposalData | undefined
-) => undefined | Promise<string> {
-  const { account, chainId } = useWeb3React()
-  const latestGovernanceContract = useGovernanceHubContract()
-  const addTransaction = useTransactionAdder()
-
-  return useCallback(
-    (createProposalData: CreateProposalData | undefined) => {
-      if (!account || !latestGovernanceContract || !createProposalData || !chainId) return undefined
-
-      const args = [
-        createProposalData.targets,
-        createProposalData.values,
-        createProposalData.signatures,
-        createProposalData.calldatas,
-        createProposalData.description,
-      ]
-
-      return latestGovernanceContract.estimateGas.propose(...args).then((estimatedGasLimit) => {
-        return latestGovernanceContract
-          .propose(...args, { gasLimit: calculateGasMargin(estimatedGasLimit) })
-          .then((response: TransactionResponse) => {
-            addTransaction(response, {
-              type: TransactionType.SUBMIT_PROPOSAL,
-            })
-            return response.hash
-          })
-      })
-    },
-    [account, addTransaction, latestGovernanceContract, chainId]
-  )
-}
-
-export function useLatestProposalId(address: string | undefined): string | undefined {
-  const latestGovernanceContract = useGovernanceHubContract()
-  const res = useSingleCallResult(latestGovernanceContract, 'latestProposalIds', [address])
-  return res?.result?.[0]?.toString()
-}
-
-export function useProposalThreshold(): CurrencyAmount<Token> | undefined {
-  const { chainId } = useWeb3React()
-
-  const latestGovernanceContract = useGovernanceHubContract()
-  const res = useSingleCallResult(latestGovernanceContract, 'proposalThreshold')
-  const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
-
-  if (res?.result?.[0] && uni) {
-    return CurrencyAmount.fromRawAmount(uni, res.result[0])
-  }
-
-  return undefined
 }

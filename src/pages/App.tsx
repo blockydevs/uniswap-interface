@@ -3,7 +3,6 @@ import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } 
 import { useWeb3React } from '@web3-react/core'
 import Footer from 'components/Footer/Footer'
 import Loader from 'components/Icons/LoadingSpinner'
-import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
 import { useBag } from 'nft/hooks/useBag'
@@ -21,10 +20,8 @@ import { getEnvName } from 'utils/env'
 import { retry } from 'utils/retry'
 import { getCLS, getFCP, getFID, getLCP, Metric } from 'web-vitals'
 
-import { useAnalyticsReporter } from '../components/analytics'
 import ErrorBoundary from '../components/ErrorBoundary'
 import NavBar from '../components/NavBar'
-import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
 import NotFound from './NotFound'
@@ -97,8 +94,6 @@ export default function App() {
   const isDarkMode = useIsDarkMode()
   const isExpertMode = useIsExpertMode()
   const [scrolledState, setScrolledState] = useState(false)
-
-  useAnalyticsReporter()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -173,10 +168,6 @@ export default function App() {
             <NavBar blur={isHeaderTransparent} />
           </HeaderWrapper>
           <BodyWrapper>
-            <Popups />
-            {/* BLOCKYTODO: indykator najwyższego bloku do wykasowania? - na razie zakomentowany */}
-            {/* <Polling /> */}
-            <TopLevelModals />
             <Suspense fallback={<Loader />}>
               {isLoaded ? (
                 <Routes>
@@ -189,8 +180,6 @@ export default function App() {
                     }
                   />
                   <Route path=":governorIndex/:id" element={<VotePage />} />
-                  {/* BLOCKYTODO: uncomment line from below when we decide to add this functionality on our frontend  */}
-                  {/* <Route path="create-proposal" element={<CreateProposal />} /> */}
                   <Route path="*" element={<Navigate to="/not-found" replace />} />
                   <Route path="/not-found" element={<NotFound />} />
                 </Routes>

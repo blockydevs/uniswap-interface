@@ -3,7 +3,6 @@ import { GitVersionRow } from 'components/AccountDrawer/GitVersionRow'
 import { SlideOutMenu } from 'components/AccountDrawer/SlideOutMenu'
 import { LOCALE_LABEL, SUPPORTED_LOCALES, SupportedLocale } from 'constants/locales'
 import { useActiveLocale } from 'hooks/useActiveLocale'
-import { useLocationLinkProps } from 'hooks/useLocationLinkProps'
 import { Checkbox } from 'nft/components/layout/Checkbox'
 import { useReducer } from 'react'
 import { Link } from 'react-router-dom'
@@ -28,18 +27,15 @@ const LanguageItem = styled.div`
 `
 
 function LanguageMenuItem({ locale, isActive }: { locale: SupportedLocale; isActive: boolean }) {
-  const { to, onClick } = useLocationLinkProps(locale)
   const [hovered, toggleHovered] = useReducer((s) => !s, false)
 
-  if (!to) return null
-
   return (
-    <InternalLinkMenuItem onClick={onClick} to={to} onMouseEnter={toggleHovered} onMouseLeave={toggleHovered}>
+    <>
       <Checkbox hovered={hovered} checked={isActive}>
         <span />
       </Checkbox>
       <ThemedText.BodySmall data-testid="wallet-language-item">{LOCALE_LABEL[locale]}</ThemedText.BodySmall>
-    </InternalLinkMenuItem>
+    </>
   )
 }
 
