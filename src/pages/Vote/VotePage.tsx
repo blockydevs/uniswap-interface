@@ -5,11 +5,11 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import ExecuteModal from 'components/vote/ExecuteModal'
 import QueueModal from 'components/vote/QueueModal'
+import RequestCollectionsModal from 'components/vote/RequestCollectionsModal'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
-import ms from 'ms.macro'
 import { Box } from 'nft/components/Box'
 import { WarningCircleIcon } from 'nft/components/icons'
 import VotingButtons from 'pages/Vote/VotingButtons'
@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
+import { useAppSelector } from 'state/hooks'
 import styled from 'styled-components/macro'
 import { getDateFromBlock } from 'utils/getDateFromBlock'
 
@@ -40,6 +41,7 @@ import {
   useToggleDelegateModal,
   useToggleExecuteModal,
   useToggleQueueModal,
+  useToggleRequestCollectionsModal,
   useToggleVoteModal,
 } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
@@ -47,6 +49,7 @@ import { useTokenBalance } from '../../state/connection/hooks'
 import {
   ProposalData,
   ProposalState,
+  useCollectionStatus,
   useProposalData,
   useQuorum,
   useUserDelegatee,
@@ -186,11 +189,14 @@ export default function VotePage() {
   const { governorIndex, id } = useParams() as { governorIndex: string; id: string }
   const parsedGovernorIndex = Number.parseInt(governorIndex)
   const { chainId, account } = useWeb3React()
+  const isHubChainActive = useAppSelector((state) => state.application.isHubChainActive)
+
   const quorumAmount = useQuorum()
   const quorumNumber = Number(quorumAmount?.toExact())
 
   // get data for this specific proposal
   const proposalData: ProposalData | undefined = useProposalData(parsedGovernorIndex, id)
+  const { proposalExecutionData } = proposalData || {}
 
   // update vote option based on button interactions
   const [voteOption, setVoteOption] = useState<VoteOption | undefined>(undefined)
@@ -202,6 +208,10 @@ export default function VotePage() {
   // toggle for showing delegation modal
   const showDelegateModal = useModalIsOpen(ApplicationModal.DELEGATE)
   const toggleDelegateModal = useToggleDelegateModal()
+
+  // Request collections modal
+  const showRequestCollectionsModal = useModalIsOpen(ApplicationModal.REQUEST_COLLECTIONS)
+  const toggleRequestCollectionsModal = useToggleRequestCollectionsModal()
 
   // toggle for showing queue modal
   const showQueueModal = useModalIsOpen(ApplicationModal.QUEUE)
@@ -238,19 +248,31 @@ export default function VotePage() {
     timeZoneName: 'short',
   }
   // convert the eta to milliseconds before it's a date
-  const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
+  // const eta = proposalData?.eta ? new Date(proposalData.eta.mul(ms`1 second`).toNumber()) : undefined
 
   // get total votes and format percentages for UI
-  const totalVotes = proposalData?.forCount?.add(proposalData.againstCount).add(proposalData.abstainCount)
+  const totalVotes = proposalData?.hubForCount?.add(proposalData.hubAgainstCount).add(proposalData.hubAbstainCount)
 
-  const forVotes = Number(proposalData?.forCount.toExact())
-  const againstVotes = Number(proposalData?.againstCount.toExact())
-  const abstainVotes = Number(proposalData?.abstainCount.toExact())
+  const forVotes = isHubChainActive
+    ? Number(proposalData?.hubForCount.toExact())
+    : Number(proposalData?.spokeForCount.toExact())
+  const againstVotes =
+    proposalData && isHubChainActive
+      ? Number(proposalData?.hubAgainstCount.toExact())
+      : Number(proposalData?.spokeAgainstCount.toExact())
+  const abstainVotes =
+    proposalData && isHubChainActive
+      ? Number(proposalData?.hubAbstainCount.toExact())
+      : Number(proposalData?.spokeAbstainCount.toExact())
 
-  const quorumPercentage = ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
+  const quorumPercentage =
+    forVotes && againstVotes && abstainVotes && ((forVotes + againstVotes + abstainVotes) / quorumNumber) * 100
 
   // only count available votes as of the proposal start block
-  const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(proposalData?.startBlock ?? undefined)
+  const availableVotes: CurrencyAmount<Token> | undefined = useUserVotesAsOfBlock(
+    proposalData?.startBlock ?? undefined,
+    id
+  )
 
   // only show voting if user has > 0 votes at proposal start block and proposal is active,
   const showVotingButtons =
@@ -259,11 +281,30 @@ export default function VotePage() {
     proposalData &&
     proposalData.status === ProposalState.ACTIVE
 
-  // we only show the button if there's an account connected and the proposal state is correct
-  const showQueueButton = account && proposalData?.status === ProposalState.SUCCEEDED
+  const {
+    collectionStartedResponse,
+    collectionFinishedResponse,
+    loading: collectionStatusLoading,
+  } = useCollectionStatus(id)
 
-  // we only show the button if there's an account connected and the proposal state is correct
-  const showExecuteButton = account && proposalData?.status === ProposalState.QUEUED
+  const showRequestCollectionsButton = Boolean(
+    account && proposalData?.status === ProposalState.SUCCEEDED && !collectionFinishedResponse
+  )
+  const collectionPhase = Boolean(
+    account &&
+      proposalData?.status === ProposalState.SUCCEEDED &&
+      collectionStartedResponse &&
+      !collectionFinishedResponse
+  )
+
+  const showQueueButton =
+    Boolean(isHubChainActive && account && proposalData?.status === ProposalState.SUCCEEDED) &&
+    !!collectionStartedResponse &&
+    !!collectionFinishedResponse
+
+  const showExecuteButton =
+    Boolean(isHubChainActive && account && proposalData?.status === ProposalState.QUEUED) &&
+    !!collectionFinishedResponse
 
   const uniBalance: CurrencyAmount<Token> | undefined = useTokenBalance(
     account ?? undefined,
@@ -292,6 +333,7 @@ export default function VotePage() {
     return <img {...rest} style={{ width: '100%', height: '100$', objectFit: 'cover' }} alt="" />
   }
 
+  if (!proposalData) return null
   return (
     <Trace page={InterfacePageName.VOTE_PAGE} shouldLogImpression>
       <>
@@ -309,8 +351,23 @@ export default function VotePage() {
             onDismiss={toggleDelegateModal}
             title={<Trans>Unlock Votes</Trans>}
           />
-          <QueueModal isOpen={showQueueModal} onDismiss={toggleQueueModal} proposalId={proposalData?.id} />
-          <ExecuteModal isOpen={showExecuteModal} onDismiss={toggleExecuteModal} proposalId={proposalData?.id} />
+          <RequestCollectionsModal
+            isOpen={showRequestCollectionsModal}
+            onDismiss={toggleRequestCollectionsModal}
+            proposalId={id}
+          />
+          <QueueModal
+            isOpen={showQueueModal}
+            onDismiss={toggleQueueModal}
+            proposalId={proposalData?.id}
+            proposalExecutionData={proposalExecutionData}
+          />
+          <ExecuteModal
+            isOpen={showExecuteModal}
+            onDismiss={toggleExecuteModal}
+            proposalId={proposalData?.id}
+            proposalExecutionData={proposalExecutionData}
+          />
           <ProposalInfo gap="lg" justify="start">
             <RowBetween style={{ width: '100%' }}>
               <ArrowWrapper to="/">
@@ -371,6 +428,15 @@ export default function VotePage() {
               proposalStatus={proposalData?.status}
             />
 
+            {showRequestCollectionsButton && !collectionStatusLoading && (
+              <ButtonPrimary
+                onClick={() => toggleRequestCollectionsModal()}
+                disabled={collectionPhase || collectionStatusLoading}
+              >
+                <Trans>{collectionPhase ? 'Collection phase' : 'Request Collection'}</Trans>
+              </ButtonPrimary>
+            )}
+
             {showQueueButton && (
               <RowFixed style={{ width: '100%', gap: '12px' }}>
                 <ButtonPrimary
@@ -385,13 +451,13 @@ export default function VotePage() {
             )}
             {showExecuteButton && (
               <>
-                {eta && (
+                {/* {eta && (
                   <RowBetween>
                     <ThemedText.DeprecatedBlack>
                       <Trans>This proposal may be executed after {eta.toLocaleString(locale, dateFormat)}.</Trans>
                     </ThemedText.DeprecatedBlack>
                   </RowBetween>
-                )}
+                )} */}
                 <RowFixed style={{ width: '100%', gap: '12px' }}>
                   <ButtonPrimary
                     padding="8px"
@@ -399,7 +465,7 @@ export default function VotePage() {
                       toggleExecuteModal()
                     }}
                     // can't execute until the eta has arrived
-                    disabled={!currentTimestamp || !proposalData?.eta || currentTimestamp.lt(proposalData.eta)}
+                    // disabled={!currentTimestamp || !proposalData?.eta || currentTimestamp.lt(proposalData.eta)}
                   >
                     <Trans>Execute</Trans>
                   </ButtonPrimary>

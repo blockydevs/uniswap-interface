@@ -13,6 +13,7 @@ const BlockNumberContext = createContext<
 
 function useBlockNumberContext() {
   const blockNumber = useContext(BlockNumberContext)
+
   if (blockNumber === MISSING_PROVIDER) {
     throw new Error('BlockNumber hooks must be wrapped in a <BlockNumberProvider>')
   }
@@ -30,6 +31,7 @@ export function useFastForwardBlockNumber(): (block: number) => void {
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
   const { chainId: activeChainId, provider } = useWeb3React()
+
   const [{ chainId, block }, setChainBlock] = useState<{ chainId?: number; block?: number }>({ chainId: activeChainId })
 
   const onBlock = useCallback(
@@ -84,5 +86,6 @@ export function BlockNumberProvider({ children }: { children: ReactNode }) {
     }),
     [activeChainId, block, chainId]
   )
+
   return <BlockNumberContext.Provider value={value}>{children}</BlockNumberContext.Provider>
 }

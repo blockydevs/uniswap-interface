@@ -37,18 +37,21 @@ export enum ApplicationModal {
   UNISWAP_NFT_AIRDROP_CLAIM,
   DEPOSIT_HMT,
   DEPOSIT_VHMT,
+  REQUEST_COLLECTIONS,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>
 
 export interface ApplicationState {
-  readonly chainId: number | null
+  readonly isHubChainActive: boolean
   readonly fiatOnramp: { available: boolean; availabilityChecked: boolean }
+  readonly chainId: number | null
   readonly openModal: ApplicationModal | null
   readonly popupList: PopupList
 }
 
 const initialState: ApplicationState = {
+  isHubChainActive: false,
   fiatOnramp: { available: false, availabilityChecked: false },
   chainId: null,
   openModal: null,
@@ -59,6 +62,10 @@ const applicationSlice = createSlice({
   name: 'application',
   initialState,
   reducers: {
+    setIsHubChainActive(state, action) {
+      const flag = action.payload
+      state.isHubChainActive = flag
+    },
     setFiatOnrampAvailability(state, { payload: available }) {
       state.fiatOnramp = { available, availabilityChecked: true }
     },
@@ -89,6 +96,6 @@ const applicationSlice = createSlice({
   },
 })
 
-export const { updateChainId, setFiatOnrampAvailability, setOpenModal, addPopup, removePopup } =
+export const { setIsHubChainActive, updateChainId, setFiatOnrampAvailability, setOpenModal, addPopup, removePopup } =
   applicationSlice.actions
 export default applicationSlice.reducer

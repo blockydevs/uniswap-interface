@@ -1,4 +1,5 @@
 import { useWeb3React } from '@web3-react/core'
+import { SupportedChainId } from 'constants/chains'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { useEffect, useRef, useState } from 'react'
@@ -6,7 +7,7 @@ import { useAppDispatch } from 'state/hooks'
 import { supportedChainId } from 'utils/supportedChainId'
 
 import { useCloseModal } from './hooks'
-import { updateChainId } from './reducer'
+import { setIsHubChainActive, updateChainId } from './reducer'
 
 export default function Updater(): null {
   const { account, chainId, provider } = useWeb3React()
@@ -17,6 +18,9 @@ export default function Updater(): null {
 
   const closeModal = useCloseModal()
   const previousAccountValue = useRef(account)
+
+  const isHubChainActive = activeChainId === SupportedChainId.SEPOLIA
+
   useEffect(() => {
     if (account && account !== previousAccountValue.current) {
       previousAccountValue.current = account
@@ -35,7 +39,8 @@ export default function Updater(): null {
   useEffect(() => {
     const chainId = debouncedChainId ? supportedChainId(debouncedChainId) ?? null : null
     dispatch(updateChainId({ chainId }))
-  }, [dispatch, debouncedChainId])
+    dispatch(setIsHubChainActive(isHubChainActive))
+  }, [dispatch, debouncedChainId, isHubChainActive])
 
   return null
 }

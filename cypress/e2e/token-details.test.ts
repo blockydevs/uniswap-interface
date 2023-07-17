@@ -5,7 +5,7 @@ import { getTestSelector } from '../utils'
 
 const UNI_MAINNET = UNI[SupportedChainId.MAINNET]
 
-const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
+const HUB_VOTE_TOKEN_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
 
 describe('Token details', () => {
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe('Token details', () => {
 
   it('Uniswap token should have all information populated', () => {
     // Uniswap token
-    cy.visit(`/tokens/ethereum/${UNI_ADDRESS}`)
+    cy.visit(`/tokens/ethereum/${HUB_VOTE_TOKEN_ADDRESS}`)
 
     // Price chart should be filled in
     cy.get('[data-cy="chart-header"]').should('include.text', '$')
@@ -35,16 +35,16 @@ describe('Token details', () => {
 
     // Links section should link out to Etherscan, More analytics, Website, Twitter
     cy.get('[data-cy="resources-container"]').within(() => {
-      cy.contains('Etherscan').should('have.attr', 'href').and('include', `etherscan.io/address/${UNI_ADDRESS}`)
+      cy.contains('Etherscan').should('have.attr', 'href').and('include', `etherscan.io/address/${HUB_VOTE_TOKEN_ADDRESS}`)
       cy.contains('More analytics')
         .should('have.attr', 'href')
-        .and('include', `info.uniswap.org/#/tokens/${UNI_ADDRESS}`)
+        .and('include', `info.uniswap.org/#/tokens/${HUB_VOTE_TOKEN_ADDRESS}`)
       cy.contains('Website').should('have.attr', 'href').and('include', 'uniswap.org')
       cy.contains('Twitter').should('have.attr', 'href').and('include', 'twitter.com/Uniswap')
     })
 
     // Contract address should be displayed
-    cy.contains(UNI_ADDRESS).should('exist')
+    cy.contains(HUB_VOTE_TOKEN_ADDRESS).should('exist')
   })
 
   it('token with warning and low trading volume should have all information populated', () => {

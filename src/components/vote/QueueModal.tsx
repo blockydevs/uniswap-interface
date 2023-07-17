@@ -3,9 +3,10 @@ import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
+import { shortenString } from 'utils'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useQueueCallback } from '../../state/governance/hooks'
+import { proposalExecutionData, useQueueCallback } from '../../state/governance/hooks'
 import { CustomLightSpinner, ThemedText } from '../../theme'
 import { ExternalLink } from '../../theme'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -38,20 +39,17 @@ interface QueueModalProps {
   isOpen: boolean
   onDismiss: () => void
   proposalId: string | undefined // id for the proposal to queue
+  proposalExecutionData: proposalExecutionData | undefined
 }
 
-export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModalProps) {
+export default function QueueModal({ isOpen, onDismiss, proposalId, proposalExecutionData }: QueueModalProps) {
   const { chainId } = useWeb3React()
   const queueCallback = useQueueCallback()
+  const theme = useTheme()
 
-  // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
   const [attempting, setAttempting] = useState<boolean>(false)
 
-  // get theme for colors
-  const theme = useTheme()
-
-  // wrapper to reset state on modal close
   function wrappedOnDismiss() {
     setHash(undefined)
     setAttempting(false)
@@ -65,7 +63,7 @@ export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModal
     if (!queueCallback) return
 
     // try delegation and store hash
-    const hash = await queueCallback(proposalId)?.catch((error) => {
+    const hash = await queueCallback(proposalId, proposalExecutionData)?.catch((error) => {
       setAttempting(false)
       console.log(error)
     })
@@ -82,7 +80,7 @@ export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModal
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>
-                <Trans>Queue Proposal {proposalId}</Trans>
+                {proposalId && <Trans>Queue Proposal {shortenString(proposalId)}</Trans>}
               </ThemedText.DeprecatedMediumHeader>
               <StyledClosed onClick={wrappedOnDismiss} />
             </RowBetween>

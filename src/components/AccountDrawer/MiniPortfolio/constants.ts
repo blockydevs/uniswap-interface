@@ -141,6 +141,11 @@ const TransactionTitleTable: { [key in TransactionType]: { [state in Transaction
     [TransactionStatus.Confirmed]: t`Currency Exchanged`,
     [TransactionStatus.Failed]: t`Exchange failed`,
   },
+  [TransactionType.REQUEST_COLLECTIONS]: {
+    [TransactionStatus.Pending]: t`Requesting collections`,
+    [TransactionStatus.Confirmed]: t`Success`,
+    [TransactionStatus.Failed]: t`Request collections failed`,
+  },
 }
 
 const AlternateTransactionTitleTable: { [key in TransactionType]?: { [state in TransactionStatus]: string } } = {

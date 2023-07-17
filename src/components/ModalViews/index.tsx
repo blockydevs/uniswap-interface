@@ -39,7 +39,7 @@ const CloseIconWrapper = styled('div')`
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 0 0 40px 0;
+  padding: 47px 0 47px 0;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     padding: 20px 0;

@@ -7,18 +7,18 @@ const handleColorType = (status: ProposalState, theme: DefaultTheme) => {
   switch (status) {
     case ProposalState.PENDING:
     case ProposalState.ACTIVE:
-      return theme.accentSuccess
     case ProposalState.SUCCEEDED:
-    case ProposalState.EXECUTED:
       return theme.accentSuccess
+    case ProposalState.EXECUTED:
+      return theme.textPrimary
     case ProposalState.DEFEATED:
-      return theme.accentCritical
+      return theme.accentOrange
     case ProposalState.CANCELED:
     case ProposalState.EXPIRED:
       return theme.accentFailure
     case ProposalState.QUEUED:
     default:
-      return theme.textTertiary
+      return theme.textSecondary
   }
 }
 

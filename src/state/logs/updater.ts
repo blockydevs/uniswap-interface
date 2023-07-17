@@ -1,5 +1,6 @@
 import type { Filter } from '@ethersproject/providers'
-import { useWeb3React } from '@web3-react/core'
+import { SupportedChainId } from 'constants/chains'
+import { RPC_PROVIDERS } from 'constants/providers'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useEffect, useMemo } from 'react'
 
@@ -7,10 +8,12 @@ import { useAppDispatch, useAppSelector } from '../hooks'
 import { fetchedLogs, fetchedLogsError, fetchingLogs } from './slice'
 import { isHistoricalLog, keyToFilter } from './utils'
 
+const chainId = SupportedChainId.SEPOLIA
+const sepoliaProvider = RPC_PROVIDERS[SupportedChainId.SEPOLIA]
+
 export default function Updater(): null {
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
-  const { chainId, provider } = useWeb3React()
 
   const blockNumber = useBlockNumber()
 
@@ -31,19 +34,21 @@ export default function Updater(): null {
         return true
       })
       .map((key) => keyToFilter(key))
-  }, [blockNumber, chainId, state])
+  }, [blockNumber, state])
 
   useEffect(() => {
-    if (!provider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
+    if (!sepoliaProvider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
 
     dispatch(fetchingLogs({ chainId, filters: filtersNeedFetch, blockNumber }))
     filtersNeedFetch.forEach((filter) => {
       // provide defaults if {from,to}Block are missing
       let fromBlock = filter.fromBlock ?? 0
       let toBlock = filter.toBlock ?? blockNumber
+
       if (typeof fromBlock === 'string') fromBlock = Number.parseInt(fromBlock)
       if (typeof toBlock === 'string') toBlock = Number.parseInt(toBlock)
-      provider
+
+      sepoliaProvider
         .getLogs({
           ...filter,
           fromBlock,
@@ -69,7 +74,7 @@ export default function Updater(): null {
           )
         })
     })
-  }, [blockNumber, chainId, dispatch, filtersNeedFetch, provider])
+  }, [blockNumber, dispatch, filtersNeedFetch])
 
   return null
 }

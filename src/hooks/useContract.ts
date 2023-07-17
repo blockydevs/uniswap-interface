@@ -1,4 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
+import type { JsonRpcProvider } from '@ethersproject/providers'
 import QuoterV2Json from '@uniswap/swap-router-contracts/artifacts/contracts/lens/QuoterV2.sol/QuoterV2.json'
 import IUniswapV2PairJson from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import IUniswapV2Router02Json from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
@@ -28,6 +29,7 @@ import {
   V2_ROUTER_ADDRESS,
   V3_MIGRATOR_ADDRESSES,
 } from 'constants/addresses'
+import { SupportedChainId } from 'constants/chains'
 import { WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
 import { useMemo } from 'react'
 import { NonfungiblePositionManager, Quoter, QuoterV2, TickLens, UniswapInterfaceMulticall } from 'types/v3'
@@ -65,6 +67,29 @@ export function useContract<T extends Contract = Contract>(
       return null
     }
   }, [addressOrAddressMap, ABI, provider, chainId, withSignerIfPossible, account]) as T
+}
+
+export function useContractWithCustomProvider<T extends Contract = Contract>(
+  addressOrAddressMap: string | { [chainId: number]: string } | undefined,
+  ABI: any,
+  provider: JsonRpcProvider | undefined
+): T | null {
+  const chainId = SupportedChainId.SEPOLIA
+  const { account } = useWeb3React()
+
+  return useMemo(() => {
+    if (!addressOrAddressMap || !ABI || !provider || !chainId) return null
+    let address: string | undefined
+    if (typeof addressOrAddressMap === 'string') address = addressOrAddressMap
+    else address = addressOrAddressMap[chainId]
+    if (!address) return null
+    try {
+      return getContract(address, ABI, provider, account ? account : undefined)
+    } catch (error) {
+      console.error('Failed to get contract', error)
+      return null
+    }
+  }, [addressOrAddressMap, ABI, chainId, account, provider]) as T
 }
 
 export function useV2MigratorContract() {

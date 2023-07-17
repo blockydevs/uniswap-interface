@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { SupportedChainId } from 'constants/chains'
 import JSBI from 'jsbi'
 import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
@@ -52,7 +51,8 @@ export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefin
 // Returns HMT token
 export function useHmtContractToken() {
   const uniContract = useUniContract()
-  const { account } = useWeb3React()
+  const { account, chainId } = useWeb3React()
+
   const [hmtToken, setHmtToken] = useState<Token | undefined>(undefined)
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function useHmtContractToken() {
         if (uniContract && account) {
           // BLOCKYTODO: find out why uniContract.underlying() is throwing out an error or maybe it's something else?
           const address = await uniContract.underlying()
-          const hmtToken = address && new Token(SupportedChainId.SEPOLIA, address, 18, 'HMT', 'Human')
+          const hmtToken = address && chainId && new Token(chainId, address, 18, 'HMT', 'Human')
           setHmtToken(hmtToken)
         }
       } catch (error) {
@@ -70,7 +70,7 @@ export function useHmtContractToken() {
     }
 
     fetchUnderlyingAddress()
-  }, [uniContract, account])
+  }, [uniContract, account, chainId])
 
   return hmtToken
 }
@@ -101,16 +101,18 @@ export function useTokenBalancesWithLoadingIndicator(
   useEffect(() => {
     const fetchBalance = async () => {
       setIsLoading(true)
-      try {
-        const resultVHMT = await uniContract?.functions.balanceOf(account)
-        const resultHMT = await hmtUniContract?.functions.balanceOf(account)
+      if (uniContract && hmtUniContract) {
+        try {
+          const resultVHMT = await uniContract.functions.balanceOf(account)
+          const resultHMT = await hmtUniContract.functions.balanceOf(account)
 
-        if (resultVHMT) setVhmtBalance(resultVHMT)
-        if (resultHMT) setHmtBalance(resultHMT[0])
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setIsLoading(false)
+          if (resultVHMT) setVhmtBalance(resultVHMT)
+          if (resultHMT) setHmtBalance(resultHMT)
+        } catch (error) {
+          console.log(error)
+        } finally {
+          setIsLoading(false)
+        }
       }
     }
 

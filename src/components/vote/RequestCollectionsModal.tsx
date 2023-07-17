@@ -3,10 +3,9 @@ import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
-import { shortenString } from 'utils'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { proposalExecutionData, useExecuteCallback } from '../../state/governance/hooks'
+import { useRequestCollections } from '../../state/governance/hooks'
 import { CustomLightSpinner, ThemedText } from '../../theme'
 import { ExternalLink } from '../../theme'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -35,16 +34,15 @@ const ConfirmedIcon = styled(ColumnCenter)`
   padding: 60px 0;
 `
 
-interface ExecuteModalProps {
+interface RequestCollectionsModalProps {
   isOpen: boolean
   onDismiss: () => void
-  proposalId: string | undefined // id for the proposal to execute
-  proposalExecutionData: proposalExecutionData | undefined
+  proposalId: string | undefined // id for the proposal to queue
 }
 
-export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalExecutionData }: ExecuteModalProps) {
+export default function RequestCollectionsModal({ isOpen, onDismiss, proposalId }: RequestCollectionsModalProps) {
   const { chainId } = useWeb3React()
-  const executeCallback = useExecuteCallback()
+  const requestCollectionsCallback = useRequestCollections()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -60,14 +58,14 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalEx
     onDismiss()
   }
 
-  async function onExecute() {
+  async function onRequestCollections() {
     setAttempting(true)
 
     // if callback not returned properly ignore
-    if (!executeCallback) return
+    if (!requestCollectionsCallback) return
 
     // try delegation and store hash
-    const hash = await executeCallback(proposalId, proposalExecutionData)?.catch((error) => {
+    const hash = await requestCollectionsCallback(proposalId)?.catch((error) => {
       setAttempting(false)
       console.log(error)
     })
@@ -84,18 +82,18 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalEx
           <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={500}>
-                {proposalId && <Trans>Execute Proposal {shortenString(proposalId)}</Trans>}
+                <Trans>Request Collections</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <StyledClosed onClick={wrappedOnDismiss} />
             </RowBetween>
             <RowBetween>
               <ThemedText.DeprecatedBody>
-                <Trans>Executing this proposal will enact the calldata on-chain.</Trans>
+                {/* <Trans>Adding this proposal to the queue will allow it to be executed, after a delay.</Trans> */}
               </ThemedText.DeprecatedBody>
             </RowBetween>
-            <ButtonPrimary onClick={onExecute}>
+            <ButtonPrimary onClick={onRequestCollections}>
               <ThemedText.DeprecatedMediumHeader color="white">
-                <Trans>Execute</Trans>
+                <Trans>Reqest collections</Trans>
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
           </AutoColumn>
@@ -113,7 +111,7 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalEx
           <AutoColumn gap="100px" justify="center">
             <AutoColumn gap="md" justify="center">
               <ThemedText.DeprecatedLargeHeader>
-                <Trans>Executing</Trans>
+                <Trans>Processing</Trans>
               </ThemedText.DeprecatedLargeHeader>
             </AutoColumn>
             <ThemedText.DeprecatedSubHeader>
@@ -134,7 +132,7 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId, proposalEx
           <AutoColumn gap="100px" justify="center">
             <AutoColumn gap="md" justify="center">
               <ThemedText.DeprecatedLargeHeader>
-                <Trans>Execution Submitted</Trans>
+                <Trans>Transaction Submitted</Trans>
               </ThemedText.DeprecatedLargeHeader>
             </AutoColumn>
             {chainId && (
