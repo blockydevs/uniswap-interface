@@ -5,7 +5,6 @@ import Footer from 'components/Footer/Footer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
-import { useBag } from 'nft/hooks/useBag'
 import VotePage from 'pages/Vote/VotePage'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
@@ -137,8 +136,7 @@ export default function App() {
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
 
-  const isBagExpanded = useBag((state) => state.bagExpanded)
-  const isHeaderTransparent = !scrolledState && !isBagExpanded
+  const isHeaderTransparent = !scrolledState
 
   const { account } = useWeb3React()
   const statsigUser: StatsigUser = useMemo(
@@ -164,7 +162,7 @@ export default function App() {
           }}
         >
           <HeaderWrapper>
-            <NavBar blur={isHeaderTransparent} />
+            <NavBar />
           </HeaderWrapper>
           <BodyWrapper>
             <Suspense fallback={<Loader />}>
