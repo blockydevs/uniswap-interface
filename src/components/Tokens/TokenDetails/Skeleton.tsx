@@ -1,4 +1,3 @@
-import { SwapSkeleton } from 'components/swap/SwapSkeleton'
 import { ArrowLeft } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components/macro'
@@ -253,16 +252,5 @@ export default function TokenDetailsSkeleton() {
         <HalfWideBubble />
       </ExtraDetailsContainer>
     </LeftPanel>
-  )
-}
-
-export function TokenDetailsPageSkeleton() {
-  return (
-    <TokenDetailsLayout>
-      <TokenDetailsSkeleton />
-      <RightPanel>
-        <SwapSkeleton />
-      </RightPanel>
-    </TokenDetailsLayout>
   )
 }
