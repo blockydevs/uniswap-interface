@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { OpacityHoverState, ScrollBarStyles } from 'components/Common'
-import { LoadingBubble } from 'components/Tokens/loading'
 import { EventCell } from 'nft/components/collection/ActivityCells'
 import { ActivityEvent } from 'nft/types'
 import { getMarketplaceIcon } from 'nft/utils'
@@ -85,11 +84,6 @@ const ActivityContainer = styled.div`
   ${ScrollBarStyles}
 `
 
-const LoadingCell = styled(LoadingBubble)`
-  height: 20px;
-  width: 80px;
-`
-
 const ActivityTable = ({ children }: { children: ReactNode }) => {
   return (
     <ActivityContainer id="activityContainer">
@@ -125,11 +119,7 @@ const LoadingAssetActivityRow = ({ cellCount }: { cellCount: number }) => {
       {Array(cellCount)
         .fill(null)
         .map((_, index) => {
-          return (
-            <TD key={index}>
-              <LoadingCell />
-            </TD>
-          )
+          return <TD key={index}></TD>
         })}
     </TR>
   )

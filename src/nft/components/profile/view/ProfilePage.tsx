@@ -16,7 +16,6 @@ import {
   useWalletBalance,
   useWalletCollections,
 } from 'nft/hooks'
-import { ScreenBreakpointsPaddings } from 'nft/pages/collection/index.css'
 import { OSCollectionsFetcher } from 'nft/queries'
 import { WalletCollection } from 'nft/types'
 import { Dispatch, SetStateAction, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
@@ -30,10 +29,6 @@ import { EmptyWalletModule } from './EmptyWalletContent'
 import * as styles from './ProfilePage.css'
 import { ProfileBodyLoadingSkeleton } from './ProfilePageLoadingSkeleton'
 import { ViewMyNftsAsset } from './ViewMyNftsAsset'
-
-const ProfilePageColumn = styled(Column)`
-  ${ScreenBreakpointsPaddings}
-`
 
 const ProfileHeader = styled.div`
   font-size: 28px;
@@ -112,7 +107,7 @@ export const ProfilePage = () => {
   }, [ownerCollections, setWalletCollections])
 
   return (
-    <ProfilePageColumn width="full" paddingTop={{ sm: `${PADDING}`, md: '40' }}>
+    <>
       <>
         <ProfileHeader>My NFTs</ProfileHeader>
         <Row alignItems="flex-start" position="relative">
@@ -179,7 +174,7 @@ export const ProfilePage = () => {
           </Box>
         </Row>
       )}
-    </ProfilePageColumn>
+    </>
   )
 }
 

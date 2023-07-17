@@ -1,20 +1,9 @@
 import { Box } from 'nft/components/Box'
 import { assetList } from 'nft/components/collection/CollectionNfts.css'
 import { loadingAsset } from 'nft/css/loading.css'
-import { ScreenBreakpointsPaddings } from 'nft/pages/collection/index.css'
 import styled from 'styled-components/macro'
 
 import { DEFAULT_WALLET_ASSET_QUERY_AMOUNT } from './ProfilePage'
-
-const SkeletonPageWrapper = styled.div`
-  ${ScreenBreakpointsPaddings};
-  padding-top: 40px;
-  width: 100%;
-
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    padding-top: 16px;
-  }
-`
 
 const SkeletonBodyWrapper = styled.div`
   display: flex;
@@ -25,7 +14,6 @@ const SkeletonBodyWrapper = styled.div`
 
 const SkeletonRowWrapper = styled.div`
   display: flex;
-  flex-direct: row;
   width: 100%;
 `
 
@@ -88,9 +76,5 @@ export const ProfileBodyLoadingSkeleton = () => {
 }
 
 export const ProfilePageLoadingSkeleton = () => {
-  return (
-    <SkeletonPageWrapper>
-      <ProfileBodyLoadingSkeleton />
-    </SkeletonPageWrapper>
-  )
+  return <ProfileBodyLoadingSkeleton />
 }

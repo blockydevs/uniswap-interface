@@ -30,7 +30,6 @@ import { shallow } from 'zustand/shallow'
 
 import { ListModal } from './Modal/ListModal'
 import { NFTListingsGrid } from './NFTListingsGrid'
-import { SelectMarketplacesDropdown } from './SelectMarketplacesDropdown'
 import { SetDurationModal } from './SetDurationModal'
 
 const ListingHeader = styled(Column)`
@@ -277,7 +276,6 @@ export const ListPage = () => {
               <Trans>Sell NFTs</Trans>
             </TitleWrapper>
             <ButtonsWrapper>
-              <SelectMarketplacesDropdown setSelectedMarkets={setSelectedMarkets} selectedMarkets={selectedMarkets} />
               <SetDurationModal />
             </ButtonsWrapper>
           </ListingHeaderRow>

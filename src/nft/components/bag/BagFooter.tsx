@@ -11,7 +11,6 @@ import Loader from 'components/Icons/LoadingSpinner'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import Row from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { LoadingBubble } from 'components/Tokens/loading'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { SupportedChainId } from 'constants/chains'
 import { useNftUniversalRouterAddress } from 'graphql/data/nft/NftUniversalRouterAddress'
@@ -118,12 +117,7 @@ const PayButton = styled.button<{ $backgroundColor: string; $color: string }>`
     cursor: auto;
   }
 `
-const FiatLoadingBubble = styled(LoadingBubble)`
-  border-radius: 4px;
-  width: 4rem;
-  height: 20px;
-  align-self: end;
-`
+
 const PriceImpactContainer = styled(Row)`
   align-items: center;
   gap: 8px;
@@ -249,8 +243,6 @@ const FiatValue = ({
     if (usingPayWithAnyToken && (tradeState === TradeState.INVALID || tradeState === TradeState.NO_ROUTE_FOUND)) {
       return null
     }
-
-    return <FiatLoadingBubble />
   }
 
   return (

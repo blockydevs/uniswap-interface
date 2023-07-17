@@ -1,5 +1,4 @@
 import { ScrollBarStyles } from 'components/Common'
-import { LoadingBubble } from 'components/Tokens/loading'
 import { AnimatedBox, Box } from 'nft/components/Box'
 import { Column, Row } from 'nft/components/Flex'
 import { XMarkIcon } from 'nft/components/icons'
@@ -40,17 +39,6 @@ const ItemsContainer = styled(Column)`
   height: 100vh;
 `
 
-const LongLoadingBubble = styled(LoadingBubble)`
-  min-height: 15px;
-  width: 75%;
-`
-
-const SmallLoadingBubble = styled(LoadingBubble)`
-  height: 20px;
-  width: 20px;
-  margin-right: 8px;
-`
-
 const MobileMenuHeader = styled(Row)`
   justify-content: space-between;
   padding-bottom: 8px;
@@ -59,10 +47,7 @@ const MobileMenuHeader = styled(Row)`
 const LoadingCollectionItem = ({ style }: { style?: CSSProperties }) => {
   return (
     <Row display="flex" justifyContent="space-between" style={style} paddingLeft="12" paddingRight="16">
-      <Row display="flex" flex="1">
-        <SmallLoadingBubble />
-        <LongLoadingBubble />
-      </Row>
+      <Row display="flex" flex="1"></Row>
       <Box as="span" borderColor="backgroundOutline" className={checkbox} aria-hidden="true" />
     </Row>
   )
@@ -273,7 +258,6 @@ const CollectionFilterSearch = ({
 }) => {
   return (
     <Input
-      placeholder="Search"
       marginTop="8"
       marginBottom="8"
       autoComplete="off"

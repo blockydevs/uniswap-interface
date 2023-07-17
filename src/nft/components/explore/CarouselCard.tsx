@@ -1,6 +1,5 @@
 import { formatNumberOrString, NumberType } from '@uniswap/conedison/format'
 import { loadingAnimation } from 'components/Loader/styled'
-import { LoadingBubble } from 'components/Tokens/loading'
 import { useCollection } from 'graphql/data/nft/Collection'
 import { UniswapMagentaIcon, VerifiedIcon } from 'nft/components/icons'
 import { Markets, TrendingCollection } from 'nft/types'
@@ -91,10 +90,6 @@ const CollectionNameContainer = styled.div`
   max-height: 56px;
 `
 
-const LoadingCollectionNameContainer = styled(LoadingBubble)`
-  width: 50%;
-`
-
 const HeaderOverlay = styled.div`
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%, rgba(0, 0, 0, 0.08));
   bottom: 0px;
@@ -134,10 +129,6 @@ const LoadingCollectionImage = styled.div`
   background-size: 400%;
 `
 
-const LoadingTableElement = styled(LoadingBubble)`
-  width: 50px;
-`
-
 const TableElement = styled.div`
   display: flex;
   align-items: center;
@@ -167,27 +158,6 @@ const CarouselCardContainer = styled.div`
   border-radius: 20px;
   overflow: hidden;
   height: 100%;
-
-  ${TableElement}:nth-child(3n-1), ${LoadingTableElement}:nth-child(3n-1) {
-    justify-self: center;
-  }
-
-  ${TableElement}:nth-child(3n), ${LoadingTableElement}:nth-child(3n) {
-    justify-self: right;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoint.xs}px) or ((min-width: ${({ theme }) =>
-      theme.breakpoint.sm}px) and (max-width: 880px)) {
-    ${FirstColumnTextWrapper} {
-      display: none;
-    }
-    ${TableElement} {
-      justify-self: left !important;
-    }
-    ${CardHeaderColumn} {
-      padding: 0 20px;
-    }
-  }
 `
 
 interface MarketplaceRowProps {
@@ -286,18 +256,6 @@ export const CarouselCard = ({ collection, onClick }: CarouselCardProps) => {
   )
 }
 
-const DEFAULT_TABLE_ELEMENTS = 12
-
-const LoadingTable = () => {
-  return (
-    <>
-      {[...Array(DEFAULT_TABLE_ELEMENTS)].map((index) => (
-        <LoadingTableElement key={index} />
-      ))}
-    </>
-  )
-}
-
 const CollectionName = styled(ThemedText.MediumHeader)`
   display: inline;
   vertical-align: text-bottom;
@@ -335,14 +293,11 @@ export const LoadingCarouselCard = ({ collection }: { collection?: TrendingColle
           <LoadingCardHeaderContainer>
             <CardHeaderColumn>
               <LoadingCollectionImage />
-              <LoadingCollectionNameContainer />
             </CardHeaderColumn>
             <HeaderOverlay />
           </LoadingCardHeaderContainer>
         )}
-        <CardBottomContainer>
-          <LoadingTable />
-        </CardBottomContainer>
+        <CardBottomContainer></CardBottomContainer>
       </CarouselCardContainer>
     </CarouselCardBorder>
   )

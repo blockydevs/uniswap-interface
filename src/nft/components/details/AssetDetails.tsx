@@ -1,5 +1,4 @@
 import { OpacityHoverState, ScrollBarStyles } from 'components/Common'
-import Resource from 'components/Tokens/TokenDetails/Resource'
 import { MouseoverTooltip } from 'components/Tooltip/index'
 import { NftActivityType } from 'graphql/data/__generated__/types-and-hooks'
 import { useNftActivity } from 'graphql/data/nft/NftActivity'
@@ -54,12 +53,6 @@ const AddressTextLink = styled.a`
   max-width: 100%;
   word-wrap: break-word;
   ${OpacityHoverState};
-`
-
-const SocialsContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
 `
 
 const DescriptionText = styled.div`
@@ -434,11 +427,6 @@ export const AssetDetails = ({ asset, collection }: AssetDetailsProps) => {
           <DescriptionText data-testid="nft-details-description-text">
             {collection.collectionDescription}
           </DescriptionText>
-          <SocialsContainer>
-            {collection.externalUrl && <Resource name="Website" link={`${collection.externalUrl}`} />}
-            {collection.twitterUrl && <Resource name="Twitter" link={`https://twitter.com/${collection.twitterUrl}`} />}
-            {collection.discordUrl && <Resource name="Discord" link={collection.discordUrl} />}
-          </SocialsContainer>
         </>
       </InfoContainer>
       <InfoContainer primaryHeader="Details" defaultOpen secondaryHeader={null} data-testid="nft-details-asset-details">

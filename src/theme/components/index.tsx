@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { MOBILE_MEDIA_BREAKPOINT } from 'components/Tokens/constants'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import React, {
   forwardRef,
@@ -282,18 +281,6 @@ export function CopyLinkIcon({ toCopy }: { toCopy: string }) {
   )
 }
 
-const FullAddress = styled.span`
-  @media only screen and (max-width: ${MOBILE_MEDIA_BREAKPOINT}) {
-    display: none;
-  }
-`
-const TruncatedAddress = styled.span`
-  display: none;
-  @media only screen and (max-width: ${MOBILE_MEDIA_BREAKPOINT}) {
-    display: flex;
-  }
-`
-
 const CopyAddressRow = styled.div<{ isClicked: boolean }>`
   ${ClickableStyle}
   color: inherit;
@@ -327,8 +314,8 @@ export function CopyContractAddress({ address }: { address: string }) {
   return (
     <CopyContractAddressWrapper onClick={copy}>
       <CopyAddressRow isClicked={isCopied}>
-        <FullAddress>{address}</FullAddress>
-        <TruncatedAddress>{truncated}</TruncatedAddress>
+        <div>{address}</div>
+        <div>{truncated}</div>
         <Copy size={14} />
       </CopyAddressRow>
       {isCopied && <Tooltip isCopyContractTooltip tooltipX={tooltipX} />}
