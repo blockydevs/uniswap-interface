@@ -1,5 +1,4 @@
 // eslint-disable-next-line no-restricted-imports
-import { Percent } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { AutoColumn } from 'components/Column'
 import { L2_CHAIN_IDS } from 'constants/chains'
@@ -11,10 +10,8 @@ import { ApplicationModal } from 'state/application/reducer'
 import styled from 'styled-components/macro'
 import { Divider } from 'theme'
 
-import MaxSlippageSettings from './MaxSlippageSettings'
 import MenuButton from './MenuButton'
 import RouterPreferenceSettings from './RouterPreferenceSettings'
-import TransactionDeadlineSettings from './TransactionDeadlineSettings'
 
 const Menu = styled.div`
   position: relative;
@@ -41,7 +38,7 @@ const MenuFlyout = styled(AutoColumn)`
   padding: 1rem;
 `
 
-export default function SettingsTab({ autoSlippage }: { autoSlippage: Percent }) {
+export default function SettingsTab() {
   const { chainId } = useWeb3React()
   const showDeadlineSettings = Boolean(chainId && !L2_CHAIN_IDS.includes(chainId))
 
@@ -60,11 +57,9 @@ export default function SettingsTab({ autoSlippage }: { autoSlippage: Percent })
         <MenuFlyout>
           <RouterPreferenceSettings />
           <Divider />
-          <MaxSlippageSettings autoSlippage={autoSlippage} />
           {showDeadlineSettings && (
             <>
               <Divider />
-              <TransactionDeadlineSettings />
             </>
           )}
         </MenuFlyout>

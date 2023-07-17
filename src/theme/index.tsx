@@ -140,7 +140,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   /* SCROLLBAR GLOBAL STYLES */
-  * {
+  /* * {
     scrollbar-width: thin;
     scrollbar-color: #858EC6;
 
@@ -159,5 +159,5 @@ export const ThemedGlobalStyle = createGlobalStyle`
   *::-webkit-scrollbar-thumb {
     background-color: #858EC6;
     border-radius: 4px;
-  }
+  } */
 `

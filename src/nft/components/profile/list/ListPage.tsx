@@ -16,7 +16,6 @@ import {
   verifyStatus,
 } from 'nft/components/profile/list/utils'
 import { useIsMobile, useNFTList, useProfilePageState, useSellAsset } from 'nft/hooks'
-import { LIST_PAGE_MARGIN, LIST_PAGE_MARGIN_MOBILE } from 'nft/pages/profile/shared'
 import { looksRareNonceFetcher } from 'nft/queries'
 import { ProfilePageStateType } from 'nft/types'
 import { formatEth } from 'nft/utils'

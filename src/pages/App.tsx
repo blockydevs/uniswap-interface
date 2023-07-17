@@ -20,7 +20,6 @@ import { getEnvName } from 'utils/env'
 import { retry } from 'utils/retry'
 import { getCLS, getFCP, getFID, getLCP, Metric } from 'web-vitals'
 
-import ErrorBoundary from '../components/ErrorBoundary'
 import NavBar from '../components/NavBar'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
@@ -151,7 +150,7 @@ export default function App() {
   )
 
   return (
-    <ErrorBoundary>
+    <>
       <DarkModeQueryParamReader />
       <ApeModeQueryParamReader />
       <Trace page={currentPage}>
@@ -193,6 +192,6 @@ export default function App() {
           </BodyWrapper>
         </StatsigProvider>
       </Trace>
-    </ErrorBoundary>
+    </>
   )
 }
