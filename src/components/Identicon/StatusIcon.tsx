@@ -1,5 +1,4 @@
 import { useWeb3React } from '@web3-react/core'
-import { Unicon } from 'components/Unicon'
 import { Connection, ConnectionType } from 'connection/types'
 import useENSAvatar from 'hooks/useENSAvatar'
 import styled from 'styled-components/macro'
@@ -76,7 +75,7 @@ const MainWalletIcon = ({ connection, size }: { connection: Connection; size: nu
   } else if (avatar || (connection.type === ConnectionType.INJECTED && connection.getName() === 'MetaMask')) {
     return <Identicon size={size} />
   } else {
-    return <Unicon address={account} size={size} />
+    return null
   }
 }
 
