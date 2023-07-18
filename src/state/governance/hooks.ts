@@ -15,8 +15,6 @@ import HmtUniJSON from 'abis/HMToken.json'
 import UniJSON from 'abis/VHMToken.json'
 import { GOVERNANCE_HUB_ADDRESS, GOVERNANCE_SPOKE_ADRESSES } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
-import { POLYGON_PROPOSAL_TITLE } from 'constants/proposals/polygon_proposal_title'
-import { UNISWAP_GRANTS_PROPOSAL_DESCRIPTION } from 'constants/proposals/uniswap_grants_proposal_description'
 import { RPC_PROVIDERS } from 'constants/providers'
 import { useContract, useContractWithCustomProvider } from 'hooks/useContract'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -24,13 +22,7 @@ import { useParams } from 'react-router-dom'
 import { useAppSelector } from 'state/hooks'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
 
-import {
-  BRAVO_START_BLOCK,
-  MOONBEAN_START_BLOCK,
-  ONE_BIP_START_BLOCK,
-  POLYGON_START_BLOCK,
-  UNISWAP_GRANTS_START_BLOCK,
-} from '../../constants/proposals'
+import { BRAVO_START_BLOCK, MOONBEAN_START_BLOCK, ONE_BIP_START_BLOCK } from '../../constants/proposals'
 import { UNI } from '../../constants/tokens'
 import { useLogs } from '../logs/hooks'
 import { useTransactionAdder } from '../transactions/hooks'
@@ -106,9 +98,8 @@ export interface ProposalData {
   spokeAbstainCount: CurrencyAmount<Token>
   startBlock: number
   endBlock: number
-  // eta: BigNumber
   details: ProposalDetail[]
-  governorIndex: number // index in the governance address array for which this proposal pertains
+  governorIndex: number
   proposalExecutionData: proposalExecutionData
 }
 
@@ -351,15 +342,9 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
       data: proposalsCallData.map((proposal, i) => {
         const startBlock = parseInt(proposal.startBlock?.toString())
 
-        let description = formattedLogs[i]?.description ?? ''
-        if (startBlock === UNISWAP_GRANTS_START_BLOCK) {
-          description = UNISWAP_GRANTS_PROPOSAL_DESCRIPTION
-        }
+        const description = formattedLogs[i]?.description ?? ''
 
-        let title = description?.split(/#+\s|\n/g)[1]
-        if (startBlock === POLYGON_START_BLOCK) {
-          title = POLYGON_PROPOSAL_TITLE
-        }
+        const title = description?.split(/#+\s|\n/g)[1]
 
         const forVotes = proposalHubVotes[i]?.forVotes || 0
         const againstVotes = proposalHubVotes[i]?.againstVotes || 0

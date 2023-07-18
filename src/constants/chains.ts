@@ -26,13 +26,6 @@ export enum SupportedChainId {
   BNB = 56,
 }
 
-export const UniWalletSupportedChains = [
-  SupportedChainId.MAINNET,
-  SupportedChainId.ARBITRUM_ONE,
-  SupportedChainId.OPTIMISM,
-  SupportedChainId.POLYGON,
-]
-
 export const CHAIN_IDS_TO_NAMES = {
   [SupportedChainId.MAINNET]: 'mainnet',
   [SupportedChainId.GOERLI]: 'goerli',
@@ -70,32 +63,7 @@ export const SUPPORTED_GAS_ESTIMATE_CHAIN_IDS = [
   SupportedChainId.POLYGON_MUMBAI,
 ] as const
 
-/**
- * Unsupported networks for V2 pool behavior.
- */
-export const UNSUPPORTED_V2POOL_CHAIN_IDS = [
-  SupportedChainId.POLYGON,
-  SupportedChainId.OPTIMISM,
-  SupportedChainId.ARBITRUM_ONE,
-  SupportedChainId.BNB,
-  SupportedChainId.ARBITRUM_GOERLI,
-] as const
-
-export const TESTNET_CHAIN_IDS = [
-  SupportedChainId.GOERLI,
-  SupportedChainId.POLYGON_MUMBAI,
-  SupportedChainId.ARBITRUM_GOERLI,
-  SupportedChainId.OPTIMISM_GOERLI,
-  SupportedChainId.SEPOLIA,
-  SupportedChainId.POLYGON_MUMBAI,
-] as const
-
-export type SupportedTestnetChainId = typeof TESTNET_CHAIN_IDS[number]
-
-/**
- * All the chain IDs that are running the Ethereum protocol.
- */
-export const L1_CHAIN_IDS = [
+const L1_CHAIN_IDS = [
   SupportedChainId.MAINNET,
   SupportedChainId.GOERLI,
   SupportedChainId.POLYGON,

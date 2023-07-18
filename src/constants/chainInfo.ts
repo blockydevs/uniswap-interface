@@ -49,7 +49,7 @@ interface L1ChainInfo extends BaseChainInfo {
   readonly defaultListUrl?: string
 }
 
-export interface L2ChainInfo extends BaseChainInfo {
+interface L2ChainInfo extends BaseChainInfo {
   readonly networkType: NetworkType.L2
   readonly bridge: string
   readonly statusPage?: string
@@ -256,9 +256,4 @@ export function getChainInfo(chainId: any): any {
     return CHAIN_INFO[chainId] ?? undefined
   }
   return undefined
-}
-
-const MAINNET_INFO = CHAIN_INFO[SupportedChainId.MAINNET]
-export function getChainInfoOrDefault(chainId: number | undefined) {
-  return getChainInfo(chainId) ?? MAINNET_INFO
 }

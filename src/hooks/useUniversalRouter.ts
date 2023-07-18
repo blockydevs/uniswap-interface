@@ -8,7 +8,6 @@ import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
 import { SwapRouter, UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import { FeeOptions, toHex } from '@uniswap/v3-sdk'
 import { useWeb3React } from '@web3-react/core'
-import { formatSwapSignedAnalyticsEventProperties } from 'lib/utils/analytics'
 import { useCallback } from 'react'
 import { trace } from 'tracing/trace'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
@@ -89,14 +88,6 @@ export function useUniversalRouterSwapCallback(
           .getSigner()
           .sendTransaction({ ...tx, gasLimit })
           .then((response) => {
-            sendAnalyticsEvent(SwapEventName.SWAP_SIGNED, {
-              ...formatSwapSignedAnalyticsEventProperties({
-                trade,
-                fiatValues,
-                txHash: response.hash,
-              }),
-              ...analyticsContext,
-            })
             if (tx.data !== response.data) {
               sendAnalyticsEvent(SwapEventName.SWAP_MODIFIED_IN_WALLET, {
                 txHash: response.hash,
@@ -123,7 +114,6 @@ export function useUniversalRouterSwapCallback(
     account,
     analyticsContext,
     chainId,
-    fiatValues,
     options.deadline,
     options.feeOptions,
     options.permit,

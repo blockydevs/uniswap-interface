@@ -26,14 +26,11 @@ import {
   NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
   QUOTER_ADDRESSES,
   TICK_LENS_ADDRESSES,
-  V2_ROUTER_ADDRESS,
-  V3_MIGRATOR_ADDRESSES,
 } from 'constants/addresses'
 import { SupportedChainId } from 'constants/chains'
 import { WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
 import { useMemo } from 'react'
 import { NonfungiblePositionManager, Quoter, QuoterV2, TickLens, UniswapInterfaceMulticall } from 'types/v3'
-import { V3Migrator } from 'types/v3/V3Migrator'
 
 import { getContract } from '../utils'
 
@@ -92,10 +89,6 @@ export function useContractWithCustomProvider<T extends Contract = Contract>(
   }, [addressOrAddressMap, ABI, chainId, account, provider]) as T
 }
 
-export function useV2MigratorContract() {
-  return useContract<V3Migrator>(V3_MIGRATOR_ADDRESSES, V2MigratorABI, true)
-}
-
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean) {
   return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
@@ -135,14 +128,6 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 
 export function useEIP2612Contract(tokenAddress?: string): Contract | null {
   return useContract(tokenAddress, EIP_2612, false)
-}
-
-export function usePairContract(pairAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(pairAddress, IUniswapV2PairABI, withSignerIfPossible)
-}
-
-export function useV2RouterContract(): Contract | null {
-  return useContract(V2_ROUTER_ADDRESS, IUniswapV2Router02ABI, true)
 }
 
 export function useInterfaceMulticall() {
