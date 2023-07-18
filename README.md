@@ -43,11 +43,11 @@ REACT_APP_SENTRY_DSN="https://a3c62e400b8748b5a8d007150e2f38b7@o1037921.ingest.s
 REACT_APP_STATSIG_PROXY_URL="https://api.uniswap.org/v1/statsig-proxy"
 REACT_APP_TEMP_API_URL="https://temp.api.uniswap.org/v1"
 
-REACT_APP_GOVERNANCE_HUB_ADDRESS="0xbE7E84e22d1a023B31D6eFEcEcBf2c5C603340d2"
-REACT_APP_HUB_VOTE_TOKEN_ADDRESS="0xB0bcE7e4F51b3298e3D209e17aEdC6DC8aCbfd15"
+REACT_APP_GOVERNANCE_HUB_ADDRESS="<your address here>"
+REACT_APP_HUB_VOTE_TOKEN_ADDRESS="<your address here>"
 
-REACT_APP_GOVERNANCE_SPOKE_ADRESSES="0x9b5Caca66FeA7e5f9Cb3D04C0b1f7481972664c5"
-REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES="0x61031f9db9a50c1564BC1d59857401986e41D8c3"
+REACT_APP_GOVERNANCE_SPOKE_ADRESSES="<your address here>"
+REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES="<your address here>"
 ```
 
 These variables correspond to the Ethereum addresses of different components of our governance system. You can modify them as per your needs.
