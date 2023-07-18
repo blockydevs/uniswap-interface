@@ -19,7 +19,7 @@ import { ARBITRUM_LIST, CELO_LIST, OPTIMISM_LIST, PLASMA_BNB_LIST } from './list
 
 export const AVERAGE_L1_BLOCK_TIME = ms`12s`
 
-export enum NetworkType {
+enum NetworkType {
   L1,
   L2,
 }

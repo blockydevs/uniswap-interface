@@ -8,6 +8,7 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import useBlockNumber, { useHubBlockNumber } from 'lib/hooks/useBlockNumber'
+import { useTokenBalance } from 'lib/hooks/useCurrencyBalance'
 import { Box } from 'nft/components/Box'
 import { WarningCircleIcon } from 'nft/components/icons'
 import VotingButtons from 'pages/Vote/VotingButtons'
@@ -43,7 +44,6 @@ import {
   useToggleVoteModal,
 } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
-import { useTokenBalance } from '../../state/connection/hooks'
 import {
   ProposalData,
   ProposalState,

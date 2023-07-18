@@ -7,12 +7,6 @@ const Card = styled(Box)<{ width?: string; padding?: string; border?: string; $b
   border-radius: ${({ $borderRadius }) => $borderRadius ?? '16px'};
   border: ${({ border }) => border};
 `
-export default Card
-
-export const LightCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.backgroundInteractive};
-  background-color: ${({ theme }) => theme.deprecated_bg1};
-`
 
 export const GrayCard = styled(Card)`
   display: flex;
@@ -20,8 +14,4 @@ export const GrayCard = styled(Card)`
   gap: 16px;
   background-color: ${({ theme }) => theme.accentAction};
   color: ${({ theme }) => theme.white};
-`
-
-export const OutlineCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.deprecated_bg3};
 `

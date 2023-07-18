@@ -1,14 +1,12 @@
 import { Currency, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { SupportedChainId } from 'constants/chains'
-import { DEFAULT_LIST_OF_LISTS } from 'constants/lists'
 import { useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
 import { TokenAddressMap } from 'lib/hooks/useTokenList/utils'
 import { useMemo } from 'react'
-import { useAppSelector } from 'state/hooks'
 
-import { useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
-import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
+import { useCombinedActiveList } from '../state/lists/hooks'
+import { useUserAddedTokens } from '../state/user/hooks'
 
 type Maybe<T> = T | null | undefined
 
@@ -23,40 +21,6 @@ function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<SupportedCha
       return newMap
     }, {})
   }, [chainId, tokenMap])
-}
-
-// TODO(INFRA-164): after disallowing unchecked index access, refactor ChainTokenMap to not use ?'s
-type ChainTokenMap = { [chainId in number]?: { [address in string]?: Token } }
-/** Returns tokens from all token lists on all chains, combined with user added tokens */
-export function useAllTokensMultichain(): ChainTokenMap {
-  const allTokensFromLists = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
-  const userAddedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
-
-  return useMemo(() => {
-    const chainTokenMap: ChainTokenMap = {}
-
-    if (userAddedTokensMap) {
-      Object.keys(userAddedTokensMap).forEach((key) => {
-        const chainId = Number(key)
-        const tokenMap = {} as { [address in string]?: Token }
-        Object.values(userAddedTokensMap[chainId]).forEach((serializedToken) => {
-          tokenMap[serializedToken.address] = deserializeToken(serializedToken)
-        })
-        chainTokenMap[chainId] = tokenMap
-      })
-    }
-
-    Object.keys(allTokensFromLists).forEach((key) => {
-      const chainId = Number(key)
-      const tokenMap = chainTokenMap[chainId] ?? {}
-      Object.values(allTokensFromLists[chainId]).forEach(({ token }) => {
-        tokenMap[token.address] = token
-      })
-      chainTokenMap[chainId] = tokenMap
-    })
-
-    return chainTokenMap
-  }, [allTokensFromLists, userAddedTokensMap])
 }
 
 /** Returns all tokens from the default list + user added tokens */
