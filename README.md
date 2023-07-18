@@ -1,7 +1,7 @@
 # Human Protocol links
 
-- Website: [hmanprotocol.org](https://humanprotocol.org/)
-- Email: [contact@uniswap.org](mailto:contact@uniswap.org)
+- Website: [humanprotocol.org](https://humanprotocol.org/)
+- Email: [contact@hmt.ai](mailto:contact@hmt.ai)
 - Twitter: [link](http://hmt.ai/twitter)
 - Discord: [link](http://hmt.ai/discord)
 - GitHub: [link](http://hmt.ai/github)
@@ -19,17 +19,16 @@ Our project modifies the Uniswap Interface to introduce our user-friendly and tr
 ## Prerequisites
 
 Before you proceed, ensure that you have the following installed:
-- Node.js (version 14 is required) - it's the JavaScript runtime that allows us to run our JavaScript code server-side,
-[download link](https://nodejs.org/en/download) 
-- NVM (Node Version Manager) - a tool that allows you to install and manage multiple versions of Node.js,
-- Yarn - Human Governor uses Yarn to handle its dependencies, making it a necessary tool for the project setup.
+- Node.js (version 14 is required) - it's the JavaScript runtime that allows us to run our JavaScript code server-side - [download link](https://nodejs.org/en/download) 
+- NVM (Node Version Manager) - a tool that allows you to install and manage multiple versions of Node.js - [download link](https://github.com/coreybutler/nvm-windows/releases) 
+- Yarn - Human Governor uses Yarn to handle its dependencies, making it a necessary tool for the project setup. - [download link](https://yarnpkg.com/cli/install)
 
 
 ## Environment Variables
 
 The application uses the following environment variables:
 
-`
+```
 ESLINT_NO_DEV_ERRORS=true
 REACT_APP_AMPLITUDE_PROXY_URL="https://api.uniswap.org/v1/amplitude-proxy"
 REACT_APP_AWS_API_REGION="us-east-2"
@@ -49,7 +48,7 @@ REACT_APP_HUB_VOTE_TOKEN_ADDRESS="0xB0bcE7e4F51b3298e3D209e17aEdC6DC8aCbfd15"
 
 REACT_APP_GOVERNANCE_SPOKE_ADRESSES="0x9b5Caca66FeA7e5f9Cb3D04C0b1f7481972664c5"
 REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES="0x61031f9db9a50c1564BC1d59857401986e41D8c3"
-`
+```
 
 These variables correspond to the Ethereum addresses of different components of our governance system. You can modify them as per your needs.
 
@@ -63,7 +62,7 @@ Follow the steps below to set up the project on your local machine:
     * Install NVM following instructions [here](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
     * Open your terminal as an administrator and type `nvm install 14`
     * After successful installation, type `nvm use 14`
-- Install Yarn globally using the command `npm install -g yarn` - [download link](https://yarnpkg.com/cli/install)
+- Install Yarn globally using the command `npm install -g yarn` - 
 - Open the uniswap-interface folder in your code editor
 - Install the necessary Node modules by typing `yarn install` in your terminal
 - Swap to `develop` branch using a `git checkout develop` command
