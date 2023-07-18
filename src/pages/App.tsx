@@ -1,21 +1,17 @@
-import { getDeviceId, sendAnalyticsEvent, Trace, user } from '@uniswap/analytics'
+import { sendAnalyticsEvent, Trace, user } from '@uniswap/analytics'
 import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
 import Footer from 'components/Footer/Footer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
 import VotePage from 'pages/Vote/VotePage'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { StatsigProvider, StatsigUser } from 'statsig-react'
 import styled from 'styled-components/macro'
 import { SpinnerSVG } from 'theme/components'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
-import { STATSIG_DUMMY_KEY } from 'tracing'
-import { getEnvName } from 'utils/env'
 import { retry } from 'utils/retry'
 import { getCLS, getFCP, getFID, getLCP, Metric } from 'web-vitals'
 
@@ -91,12 +87,6 @@ export default function App() {
   const currentPage = getCurrentPageFromLocation(pathname)
   const isDarkMode = useIsDarkMode()
   const isExpertMode = useIsExpertMode()
-  const [scrolledState, setScrolledState] = useState(false)
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    setScrolledState(false)
-  }, [pathname])
 
   useEffect(() => {
     // User properties *must* be set before sending corresponding event properties,
@@ -128,67 +118,38 @@ export default function App() {
     user.set(CustomUserProperties.EXPERT_MODE, isExpertMode)
   }, [isExpertMode])
 
-  useEffect(() => {
-    const scrollListener = () => {
-      setScrolledState(window.scrollY > 0)
-    }
-    window.addEventListener('scroll', scrollListener)
-    return () => window.removeEventListener('scroll', scrollListener)
-  }, [])
-
-  const isHeaderTransparent = !scrolledState
-
-  const { account } = useWeb3React()
-  const statsigUser: StatsigUser = useMemo(
-    () => ({
-      userID: getDeviceId(),
-      customIDs: { address: account ?? '' },
-    }),
-    [account]
-  )
-
   return (
     <>
       <DarkModeQueryParamReader />
       <ApeModeQueryParamReader />
       <Trace page={currentPage}>
-        <StatsigProvider
-          user={statsigUser}
-          sdkKey={STATSIG_DUMMY_KEY}
-          waitForInitialization={false}
-          options={{
-            environment: { tier: getEnvName() },
-            api: process.env.REACT_APP_STATSIG_PROXY_URL,
-          }}
-        >
-          <HeaderWrapper>
-            <NavBar />
-          </HeaderWrapper>
-          <BodyWrapper>
-            <Suspense fallback={<Loader />}>
-              {isLoaded ? (
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <Suspense fallback={<LazyLoadSpinner />}>
-                        <Vote />
-                      </Suspense>
-                    }
-                  />
-                  <Route path=":governorIndex/:id" element={<VotePage />} />
-                  <Route path="*" element={<Navigate to="/not-found" replace />} />
-                  <Route path="/not-found" element={<NotFound />} />
-                </Routes>
-              ) : (
-                <Loader />
-              )}
-            </Suspense>
-            <FooterWrapper>
-              <Footer />
-            </FooterWrapper>
-          </BodyWrapper>
-        </StatsigProvider>
+        <HeaderWrapper>
+          <NavBar />
+        </HeaderWrapper>
+        <BodyWrapper>
+          <Suspense fallback={<Loader />}>
+            {isLoaded ? (
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <Suspense fallback={<LazyLoadSpinner />}>
+                      <Vote />
+                    </Suspense>
+                  }
+                />
+                <Route path=":governorIndex/:id" element={<VotePage />} />
+                <Route path="*" element={<Navigate to="/not-found" replace />} />
+                <Route path="/not-found" element={<NotFound />} />
+              </Routes>
+            ) : (
+              <Loader />
+            )}
+          </Suspense>
+          <FooterWrapper>
+            <Footer />
+          </FooterWrapper>
+        </BodyWrapper>
       </Trace>
     </>
   )

@@ -5,8 +5,6 @@ import styled from 'styled-components/macro'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap } from 'theme/styles'
 
-import sockImg from '../../assets/svg/socks.svg'
-import { useHasSocks } from '../../hooks/useSocksBalance'
 import Identicon from '../Identicon'
 
 export const IconWrapper = styled.div<{ size?: number }>`
@@ -49,14 +47,6 @@ const MiniImg = styled.img`
   height: 16px;
 `
 
-const Socks = () => {
-  return (
-    <MiniIconContainer side="left">
-      <MiniImg src={sockImg} />
-    </MiniIconContainer>
-  )
-}
-
 const MiniWalletIcon = ({ connection, side }: { connection: Connection; side: 'left' | 'right' }) => {
   const isDarkMode = useIsDarkMode()
   return (
@@ -88,13 +78,10 @@ export default function StatusIcon({
   size?: number
   showMiniIcons?: boolean
 }) {
-  const hasSocks = useHasSocks()
-
   return (
     <IconWrapper size={size} data-testid="StatusIconRoot">
       <MainWalletIcon connection={connection} size={size} />
       {showMiniIcons && <MiniWalletIcon connection={connection} side="right" />}
-      {hasSocks && showMiniIcons && <Socks />}
     </IconWrapper>
   )
 }

@@ -1,4 +1,3 @@
-import { NftStandard } from 'graphql/data/__generated__/types-and-hooks'
 import { GenieAsset, RouteResponse } from 'nft/types'
 
 export const fetchRoute = async ({
@@ -42,7 +41,7 @@ type RouteItem = {
   decimals: number
   address: string
   priceInfo: ApiPriceInfo
-  tokenType?: NftStandard
+  tokenType?: any
   tokenId: string
   amount: number
   marketplace?: string
