@@ -1,14 +1,10 @@
-import { Trans } from '@lingui/macro'
 import Row from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { NftStandard } from 'graphql/data/__generated__/types-and-hooks'
 import { getMarketplaceIcon } from 'nft/components/card/utils'
 import { CollectionSelectedAssetIcon } from 'nft/components/icons'
 import { Markets } from 'nft/types'
-import { putCommas } from 'nft/utils'
-import { AlertTriangle, Check, Tag } from 'react-feather'
+import { Check, Tag } from 'react-feather'
 import styled from 'styled-components/macro'
-import { ThemedText } from 'theme'
 
 const StyledMarketplaceContainer = styled.div<{ isText?: boolean }>`
   position: absolute;
@@ -80,80 +76,4 @@ export const MarketplaceContainer = ({
   }
 
   return <StyledMarketplaceContainer>{getMarketplaceIcon(marketplace)}</StyledMarketplaceContainer>
-}
-
-const SuspiciousIcon = styled(AlertTriangle)`
-  width: 16px;
-  height: 16px;
-  color: ${({ theme }) => theme.accentFailure};
-`
-
-interface RankingProps {
-  provider: { url?: string; rank?: number }
-}
-
-const RarityLogoContainer = styled(Row)`
-  margin-right: 8px;
-  width: 16px;
-`
-
-const RarityText = styled(ThemedText.BodySmall)`
-  display: flex;
-`
-
-const RarityInfo = styled(ThemedText.Caption)`
-  flex-shrink: 0;
-  color: ${({ theme }) => theme.textSecondary};
-  background: ${({ theme }) => theme.backgroundInteractive};
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-weight: 700 !important;
-  line-height: 12px;
-  text-align: right;
-  cursor: pointer;
-`
-
-export const Ranking = ({ provider }: RankingProps) => {
-  if (!provider.rank) {
-    return null
-  }
-
-  return (
-    <RarityInfo>
-      <MouseoverTooltip
-        text={
-          <Row>
-            <RarityLogoContainer>
-              <img src="/nft/svgs/gem.svg" width={16} height={16} />
-            </RarityLogoContainer>
-            <RarityText>Ranking by Rarity Sniper</RarityText>
-          </Row>
-        }
-        placement="top"
-      >
-        # {putCommas(provider.rank)}
-      </MouseoverTooltip>
-    </RarityInfo>
-  )
-}
-
-const SuspiciousIconContainer = styled(Row)`
-  flex-shrink: 0;
-`
-
-export const Suspicious = () => {
-  return (
-    <MouseoverTooltip
-      text={
-        <ThemedText.BodySmall>
-          <Trans>Blocked on OpenSea</Trans>
-        </ThemedText.BodySmall>
-      }
-      placement="top"
-    >
-      <SuspiciousIconContainer>
-        <SuspiciousIcon />
-      </SuspiciousIconContainer>
-    </MouseoverTooltip>
-  )
 }

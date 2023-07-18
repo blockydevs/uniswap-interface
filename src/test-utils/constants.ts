@@ -1,4 +1,4 @@
-import { CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core'
+import { CurrencyAmount, Token, TradeType } from '@uniswap/sdk-core'
 import { V3Route } from '@uniswap/smart-order-router'
 import { FeeAmount, Pool } from '@uniswap/v3-sdk'
 import JSBI from 'jsbi'
@@ -42,17 +42,3 @@ export const TEST_TRADE_EXACT_INPUT = new ClassicTrade({
   tradeType: TradeType.EXACT_INPUT,
   gasUseEstimateUSD: '1.00',
 })
-
-export const TEST_TRADE_EXACT_OUTPUT = new ClassicTrade({
-  v3Routes: [
-    {
-      routev3: new V3Route([TEST_POOL_13], TEST_TOKEN_1, TEST_TOKEN_3),
-      inputAmount: toCurrencyAmount(TEST_TOKEN_1, 1000),
-      outputAmount: toCurrencyAmount(TEST_TOKEN_3, 1000),
-    },
-  ],
-  v2Routes: [],
-  tradeType: TradeType.EXACT_OUTPUT,
-})
-
-export const TEST_ALLOWED_SLIPPAGE = new Percent(2, 100)

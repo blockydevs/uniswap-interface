@@ -42,7 +42,7 @@ export enum ApplicationModal {
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>
 
-export interface ApplicationState {
+interface ApplicationState {
   readonly isHubChainActive: boolean
   readonly fiatOnramp: { available: boolean; availabilityChecked: boolean }
   readonly chainId: number | null

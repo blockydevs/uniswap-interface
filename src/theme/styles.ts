@@ -10,7 +10,7 @@ export const flexRowNoWrap = css`
   flex-flow: row nowrap;
 `
 
-export enum TRANSITION_DURATIONS {
+enum TRANSITION_DURATIONS {
   slow = 500,
   medium = 250,
   fast = 125,

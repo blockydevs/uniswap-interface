@@ -1,5 +1,4 @@
 import { MediaType, NftMarketplace, NftStandard } from 'graphql/data/__generated__/types-and-hooks'
-import { SortBy } from 'nft/hooks'
 
 import { SellOrder } from '../sell'
 
@@ -184,7 +183,6 @@ export interface DropDownOption {
   onClick: () => void
   reverseIndex?: number
   reverseOnClick?: () => void
-  sortBy?: SortBy
   isSelected?: boolean
 }
 
