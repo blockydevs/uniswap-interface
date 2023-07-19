@@ -51,24 +51,6 @@ export function useAllTransactions(): { [txHash: string]: TransactionDetails } {
   return chainId ? state[chainId] ?? {} : {}
 }
 
-export function useTransaction(transactionHash?: string): TransactionDetails | undefined {
-  const allTransactions = useAllTransactions()
-
-  if (!transactionHash) {
-    return undefined
-  }
-
-  return allTransactions[transactionHash]
-}
-
-export function useIsTransactionConfirmed(transactionHash?: string): boolean {
-  const transactions = useAllTransactions()
-
-  if (!transactionHash || !transactions[transactionHash]) return false
-
-  return Boolean(transactions[transactionHash].receipt)
-}
-
 /**
  * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
  * @param tx to check for recency

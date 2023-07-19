@@ -157,5 +157,3 @@ export const routingApi = createApi({
     }),
   }),
 })
-
-export const { useGetQuoteQuery } = routingApi

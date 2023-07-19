@@ -4,8 +4,6 @@ import invariant from 'tiny-invariant'
 import { HUB_VOTE_TOKEN_ADDRESS, SPOKE_VOTE_TOKEN_ADDRESSES } from './addresses'
 import { SupportedChainId } from './chains'
 
-export const NATIVE_CHAIN_ID = 'NATIVE'
-
 // When decimals are not specified for an ERC20 token
 // use default ERC20 token decimals as specified here:
 // https://docs.openzeppelin.com/contracts/3.x/erc20
