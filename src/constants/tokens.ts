@@ -25,7 +25,7 @@ const USDC_GOERLI = new Token(
   'USDC',
   'USD//C'
 )
-export const USDC_OPTIMISM = new Token(
+const USDC_OPTIMISM = new Token(
   SupportedChainId.OPTIMISM,
   '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
   6,
@@ -39,14 +39,14 @@ const USDC_OPTIMISM_GOERLI = new Token(
   'USDC',
   'USD//C'
 )
-export const USDC_ARBITRUM = new Token(
+const USDC_ARBITRUM = new Token(
   SupportedChainId.ARBITRUM_ONE,
   '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
   6,
   'USDC',
   'USD//C'
 )
-export const USDC_ARBITRUM_GOERLI = new Token(
+const USDC_ARBITRUM_GOERLI = new Token(
   SupportedChainId.ARBITRUM_GOERLI,
   '0x8FB1E3fC51F3b789dED7557E680551d93Ea9d892',
   6,
@@ -116,13 +116,7 @@ export const USDT_POLYGON = new Token(
   'USDT',
   'Tether USD'
 )
-export const WBTC_POLYGON = new Token(
-  SupportedChainId.POLYGON,
-  '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6',
-  8,
-  'WBTC',
-  'Wrapped BTC'
-)
+
 export const USDT = new Token(
   SupportedChainId.MAINNET,
   '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -228,13 +222,6 @@ export const SWISE = new Token(
   'SWISE',
   'StakeWise'
 )
-export const WETH_POLYGON_MUMBAI = new Token(
-  SupportedChainId.POLYGON_MUMBAI,
-  '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa',
-  18,
-  'WETH',
-  'Wrapped Ether'
-)
 
 export const WETH_POLYGON = new Token(
   SupportedChainId.POLYGON,
@@ -243,7 +230,7 @@ export const WETH_POLYGON = new Token(
   'WETH',
   'Wrapped Ether'
 )
-const CELO_CELO = new Token(SupportedChainId.CELO, '0x471EcE3750Da237f93B8E339c536989b8978a438', 18, 'CELO', 'Celo')
+
 export const CUSD_CELO = new Token(
   SupportedChainId.CELO,
   '0x765DE816845861e75A25fCA122bb6898B8B1282a',
@@ -271,27 +258,6 @@ export const CMC02_CELO = new Token(
   18,
   'cMCO2',
   'Celo Moss Carbon Credit'
-)
-const CELO_CELO_ALFAJORES = new Token(
-  SupportedChainId.CELO_ALFAJORES,
-  '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
-  18,
-  'CELO',
-  'Celo'
-)
-export const CUSD_CELO_ALFAJORES = new Token(
-  SupportedChainId.CELO_ALFAJORES,
-  '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1',
-  18,
-  'CUSD',
-  'Celo Dollar'
-)
-export const CEUR_CELO_ALFAJORES = new Token(
-  SupportedChainId.CELO_ALFAJORES,
-  '0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F',
-  18,
-  'CEUR',
-  'Celo Euro Stablecoin'
 )
 
 export const USDC_BSC = new Token(
@@ -432,17 +398,6 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WBNB',
     'Wrapped BNB'
   ),
-}
-
-function getCeloNativeCurrency(chainId: number) {
-  switch (chainId) {
-    case SupportedChainId.CELO_ALFAJORES:
-      return CELO_CELO_ALFAJORES
-    case SupportedChainId.CELO:
-      return CELO_CELO
-    default:
-      throw new Error('Not celo')
-  }
 }
 
 function isMatic(chainId: number): chainId is SupportedChainId.POLYGON | SupportedChainId.POLYGON_MUMBAI {
