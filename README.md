@@ -2,11 +2,11 @@
 
 - Website: [humanprotocol.org](https://humanprotocol.org/)
 - Email: [contact@hmt.ai](mailto:contact@hmt.ai)
-- Twitter: [link](http://hmt.ai/twitter)
-- Discord: [link](http://hmt.ai/discord)
-- GitHub: [link](http://hmt.ai/github)
-- LinkedIn: [link](http://hmt.ai/linkedin)
-- Youtube: [link](https://www.youtube.com/@HUMANProtocol)
+- [Twitter](http://hmt.ai/twitter)
+- [Discord](http://hmt.ai/discord)
+- [GitHub](http://hmt.ai/github)
+- [LinkedIn](http://hmt.ai/linkedin)
+- [Youtube](https://www.youtube.com/@HUMANProtocol)
 
 
 ## Overview
@@ -20,7 +20,7 @@ Our project modifies the Uniswap Interface to introduce our user-friendly and tr
 
 Before you proceed, ensure that you have the following installed:
 - Node.js (version 14 is required) - it's the JavaScript runtime that allows us to run our JavaScript code server-side - [download link](https://nodejs.org/en/download) 
-- NVM (Node Version Manager) - a tool that allows you to install and manage multiple versions of Node.js - [download link](https://github.com/coreybutler/nvm-windows/releases) 
+- NVM (Node Version Manager) - a tool that allows you to install and manage multiple versions of Node.js. You need it if you already have a newer version of Node installed so you can swap it to version 14 - [download link](https://github.com/coreybutler/nvm-windows/releases) 
 - Yarn - Human Governor uses Yarn to handle its dependencies, making it a necessary tool for the project setup. - [download link](https://yarnpkg.com/cli/install)
 
 
@@ -29,20 +29,6 @@ Before you proceed, ensure that you have the following installed:
 The application uses the following environment variables:
 
 ```
-ESLINT_NO_DEV_ERRORS=true
-REACT_APP_AMPLITUDE_PROXY_URL="https://api.uniswap.org/v1/amplitude-proxy"
-REACT_APP_AWS_API_REGION="us-east-2"
-REACT_APP_AWS_API_ENDPOINT="https://beta.api.uniswap.org/v1/graphql"
-REACT_APP_BNB_RPC_URL="https://rough-sleek-hill.bsc.quiknode.pro/413cc98cbc776cda8fdf1d0f47003583ff73d9bf"
-REACT_APP_INFURA_KEY="081241040847461bbcbdcef717b7c297"
-
-REACT_APP_MOONPAY_API="https://api.moonpay.com"
-REACT_APP_MOONPAY_LINK="https://us-central1-uniswap-mobile.cloudfunctions.net/signMoonpayLinkV2?platform=web&env=staging"
-REACT_APP_MOONPAY_PUBLISHABLE_KEY="pk_test_DycfESRid31UaSxhI5yWKe1r5E5kKSz"
-REACT_APP_SENTRY_DSN="https://a3c62e400b8748b5a8d007150e2f38b7@o1037921.ingest.sentry.io/4504255148851200"
-REACT_APP_STATSIG_PROXY_URL="https://api.uniswap.org/v1/statsig-proxy"
-REACT_APP_TEMP_API_URL="https://temp.api.uniswap.org/v1"
-
 REACT_APP_GOVERNANCE_HUB_ADDRESS="<your address here>"
 REACT_APP_HUB_VOTE_TOKEN_ADDRESS="<your address here>"
 
@@ -50,7 +36,14 @@ REACT_APP_GOVERNANCE_SPOKE_ADRESSES="<your address here>"
 REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES="<your address here>"
 ```
 
-These variables correspond to the Ethereum addresses of different components of our governance system. You can modify them as per your needs.
+These variables represent the Ethereum addresses of different components within our governance system and can be adjusted as per your needs.
+
+`REACT_APP_GOVERNANCE_HUB_ADDRESS`: This is the address of our primary (hub) chain. We retrieve all the proposals from this address on which votes can later be cast in the governance system.
+`REACT_APP_HUB_VOTE_TOKEN_ADDRESS`: This is the address for the vhmt token associated with our hub chain.
+`REACT_APP_GOVERNANCE_SPOKE_ADRESSES`: This represents the secondary (spoke) chain from which we can also vote on proposals retrieved from the primary (hub) chain.
+`REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES`: This is the address for the vhmt token associated with our spoke chain.
+
+Remember to replace `<your address here>` with the respective Ethereum addresses for each environment variable.
 
 
 ## Setup and Installation
