@@ -1,8 +1,8 @@
 import clsx, { ClassValue } from 'clsx'
+import { sprinkles } from 'nft/css/sprinkles.css'
 import * as React from 'react'
 
 import { Atoms, atoms } from '../css/atoms'
-import { sprinkles } from '../css/sprinkles.css'
 
 type HTMLProperties<T = HTMLElement> = Omit<
   React.AllHTMLAttributes<T>,

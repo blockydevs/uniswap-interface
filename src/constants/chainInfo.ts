@@ -19,12 +19,7 @@ import { ARBITRUM_LIST, CELO_LIST, OPTIMISM_LIST, PLASMA_BNB_LIST } from './list
 
 export const AVERAGE_L1_BLOCK_TIME = ms`12s`
 
-enum NetworkType {
-  L1,
-  L2,
-}
 interface BaseChainInfo {
-  readonly networkType: NetworkType
   readonly blockWaitMsBeforeWarning?: number
   readonly docs: string
   readonly bridge?: string
@@ -45,12 +40,10 @@ interface BaseChainInfo {
 }
 
 interface L1ChainInfo extends BaseChainInfo {
-  readonly networkType: NetworkType.L1
   readonly defaultListUrl?: string
 }
 
 interface L2ChainInfo extends BaseChainInfo {
-  readonly networkType: NetworkType.L2
   readonly bridge: string
   readonly statusPage?: string
   readonly defaultListUrl: string
@@ -62,7 +55,6 @@ type ChainInfoMap = { readonly [chainId: number]: L1ChainInfo | L2ChainInfo } & 
 
 const CHAIN_INFO: ChainInfoMap = {
   [SupportedChainId.MAINNET]: {
-    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
@@ -72,7 +64,6 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_1,
   },
   [SupportedChainId.GOERLI]: {
-    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://goerli.etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
@@ -82,7 +73,6 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_5,
   },
   [SupportedChainId.OPTIMISM]: {
-    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`25m`,
     bridge: 'https://app.optimism.io/bridge',
     defaultListUrl: OPTIMISM_LIST,
@@ -101,7 +91,6 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_10_background,
   },
   [SupportedChainId.OPTIMISM_GOERLI]: {
-    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`25m`,
     bridge: 'https://app.optimism.io/bridge',
     defaultListUrl: OPTIMISM_LIST,
@@ -116,7 +105,6 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_420,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
-    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://bridge.arbitrum.io/',
     docs: 'https://offchainlabs.com/',
@@ -132,7 +120,6 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_42161_background,
   },
   [SupportedChainId.ARBITRUM_GOERLI]: {
-    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://bridge.arbitrum.io/',
     docs: 'https://offchainlabs.com/',
@@ -140,13 +127,9 @@ const CHAIN_INFO: ChainInfoMap = {
     infoLink: 'https://info.uniswap.org/#/arbitrum/',
     label: 'Arbitrum Goerli',
     logoUrl: arbitrumLogoUrl,
-    defaultListUrl: ARBITRUM_LIST, // TODO: use arbitrum goerli token list
-    helpCenterUrl: 'https://help.uniswap.org/en/collections/3137787-uniswap-on-arbitrum',
-    nativeCurrency: { name: 'Goerli Arbitrum Ether', symbol: 'goerliArbETH', decimals: 18 },
-    color: darkTheme.chain_421613,
+    nativeCurrency: { name: 'Goerli Arbitrum Ether', symbol: 'AGOR', decimals: 18 },
   },
   [SupportedChainId.POLYGON]: {
-    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://wallet.polygon.technology/login',
     docs: 'https://polygon.io/',
@@ -161,18 +144,16 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_137_background,
   },
   [SupportedChainId.POLYGON_MUMBAI]: {
-    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://wallet.polygon.technology/bridge',
     docs: 'https://polygon.io/',
     explorer: 'https://mumbai.polygonscan.com/',
     infoLink: 'https://info.uniswap.org/#/polygon/',
-    label: 'Polygon Mumbai',
+    label: 'Mumbai',
     logoUrl: polygonMaticLogo,
-    nativeCurrency: { name: 'Polygon Mumbai Matic', symbol: 'mMATIC', decimals: 18 },
+    nativeCurrency: { name: 'Polygon Mumbai Matic', symbol: 'MATIC', decimals: 18 },
   },
   [SupportedChainId.CELO]: {
-    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://www.portalbridge.com/#/transfer',
     docs: 'https://docs.celo.org/',
@@ -186,7 +167,6 @@ const CHAIN_INFO: ChainInfoMap = {
     defaultListUrl: CELO_LIST,
   },
   [SupportedChainId.CELO_ALFAJORES]: {
-    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://www.portalbridge.com/#/transfer',
     docs: 'https://docs.celo.org/',
@@ -198,7 +178,6 @@ const CHAIN_INFO: ChainInfoMap = {
     defaultListUrl: CELO_LIST,
   },
   [SupportedChainId.BNB]: {
-    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://cbridge.celer.network/1/56',
     docs: 'https://docs.bnbchain.org/',
@@ -214,7 +193,6 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_56_background,
   },
   [SupportedChainId.SEPOLIA]: {
-    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://sepolia.etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
@@ -224,17 +202,6 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_56,
   },
 }
-
-// [SupportedChainId.GOERLI]: {
-//   networkType: NetworkType.L1,
-//   docs: 'https://docs.uniswap.org/',
-//   explorer: 'https://goerli.etherscan.io/',
-//   infoLink: 'https://info.uniswap.org/#/',
-//   label: 'Görli',
-//   logoUrl: ethereumLogoUrl,
-//   nativeCurrency: { name: 'Görli Ether', symbol: 'görETH', decimals: 18 },
-//   color: darkTheme.chain_5,
-// },
 
 export function getChainInfo(chainId: SupportedL1ChainId): L1ChainInfo
 export function getChainInfo(chainId: SupportedL2ChainId): L2ChainInfo
