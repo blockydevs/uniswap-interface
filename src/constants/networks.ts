@@ -45,7 +45,6 @@ export const FALLBACK_URLS = {
   ],
   [SupportedChainId.POLYGON_MUMBAI]: [
     // "Safe" URLs
-    'https://matic-mumbai.chainstacklabs.com',
     'https://rpc-mumbai.maticvigil.com',
     'https://matic-testnet-archive-rpc.bwarelabs.com',
   ],
