@@ -63,7 +63,6 @@ const L1_CHAIN_IDS = [
   SupportedChainId.CELO_ALFAJORES,
   SupportedChainId.BNB,
   SupportedChainId.SEPOLIA,
-  SupportedChainId.ARBITRUM_GOERLI,
 ] as const
 
 export type SupportedL1ChainId = typeof L1_CHAIN_IDS[number]
@@ -76,6 +75,7 @@ const L2_CHAIN_IDS = [
   SupportedChainId.ARBITRUM_ONE,
   SupportedChainId.OPTIMISM,
   SupportedChainId.OPTIMISM_GOERLI,
+  SupportedChainId.ARBITRUM_GOERLI,
 ] as const
 
 export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number]
@@ -83,3 +83,7 @@ export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number]
 export function isPolygonChain(chainId: number): chainId is SupportedChainId.POLYGON | SupportedChainId.POLYGON_MUMBAI {
   return chainId === SupportedChainId.POLYGON || chainId === SupportedChainId.POLYGON_MUMBAI
 }
+
+export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(SupportedChainId).filter(
+  (id) => typeof id === 'number'
+) as SupportedChainId[]

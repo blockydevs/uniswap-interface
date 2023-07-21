@@ -10,6 +10,8 @@ import { SupportedChainId } from './chains'
 // https://docs.openzeppelin.com/contracts/3.x/erc20
 export const DEFAULT_ERC20_DECIMALS = 18
 
+export const NATIVE_CHAIN_ID = 'NATIVE'
+
 export const USDC_MAINNET = new Token(
   SupportedChainId.MAINNET,
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -419,6 +421,10 @@ class MaticNativeCurrency extends NativeCurrency {
 
 function isBsc(chainId: number): chainId is SupportedChainId.BNB {
   return chainId === SupportedChainId.BNB
+}
+
+export function isCelo(chainId: number): chainId is SupportedChainId.CELO | SupportedChainId.CELO_ALFAJORES {
+  return chainId === SupportedChainId.CELO_ALFAJORES || chainId === SupportedChainId.CELO
 }
 
 class BscNativeCurrency extends NativeCurrency {

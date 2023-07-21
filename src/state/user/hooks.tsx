@@ -8,7 +8,7 @@ import { UserAddedToken } from 'types/tokens'
 import { updateUserLocale } from './reducer'
 import { SerializedToken } from './types'
 
-function deserializeToken(serializedToken: SerializedToken, Class: typeof Token = Token): Token {
+export function deserializeToken(serializedToken: SerializedToken, Class: typeof Token = Token): Token {
   return new Class(
     serializedToken.chainId,
     serializedToken.address,

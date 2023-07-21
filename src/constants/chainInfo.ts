@@ -19,7 +19,13 @@ import { ARBITRUM_LIST, CELO_LIST, OPTIMISM_LIST, PLASMA_BNB_LIST } from './list
 
 export const AVERAGE_L1_BLOCK_TIME = ms`12s`
 
+export enum NetworkType {
+  L1,
+  L2,
+}
+
 interface BaseChainInfo {
+  readonly networkType: NetworkType
   readonly blockWaitMsBeforeWarning?: number
   readonly docs: string
   readonly bridge?: string
@@ -55,6 +61,7 @@ type ChainInfoMap = { readonly [chainId: number]: L1ChainInfo | L2ChainInfo } & 
 
 const CHAIN_INFO: ChainInfoMap = {
   [SupportedChainId.MAINNET]: {
+    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
@@ -64,6 +71,7 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_1,
   },
   [SupportedChainId.GOERLI]: {
+    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://goerli.etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
@@ -73,6 +81,7 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_5,
   },
   [SupportedChainId.OPTIMISM]: {
+    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`25m`,
     bridge: 'https://app.optimism.io/bridge',
     defaultListUrl: OPTIMISM_LIST,
@@ -91,6 +100,7 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_10_background,
   },
   [SupportedChainId.OPTIMISM_GOERLI]: {
+    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`25m`,
     bridge: 'https://app.optimism.io/bridge',
     defaultListUrl: OPTIMISM_LIST,
@@ -105,6 +115,7 @@ const CHAIN_INFO: ChainInfoMap = {
     color: darkTheme.chain_420,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
+    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://bridge.arbitrum.io/',
     docs: 'https://offchainlabs.com/',
@@ -120,8 +131,10 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_42161_background,
   },
   [SupportedChainId.ARBITRUM_GOERLI]: {
+    networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://bridge.arbitrum.io/',
+    defaultListUrl: ARBITRUM_LIST,
     docs: 'https://offchainlabs.com/',
     explorer: 'https://goerli.arbiscan.io/',
     infoLink: 'https://info.uniswap.org/#/arbitrum/',
@@ -130,6 +143,7 @@ const CHAIN_INFO: ChainInfoMap = {
     nativeCurrency: { name: 'Goerli Arbitrum Ether', symbol: 'AGOR', decimals: 18 },
   },
   [SupportedChainId.POLYGON]: {
+    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://wallet.polygon.technology/login',
     docs: 'https://polygon.io/',
@@ -144,6 +158,7 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_137_background,
   },
   [SupportedChainId.POLYGON_MUMBAI]: {
+    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://wallet.polygon.technology/bridge',
     docs: 'https://polygon.io/',
@@ -154,6 +169,7 @@ const CHAIN_INFO: ChainInfoMap = {
     nativeCurrency: { name: 'Polygon Mumbai Matic', symbol: 'MATIC', decimals: 18 },
   },
   [SupportedChainId.CELO]: {
+    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://www.portalbridge.com/#/transfer',
     docs: 'https://docs.celo.org/',
@@ -167,6 +183,7 @@ const CHAIN_INFO: ChainInfoMap = {
     defaultListUrl: CELO_LIST,
   },
   [SupportedChainId.CELO_ALFAJORES]: {
+    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://www.portalbridge.com/#/transfer',
     docs: 'https://docs.celo.org/',
@@ -178,6 +195,7 @@ const CHAIN_INFO: ChainInfoMap = {
     defaultListUrl: CELO_LIST,
   },
   [SupportedChainId.BNB]: {
+    networkType: NetworkType.L1,
     blockWaitMsBeforeWarning: ms`10m`,
     bridge: 'https://cbridge.celer.network/1/56',
     docs: 'https://docs.bnbchain.org/',
@@ -193,6 +211,7 @@ const CHAIN_INFO: ChainInfoMap = {
     backgroundColor: darkTheme.chain_56_background,
   },
   [SupportedChainId.SEPOLIA]: {
+    networkType: NetworkType.L1,
     docs: 'https://docs.uniswap.org/',
     explorer: 'https://sepolia.etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/',
