@@ -26,24 +26,28 @@ Before you proceed, ensure that you have the following installed:
 
 ## Environment Variables
 
-The application uses the following environment variables:
+The application uses several environment variables to work with Ethereum blockchain addresses. Here's an example of how to set them:
 
 ```
-REACT_APP_GOVERNANCE_HUB_ADDRESS="<your address here>"
-REACT_APP_HUB_VOTE_TOKEN_ADDRESS="<your address here>"
+REACT_APP_INFURA_KEY="081241040847461bbcbdcef717b7c297"
 
-REACT_APP_GOVERNANCE_SPOKE_ADRESSES="<your address here>"
-REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES="<your address here>"
+REACT_APP_GOVERNANCE_HUB_ADDRESS="0xe1730A3f208911945b77191069030cE3B2129f77"
+REACT_APP_HUB_VOTE_TOKEN="0xc4bD219f6f26ffBd664779d8E54c71Bc8170552F"
+REACT_APP_HUB_CHAIN_ID="11155111"
+
+REACT_APP_GOVERNANCE_SPOKE_CHAIN_80001="0xCF17e5409e02423283e2402d82B0b5c8BEcDB13a"
+REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_80001="0xA78A4161C65Cd581E9209864E506dD1A1eF6cf77"
+
+REACT_APP_GOVERNANCE_SPOKE_CHAIN_421613="0x75e9990D2b4CE167282BA2071f771f3248D3B9F9"
+REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_421613="0x3335609C31e21317f98b4Fa0EB3cA71C8A8AaF3E"
 ```
 
-These variables represent the Ethereum addresses of different components within our governance system and can be adjusted as per your needs.
+There can be only one hub chain, defined by three specific environment variables. 
+`REACT_APP_GOVERNANCE_HUB_ADDRESS` corresponds to its address, 
+`REACT_APP_HUB_VOTE_TOKEN` refers to its voting token,
+`REACT_APP_HUB_CHAIN_ID` specifies the hub chain ID.
 
-`REACT_APP_GOVERNANCE_HUB_ADDRESS`: This is the address of our primary (hub) chain. We retrieve all the proposals from this address on which votes can later be cast in the governance system.
-`REACT_APP_HUB_VOTE_TOKEN_ADDRESS`: This is the address for the vhmt token associated with our hub chain.
-`REACT_APP_GOVERNANCE_SPOKE_ADRESSES`: This represents the secondary (spoke) chain from which we can also vote on proposals retrieved from the primary (hub) chain.
-`REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES`: This is the address for the vhmt token associated with our spoke chain.
-
-Remember to replace `<your address here>` with the respective Ethereum addresses for each environment variable.
+For spoke chains, there can be multiple. If you want to add another spoke chain please create two variables. First - `REACT_APP_GOVERNANCE_SPOKE_CHAIN_<CHAINID>`. Second - `REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_<CHAINID>` (remember to change <CHAINID> with the actual number for both cases and assign address to them).
 
 
 ## Setup and Installation
