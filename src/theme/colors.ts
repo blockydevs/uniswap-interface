@@ -38,7 +38,7 @@ export const colors = {
   red100: '#FED5CF',
   red200: '#FEA79B',
   red300: '#FD766B',
-  red400: '#FA2B39',
+  red400: '#FA2A75',
   red500: '#C4292F',
   red600: '#891E20',
   red700: '#530F0F',

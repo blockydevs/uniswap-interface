@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import { useIsMobile } from 'nft/hooks'
 import { CheckCircle, XCircle } from 'react-feather'
 import styled, { useTheme } from 'styled-components/macro'
 
@@ -109,18 +110,18 @@ export function SubmittedView({
 
 export function SubmittedWithErrorView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
   const theme = useTheme()
+  const isMobile = useIsMobile()
 
   return (
     <ConfirmOrLoadingWrapper>
-      <AutoColumn gap="30px" justify="center">
+      <AutoColumn justify="center">
         <RowBetween>
           <div />
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ColumnCenter>
-          <XCircle strokeWidth={0.5} size={90} color={theme.accentFailure} />
+          <XCircle strokeWidth={0.7} size={isMobile ? 116 : 190} color={theme.accentFailure} />
         </ColumnCenter>
-
         {children}
       </AutoColumn>
     </ConfirmOrLoadingWrapper>
