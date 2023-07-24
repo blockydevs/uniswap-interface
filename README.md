@@ -59,7 +59,7 @@ Follow the steps below to set up the project on your local machine:
     * Install NVM following instructions [here](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
     * Open your terminal as an administrator and type `nvm install 14`
     * After successful installation, type `nvm use 14`
-- Install Yarn globally using the command `npm install -g yarn` - 
+- Install Yarn globally using the command `npm install -g yarn`
 - Open the uniswap-interface folder in your code editor
 - Install the necessary Node modules by typing `yarn install` in your terminal
 - Swap to `develop` branch using a `git checkout develop` command
