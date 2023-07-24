@@ -26,7 +26,7 @@ export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST, UNI_UNSUPPORTED_LIST]
 
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [UNI_LIST]
-const DEFAULT_INACTIVE_LIST_URLS: string[] = [
+export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
   UNI_EXTENDED_LIST,
   COMPOUND_LIST,
   AAVE_LIST,

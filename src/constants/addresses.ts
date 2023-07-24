@@ -1,9 +1,9 @@
-import { FACTORY_ADDRESS as V2_FACTORY_ADDRESS } from '@uniswap/v2-sdk'
 import { FACTORY_ADDRESS as V3_FACTORY_ADDRESS } from '@uniswap/v3-sdk'
+import { getEnvAddresses } from 'utils/getEnvAddresses'
 
 import { SupportedChainId } from './chains'
 
-type AddressMap = { [chainId: number]: string }
+export type AddressMap = { [chainId: number]: string }
 
 const DEFAULT_NETWORKS = [SupportedChainId.SEPOLIA, SupportedChainId.MAINNET, SupportedChainId.GOERLI]
 
@@ -14,22 +14,19 @@ function constructSameAddressMap(address: string, additionalNetworks: SupportedC
   }, {})
 }
 
+const HUB_CHAIN_ADDRESS = process.env.REACT_APP_GOVERNANCE_HUB_ADDRESS as string
+export const HUB_CHAIN_ID = parseInt(process.env.REACT_APP_HUB_CHAIN_ID as string, 10)
+
 export const GOVERNANCE_HUB_ADDRESS: AddressMap = {
-  [SupportedChainId.SEPOLIA]: process.env.REACT_APP_GOVERNANCE_HUB_ADDRESS as string,
+  [HUB_CHAIN_ID]: HUB_CHAIN_ADDRESS as string,
 }
+
 export const HUB_VOTE_TOKEN_ADDRESS: AddressMap = constructSameAddressMap(
-  process.env.REACT_APP_HUB_VOTE_TOKEN_ADDRESS as string
+  process.env.REACT_APP_HUB_VOTE_TOKEN as string
 )
 
-export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = {
-  [SupportedChainId.POLYGON_MUMBAI]: process.env.REACT_APP_GOVERNANCE_SPOKE_ADRESSES as string,
-}
-
-export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = constructSameAddressMap(
-  process.env.REACT_APP_SPOKE_VOTE_TOKEN_ADDRESSES as string
-) //BLOCKYTODO: w przyszłości prawdopodobnie będziemy potrzebowali tablicy adresów
-
-export const V2_FACTORY_ADDRESSES: AddressMap = constructSameAddressMap(V2_FACTORY_ADDRESS)
+export const GOVERNANCE_SPOKE_ADRESSES: AddressMap = getEnvAddresses('REACT_APP_GOVERNANCE_SPOKE_CHAIN_')
+export const SPOKE_VOTE_TOKEN_ADDRESSES: AddressMap = getEnvAddresses('REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_')
 
 // celo v3 addresses
 const CELO_V3_CORE_FACTORY_ADDRESSES = '0xAfE208a311B21f13EF87E33A90049fC17A7acDEc'

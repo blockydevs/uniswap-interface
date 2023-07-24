@@ -79,3 +79,30 @@ export function useHasPendingApproval(token?: Token, spender?: string): boolean 
     [allTransactions, spender, token?.address]
   )
 }
+
+export function useTransaction(transactionHash?: string): TransactionDetails | undefined {
+  const allTransactions = useAllTransactions()
+
+  if (!transactionHash) {
+    return undefined
+  }
+
+  return allTransactions[transactionHash]
+}
+
+export function useIsTransactionConfirmed(transactionHash?: string): boolean {
+  const transactions = useAllTransactions()
+
+  if (!transactionHash || !transactions[transactionHash]) return false
+
+  return Boolean(transactions[transactionHash].receipt)
+}
+
+// export function useMultichainTransactions(): [TransactionDetails, SupportedChainId][] {
+//   const state = useAppSelector((state) => state.transactions)
+//   return ALL_SUPPORTED_CHAIN_IDS.flatMap((chainId) =>
+//     state[chainId]
+//       ? Object.values(state[chainId]).map((tx): [TransactionDetails, SupportedChainId] => [tx, chainId])
+//       : []
+//   )
+// }

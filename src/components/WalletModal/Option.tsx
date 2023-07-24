@@ -8,6 +8,8 @@ import styled from 'styled-components/macro'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
 
+import NewBadge from './NewBadge'
+
 const OptionCardLeft = styled.div`
   ${flexColumnNoWrap};
   flex-direction: row;
@@ -88,6 +90,7 @@ export default function Option({ connection }: { connection: Connection }) {
             <img src={connection.getIcon?.(isDarkMode)} alt="Icon" />
           </IconWrapper>
           <HeaderText>{connection.getName()}</HeaderText>
+          {connection.isNew && <NewBadge />}
         </OptionCardLeft>
         {isCurrentOptionPending && <Loader />}
       </OptionCardClickable>

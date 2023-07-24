@@ -83,15 +83,8 @@ const applicationSlice = createSlice({
         },
       ])
     },
-    removePopup(state, { payload: { key } }) {
-      state.popupList.forEach((p) => {
-        if (p.key === key) {
-          p.show = false
-        }
-      })
-    },
   },
 })
 
-export const { setIsHubChainActive, updateChainId, setOpenModal, addPopup, removePopup } = applicationSlice.actions
+export const { setIsHubChainActive, updateChainId, setOpenModal, addPopup } = applicationSlice.actions
 export default applicationSlice.reducer

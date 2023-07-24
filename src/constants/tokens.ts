@@ -2,12 +2,15 @@ import { Currency, Ether, NativeCurrency, Token, WETH9 } from '@uniswap/sdk-core
 import invariant from 'tiny-invariant'
 
 import { HUB_VOTE_TOKEN_ADDRESS, SPOKE_VOTE_TOKEN_ADDRESSES } from './addresses'
+import { HUB_CHAIN_ID } from './addresses'
 import { SupportedChainId } from './chains'
 
 // When decimals are not specified for an ERC20 token
 // use default ERC20 token decimals as specified here:
 // https://docs.openzeppelin.com/contracts/3.x/erc20
 export const DEFAULT_ERC20_DECIMALS = 18
+
+export const NATIVE_CHAIN_ID = 'NATIVE'
 
 export const USDC_MAINNET = new Token(
   SupportedChainId.MAINNET,
@@ -319,16 +322,12 @@ export const BUSD_BSC = new Token(
 export const DAI_BSC = new Token(SupportedChainId.BNB, '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3', 18, 'DAI', 'DAI')
 
 export const UNI: { [chainId: number]: Token } = {
-  [SupportedChainId.MAINNET]: new Token(SupportedChainId.MAINNET, HUB_VOTE_TOKEN_ADDRESS[1], 18, 'UNI', 'Uniswap'),
-  [SupportedChainId.GOERLI]: new Token(SupportedChainId.GOERLI, HUB_VOTE_TOKEN_ADDRESS[5], 18, 'UNI', 'Uniswap'),
-  [SupportedChainId.SEPOLIA]: new Token(SupportedChainId.SEPOLIA, HUB_VOTE_TOKEN_ADDRESS[5], 18, 'UNI', 'Uniswap'),
-  [SupportedChainId.POLYGON_MUMBAI]: new Token(
-    SupportedChainId.POLYGON_MUMBAI,
-    SPOKE_VOTE_TOKEN_ADDRESSES[5],
-    18,
-    'UNI',
-    'Uniswap'
-  ),
+  [HUB_CHAIN_ID]: new Token(HUB_CHAIN_ID, HUB_VOTE_TOKEN_ADDRESS[5], 18, 'UNI', 'Uniswap'),
+}
+
+for (const chainId in SPOKE_VOTE_TOKEN_ADDRESSES) {
+  const address = SPOKE_VOTE_TOKEN_ADDRESSES[chainId]
+  UNI[chainId] = new Token(parseInt(chainId, 10), address, 18, 'UNI', 'Uniswap')
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } = {
@@ -358,7 +357,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     SupportedChainId.ARBITRUM_GOERLI,
     '0xe39Ab88f8A4777030A534146A9Ca3B52bd5D43A3',
     18,
-    'WETH',
+    'AGOR',
     'Wrapped Ether'
   ),
   [SupportedChainId.POLYGON]: new Token(
@@ -372,7 +371,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     SupportedChainId.POLYGON_MUMBAI,
     '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
     18,
-    'WMATIC',
+    'MATIC',
     'Wrapped MATIC'
   ),
   [SupportedChainId.CELO]: new Token(
@@ -422,6 +421,10 @@ class MaticNativeCurrency extends NativeCurrency {
 
 function isBsc(chainId: number): chainId is SupportedChainId.BNB {
   return chainId === SupportedChainId.BNB
+}
+
+export function isCelo(chainId: number): chainId is SupportedChainId.CELO | SupportedChainId.CELO_ALFAJORES {
+  return chainId === SupportedChainId.CELO_ALFAJORES || chainId === SupportedChainId.CELO
 }
 
 class BscNativeCurrency extends NativeCurrency {
