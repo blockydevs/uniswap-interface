@@ -3,7 +3,6 @@ import { formatCurrencyAmount } from '@uniswap/conedison/format'
 import { Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import { nativeOnChain } from '@uniswap/smart-order-router'
 import { SupportedChainId } from 'constants/chains'
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks'
 import { ChainTokenMap } from 'hooks/Tokens'
 import {
   AddLiquidityV2PoolTransactionInfo,
@@ -20,6 +19,7 @@ import {
   WrapTransactionInfo,
 } from 'state/transactions/types'
 
+import { TransactionStatus } from '../constants'
 import { getActivityTitle } from '../constants'
 import { Activity } from './types'
 

@@ -1,6 +1,6 @@
 import { darken } from 'polished'
 import { Button as RebassButton, ButtonProps as ButtonPropsOriginal } from 'rebass/styled-components'
-import styled, { DefaultTheme } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 
 type ButtonProps = Omit<ButtonPropsOriginal, 'css'>
 
@@ -144,99 +144,6 @@ export const ButtonEmpty = styled(BaseButton)`
     cursor: auto;
   }
 `
-
-enum ButtonSize {
-  small,
-  medium,
-  large,
-}
-enum ButtonEmphasis {
-  high,
-  promotional,
-  highSoft,
-  medium,
-  low,
-  warning,
-  destructive,
-}
-interface BaseThemeButtonProps {
-  size: ButtonSize
-  emphasis: ButtonEmphasis
-}
-
-function pickThemeButtonBackgroundColor({ theme, emphasis }: { theme: DefaultTheme; emphasis: ButtonEmphasis }) {
-  switch (emphasis) {
-    case ButtonEmphasis.high:
-      return theme.accentAction
-    case ButtonEmphasis.promotional:
-      return theme.accentActionSoft
-    case ButtonEmphasis.highSoft:
-      return theme.accentActionSoft
-    case ButtonEmphasis.low:
-      return 'transparent'
-    case ButtonEmphasis.warning:
-      return theme.accentWarningSoft
-    case ButtonEmphasis.destructive:
-      return theme.accentCritical
-    case ButtonEmphasis.medium:
-    default:
-      return theme.backgroundInteractive
-  }
-}
-function pickThemeButtonFontSize({ size }: { size: ButtonSize }) {
-  switch (size) {
-    case ButtonSize.large:
-      return '20px'
-    case ButtonSize.medium:
-      return '16px'
-    case ButtonSize.small:
-      return '14px'
-    default:
-      return '16px'
-  }
-}
-function pickThemeButtonLineHeight({ size }: { size: ButtonSize }) {
-  switch (size) {
-    case ButtonSize.large:
-      return '24px'
-    case ButtonSize.medium:
-      return '20px'
-    case ButtonSize.small:
-      return '16px'
-    default:
-      return '20px'
-  }
-}
-function pickThemeButtonPadding({ size }: { size: ButtonSize }) {
-  switch (size) {
-    case ButtonSize.large:
-      return '16px'
-    case ButtonSize.medium:
-      return '10px 12px'
-    case ButtonSize.small:
-      return '8px'
-    default:
-      return '10px 12px'
-  }
-}
-function pickThemeButtonTextColor({ theme, emphasis }: { theme: DefaultTheme; emphasis: ButtonEmphasis }) {
-  switch (emphasis) {
-    case ButtonEmphasis.high:
-    case ButtonEmphasis.promotional:
-      return theme.accentAction
-    case ButtonEmphasis.highSoft:
-      return theme.accentAction
-    case ButtonEmphasis.low:
-      return theme.textSecondary
-    case ButtonEmphasis.warning:
-      return theme.accentWarning
-    case ButtonEmphasis.destructive:
-      return theme.accentTextDarkPrimary
-    case ButtonEmphasis.medium:
-    default:
-      return theme.textPrimary
-  }
-}
 
 const BaseButtonLight = styled(BaseButton)`
   background-color: ${({ theme }) => theme.accentActionSoft};

@@ -1,6 +1,11 @@
 import { t } from '@lingui/macro'
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks'
 import { TransactionType } from 'state/transactions/types'
+
+export enum TransactionStatus {
+  Pending = 'Pending',
+  Confirmed = 'Confirmed',
+  Failed = 'Failed',
+}
 
 const TransactionTitleTable: { [key in TransactionType]: { [state in TransactionStatus]: string } } = {
   [TransactionType.SWAP]: {
