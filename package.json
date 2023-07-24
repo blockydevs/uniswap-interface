@@ -111,7 +111,6 @@
     "eslint": "^7.11.0",
     "eslint-plugin-import": "^2.27",
     "eslint-plugin-rulesdir": "^0.2.2",
-    "hardhat": "^2.14.0",
     "jest-fail-on-console": "^3.1.1",
     "jest-fetch-mock": "^3.0.3",
     "jest-styled-components": "^7.0.8",
@@ -129,7 +128,7 @@
     "yarn-deduplicate": "^6.0.0"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.2",
+    "@apollo/client": "^3.7.17",
     "@coinbase/wallet-sdk": "^3.6.4",
     "@cypress/code-coverage": "^3.10.0",
     "@fontsource/ibm-plex-mono": "^4.5.1",

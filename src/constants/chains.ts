@@ -84,6 +84,6 @@ export function isPolygonChain(chainId: number): chainId is SupportedChainId.POL
   return chainId === SupportedChainId.POLYGON || chainId === SupportedChainId.POLYGON_MUMBAI
 }
 
-export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(SupportedChainId).filter(
-  (id) => typeof id === 'number'
-) as SupportedChainId[]
+// export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(SupportedChainId).filter(
+//   (id) => typeof id === 'number'
+// ) as SupportedChainId[]
