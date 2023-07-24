@@ -55,14 +55,14 @@ For spoke chains, there can be multiple. If you want to add another spoke chain 
 Follow the steps below to set up the project on your local machine:
 
 - Clone the repository using the following command: `git clone https://github.com/blockydevs/uniswap-interface.git`
+- Open the uniswap-interface folder in your code editor
 - Check your Node.js version by typing `node --version` in your terminal. If your Node.js version is not 14, follow these steps:
     * Install NVM following instructions [here](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
     * Open your terminal as an administrator and type `nvm install 14`
     * After successful installation, type `nvm use 14`
 - Install Yarn globally using the command `npm install -g yarn`
-- Open the uniswap-interface folder in your code editor
-- Install the necessary Node modules by typing `yarn install` in your terminal
 - Swap to `develop` branch using a `git checkout develop` command
+- Install the necessary Node modules by typing `yarn install` in your terminal
 - Start the local development server using `yarn start`
 - The project should automatically open in a new tab in your default browser. If not, manually navigate to `localhost:3000` in your browser
 
