@@ -361,26 +361,27 @@ export default function Landing() {
           <div />
 
           {allProposals?.length === 0 && <ProposalEmptyState />}
-          {allProposals
-            ?.slice(0)
-            ?.reverse()
-            ?.map((p: ProposalData) => {
-              return isMobile ? (
-                <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
-                  <RowBetween>
+          {allProposals &&
+            allProposals
+              ?.slice(0)
+              ?.reverse()
+              ?.map((p: ProposalData) => {
+                return isMobile ? (
+                  <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
+                    <RowBetween>
+                      <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
+                      <ProposalStatus status={checkProposalState(p.status, hubBlock, p.endBlock)} />
+                    </RowBetween>
+                    <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
+                  </Proposal>
+                ) : (
+                  <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
                     <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
+                    <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
                     <ProposalStatus status={checkProposalState(p.status, hubBlock, p.endBlock)} />
-                  </RowBetween>
-                  <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
-                </Proposal>
-              ) : (
-                <Proposal as={Link} to={`${p.governorIndex}/${p.id}`} key={`${p.governorIndex}${p.id}`}>
-                  <ProposalNumber>{shortenString(p.id)}</ProposalNumber>
-                  <ProposalTitle>{shortenTitle(p.title)}</ProposalTitle>
-                  <ProposalStatus status={checkProposalState(p.status, hubBlock, p.endBlock)} />
-                </Proposal>
-              )
-            })}
+                  </Proposal>
+                )
+              })}
         </ProposalsContainer>
       </PageWrapper>
     </>

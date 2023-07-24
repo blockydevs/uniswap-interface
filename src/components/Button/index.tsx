@@ -238,53 +238,6 @@ function pickThemeButtonTextColor({ theme, emphasis }: { theme: DefaultTheme; em
   }
 }
 
-const BaseThemeButton = styled.button<BaseThemeButtonProps>`
-  align-items: center;
-  background-color: ${pickThemeButtonBackgroundColor};
-  border-radius: 4px;
-  border: 0;
-  color: ${pickThemeButtonTextColor};
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  font-size: ${pickThemeButtonFontSize};
-  font-weight: 600;
-  gap: 12px;
-  justify-content: center;
-  line-height: ${pickThemeButtonLineHeight};
-  padding: ${pickThemeButtonPadding};
-  position: relative;
-  transition: 150ms ease opacity;
-  user-select: none;
-
-  :active {
-    ${ButtonOverlay} {
-      background-color: ${({ theme }) => theme.stateOverlayPressed};
-    }
-  }
-  :focus {
-    ${ButtonOverlay} {
-      background-color: ${({ theme }) => theme.stateOverlayPressed};
-    }
-  }
-  :hover {
-    ${ButtonOverlay} {
-      background-color: ${({ theme }) => theme.stateOverlayHover};
-    }
-  }
-  :disabled {
-    cursor: default;
-    opacity: 0.6;
-  }
-  :disabled:active,
-  :disabled:focus,
-  :disabled:hover {
-    ${ButtonOverlay} {
-      background-color: transparent;
-    }
-  }
-`
-
 const BaseButtonLight = styled(BaseButton)`
   background-color: ${({ theme }) => theme.accentActionSoft};
   color: ${({ theme }) => theme.accentAction};

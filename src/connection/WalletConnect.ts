@@ -1,4 +1,3 @@
-import { sendAnalyticsEvent } from '@uniswap/analytics'
 import { WalletConnect, WalletConnectConstructorArgs } from '@web3-react/walletconnect'
 
 import { RPC_URLS } from '../constants/networks'
@@ -24,7 +23,6 @@ export class WalletConnectPopup extends WalletConnect {
   }
 
   activate(chainId?: number) {
-    sendAnalyticsEvent(this.ANALYTICS_EVENT)
     return super.activate(chainId)
   }
 }
