@@ -98,7 +98,7 @@ export class ClassicTrade<
   }
 }
 
-export type InterfaceTrade = ClassicTrade<Currency, Currency, TradeType>
+type InterfaceTrade = ClassicTrade<Currency, Currency, TradeType>
 
 export enum QuoteState {
   SUCCESS = 'Success',
