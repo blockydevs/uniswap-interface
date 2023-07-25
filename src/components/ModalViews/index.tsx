@@ -40,11 +40,7 @@ const CloseIconWrapper = styled('div')`
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 47px 0 47px 0;
-
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    padding: 20px 0;
-  }
+  padding: 0 0 32px 0;
 `
 
 export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
@@ -81,6 +77,7 @@ export function SubmittedView({
 }) {
   const theme = useTheme()
   const { chainId } = useWeb3React()
+  const isMobile = useIsMobile()
 
   return (
     <ConfirmOrLoadingWrapper>
@@ -89,7 +86,7 @@ export function SubmittedView({
         <CloseIcon onClick={onDismiss} />
       </RowBetween>
       <ConfirmedIcon>
-        <CheckCircle strokeWidth={0.5} size={90} color={theme.accentSuccess} />
+        <CheckCircle strokeWidth={0.7} size={isMobile ? 116 : 190} color={theme.accentSuccess} />
       </ConfirmedIcon>
       <AutoColumn gap="100px" justify="center">
         {children}
