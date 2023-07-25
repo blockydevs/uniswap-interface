@@ -177,7 +177,12 @@ export default function DepositVHMTModal({ isOpen, onDismiss, title, uniBalance 
           <GrayCloseButton onClick={wrappedOnDismiss} />
           <SubmittedView onDismiss={wrappedOnDismiss} hash={withdrawToHash}>
             <AutoColumn gap="md" justify="center">
-              <ThemedText.DeprecatedLargeHeader>
+              <ThemedText.DeprecatedLargeHeader
+                width="100%"
+                textAlign="center"
+                fontSize={isMobile ? 20 : 36}
+                fontWeight={isMobile ? 500 : 600}
+              >
                 <Trans>Transaction Submitted</Trans>
               </ThemedText.DeprecatedLargeHeader>
             </AutoColumn>

@@ -232,7 +232,12 @@ export default function DepositHMTModal({ isOpen, onDismiss, title, hmtBalance }
           <GrayCloseButton onClick={wrappedOnDismiss} />
           <SubmittedView onDismiss={wrappedOnDismiss} hash={depositForHash}>
             <AutoColumn justify="center">
-              <ThemedText.DeprecatedLargeHeader>
+              <ThemedText.DeprecatedLargeHeader
+                width="100%"
+                textAlign="center"
+                fontSize={isMobile ? 20 : 36}
+                fontWeight={isMobile ? 500 : 600}
+              >
                 <Trans>Transaction Submitted</Trans>
               </ThemedText.DeprecatedLargeHeader>
             </AutoColumn>

@@ -11,6 +11,16 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { AutoColumn, ColumnCenter } from '../Column'
 import { RowBetween } from '../Row'
 
+const ConfirmOrLoadingWrapper = styled.div<{ gap?: boolean }>`
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 24px;
+  margin-bottom: 24px;
+  gap: ${({ gap }) => (gap ? '32px' : 0)};
+`
+
 const StyledRowBetween = styled(RowBetween)`
   > div:nth-child(1) {
     display: flex;
@@ -24,13 +34,9 @@ const StyledRowBetween = styled(RowBetween)`
   }
 `
 
-const ConfirmOrLoadingWrapper = styled.div`
-  width: 100%;
-  padding: 24px;
-  margin-bottom: 24px;
-`
-
 const CloseIconWrapper = styled('div')`
+  position: absolute;
+  right: 10px;
   display: block;
   margin-left: 20px;
 
@@ -44,21 +50,21 @@ const ConfirmedIcon = styled(ColumnCenter)`
 `
 
 export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
+  const isMobile = useIsMobile()
+
   return (
-    <ConfirmOrLoadingWrapper>
+    <ConfirmOrLoadingWrapper gap>
       <StyledRowBetween>
         <ThemedText.HeadlineLarge>
           <Trans>Submitting Vote</Trans>
         </ThemedText.HeadlineLarge>
-
         <CloseIconWrapper>
           <CloseIcon onClick={onDismiss} />
         </CloseIconWrapper>
       </StyledRowBetween>
-
-      <ConfirmedIcon>
-        <CustomLightSpinner src={Circle} alt="loader" size="90px" />
-      </ConfirmedIcon>
+      <ColumnCenter>
+        <CustomLightSpinner src={Circle} alt="loader" size={isMobile ? '90px' : '116px'} />
+      </ColumnCenter>
       <AutoColumn gap="100px" justify="center">
         {children}
       </AutoColumn>
@@ -82,13 +88,14 @@ export function SubmittedView({
   return (
     <ConfirmOrLoadingWrapper>
       <RowBetween>
-        <div />
-        <CloseIcon onClick={onDismiss} />
+        <CloseIconWrapper>
+          <CloseIcon onClick={onDismiss} />
+        </CloseIconWrapper>
       </RowBetween>
       <ConfirmedIcon>
         <CheckCircle strokeWidth={0.7} size={isMobile ? 116 : 190} color={theme.accentSuccess} />
       </ConfirmedIcon>
-      <AutoColumn gap="100px" justify="center">
+      <AutoColumn gap={isMobile ? '24px' : '48px'} justify="center">
         {children}
         {chainId && hash && (
           <ExternalLink
@@ -113,8 +120,9 @@ export function SubmittedWithErrorView({ children, onDismiss }: { children: any;
     <ConfirmOrLoadingWrapper>
       <AutoColumn justify="center">
         <RowBetween>
-          <div />
-          <CloseIcon onClick={onDismiss} />
+          <CloseIconWrapper>
+            <CloseIcon onClick={onDismiss} />
+          </CloseIconWrapper>
         </RowBetween>
         <ColumnCenter>
           <XCircle strokeWidth={0.7} size={isMobile ? 116 : 190} color={theme.accentFailure} />
