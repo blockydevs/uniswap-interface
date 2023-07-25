@@ -43,11 +43,15 @@ REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_421613="0x3335609C31e21317f98b4Fa0EB3cA71C
 ```
 
 There can be only one hub chain, defined by three specific environment variables. 
-`REACT_APP_GOVERNANCE_HUB_ADDRESS` corresponds to its address, 
-`REACT_APP_HUB_VOTE_TOKEN` refers to its voting token,
-`REACT_APP_HUB_CHAIN_ID` specifies the hub chain ID.
+- `REACT_APP_GOVERNANCE_HUB_ADDRESS` corresponds to its address, 
+- `REACT_APP_HUB_VOTE_TOKEN` refers to its voting token,
+- `REACT_APP_HUB_CHAIN_ID` specifies the hub chain ID.
 
-For spoke chains, there can be multiple. If you want to add another spoke chain please create two variables. First - `REACT_APP_GOVERNANCE_SPOKE_CHAIN_<CHAINID>`. Second - `REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_<CHAINID>` (remember to change <CHAINID> with the actual number for both cases and assign address to them).
+For spoke chains, there can be multiple. If you want to add another spoke chain please create two variables.
+- `REACT_APP_GOVERNANCE_SPOKE_CHAIN_<CHAINID>`,
+- `REACT_APP_GOVERNANCE_SPOKE_VOTE_TOKEN_<CHAINID>` 
+
+(remember to change <CHAINID> with the actual number for both cases and assign address to them).
 
 
 ## Setup and Installation
